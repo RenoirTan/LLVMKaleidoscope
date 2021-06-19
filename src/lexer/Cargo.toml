@@ -1,0 +1,18 @@
+[package]
+name = "LLVMKaleidoscope-Lexer"
+version = "0.1.0"
+authors = ["RenoirTan"]
+edition = "2018"
+description = "Lexer for LLVM's Kaleidoscope tutorial but in Rust."
+license = "MIT"
+publish = false
+
+[dependencies]
+
+[lib]
+name = "kaleidoscope_lexer"
+test = false
+doctest = false
+bench = false
+doc = true
+crate-type = ["lib"]
