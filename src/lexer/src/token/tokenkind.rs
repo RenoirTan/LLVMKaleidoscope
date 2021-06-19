@@ -1,6 +1,8 @@
-use std::fmt;
 use super::Keyword;
 
+/// The type of token a token is.
+/// 
+/// That's the worst explanation I have ever written in my life.
 #[derive(Copy, Clone, Debug)]
 pub enum TokenKind {
     Unknown,
@@ -11,8 +13,5 @@ pub enum TokenKind {
     Float
 }
 
-impl fmt::Display for TokenKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+use kaleidoscope_macro::impl_display;
+impl_display!(TokenKind);

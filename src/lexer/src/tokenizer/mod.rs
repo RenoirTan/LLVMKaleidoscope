@@ -1,7 +1,9 @@
-mod err;
+//! The tokeniser which spits out tokens from a Kaleidoscope file.
+//! 
+//! See also [`crate::tokenizer::Tokenizer`]
+
 mod stream;
 mod tokenizer;
 
-pub use err::{ErrorKind, Error, Result};
 pub use stream::Stream;
 pub use tokenizer::Tokenizer;

@@ -14,7 +14,8 @@ LLVMKaleidoscope-Lexer = {path = "src/lexer"}
 
 [workspace]
 members = [
-    "src/lexer"
+    "src/lexer",
+    "src/macro"
 ]
 
 [lib]

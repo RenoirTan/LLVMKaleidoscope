@@ -1,17 +1,18 @@
-use std::{error, fmt};
+//! Error types used in `kaleidoscope_lexer`.
 
+use std::error;
+use kaleidoscope_macro::impl_display;
+
+/// The kind of error encountered.
 #[derive(Copy, Clone, Debug)]
 pub enum ErrorKind {
     FileIOError,
     Other
 }
 
-impl fmt::Display for ErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+impl_display!(ErrorKind);
 
+/// A struct representing an error.
 #[derive(Clone, Debug)]
 pub struct Error {
     description: String,
@@ -24,12 +25,9 @@ impl Error {
     }
 }
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+impl_display!(Error);
 
 impl error::Error for Error {}
 
+/// Custom result type for the error type defined here.
 pub type Result<T> = std::result::Result<T, Error>;

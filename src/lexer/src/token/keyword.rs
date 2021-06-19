@@ -1,13 +1,11 @@
-use std::fmt;
-
+/// An enumerator of possible keywords that can be encountered in Kaleidoscope.
 #[derive(Copy, Clone, Debug)]
 pub enum Keyword {
+    /// `def` keyword. Define a function.
     Def,
+    /// `extern` keyword. For foreign function interfaces.
     Extern
 }
 
-impl fmt::Display for Keyword {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+use kaleidoscope_macro::impl_display;
+impl_display!(Keyword);

@@ -1,6 +1,7 @@
 use std::{fs::File, io::{/* BufRead,  */BufReader}, path::Path};
-use super::{Result, Error, ErrorKind};
+use crate::error::{Result, Error, ErrorKind};
 
+/// A file stream which returns a unicode codepoint one at a time.
 pub struct Stream {
     pub file: BufReader<File>,
     pub unit: char

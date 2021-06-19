@@ -1,17 +1,16 @@
 [package]
-name = "LLVMKaleidoscope-Lexer"
+name = "LLVMKaleidoscope-Macro"
 version = "0.1.0"
 authors = ["RenoirTan"]
 edition = "2018"
-description = "Lexer for LLVM's Kaleidoscope tutorial but in Rust."
+description = "Definitions for macros used for LLVM's Kaleidoscope tutorial but in Rust."
 license = "MIT"
 publish = false
 
 [dependencies]
-"LLVMKaleidoscope-Macro" = {path = "../macro"}
 
 [lib]
-name = "kaleidoscope_lexer"
+name = "kaleidoscope_macro"
 test = false
 doctest = false
 bench = false
