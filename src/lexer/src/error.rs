@@ -1,6 +1,6 @@
 //! Error types used in `kaleidoscope_lexer`.
 
-use std::error;
+use std::{error, fmt::Display};
 use kaleidoscope_macro::impl_display;
 
 /// The kind of error encountered.
@@ -22,6 +22,10 @@ pub struct Error {
 impl Error {
     pub fn new(description: String, errorkind: ErrorKind) -> Self {
         Self {description, errorkind}
+    }
+
+    pub fn from_err(err: &dyn Display, errorkind: ErrorKind) -> Self {
+        Self {description: format!("{}", err), errorkind}
     }
 }
 

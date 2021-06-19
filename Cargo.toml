@@ -11,8 +11,10 @@ publish = false
 
 [dependencies]
 LLVMKaleidoscope-Lexer = {path = "src/lexer"}
+LLVMKaleidoscope-Macro = {path = "src/macro"}
 
 [workspace]
+include = ["src"]
 members = [
     "src/lexer",
     "src/macro"
