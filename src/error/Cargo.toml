@@ -1,0 +1,19 @@
+[package]
+name = "LLVMKaleidoscope-Error"
+version = "0.1.0"
+authors = ["RenoirTan"]
+edition = "2018"
+description = "Error used in LLVM's Kaleidoscope tutorial but in Rust."
+license = "MIT"
+publish = false
+
+[dependencies]
+"LLVMKaleidoscope-Macro" = {path = "../macro"}
+
+[lib]
+name = "kaleidoscope_error"
+test = false
+doctest = false
+bench = false
+doc = true
+crate-type = ["lib"]

@@ -10,12 +10,14 @@ license-file = "LICENSE"
 publish = false
 
 [dependencies]
+LLVMKaleidoscope-Error = {path = "src/error"}
 LLVMKaleidoscope-Lexer = {path = "src/lexer"}
 LLVMKaleidoscope-Macro = {path = "src/macro"}
 
 [workspace]
 include = ["src"]
 members = [
+    "src/error",
     "src/lexer",
     "src/macro"
 ]

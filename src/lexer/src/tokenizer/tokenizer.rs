@@ -41,6 +41,7 @@ impl<S: Read> Tokenizer<S> {
                             self.stream.get_index()
                         ),
                         ErrorKind::InvalidChar,
+                        None
                     ));
                 }
                 token.span.push(last_unit);
@@ -63,6 +64,7 @@ impl<S: Read> Tokenizer<S> {
                                     self.stream.get_index()
                                 ),
                                 ErrorKind::BadChar,
+                                None
                             ));
                         }
                         _ => break 'stream,
@@ -73,8 +75,13 @@ impl<S: Read> Tokenizer<S> {
         token.end = self.stream.get_index();
         match token.token_kind {
             TokenKind::Unknown => Err(Error::new(
-                &format!("Invalid token:\n\t{}\nat index {}", token.span, token.start),
+                &format!(
+                    "Invalid token:\n\t{}\nat index {}",
+                    token.span,
+                    token.start
+                ),
                 ErrorKind::InvalidToken,
+                None
             )),
             TokenKind::Eof => Ok(token),
             TokenKind::Identifier => match &token.span[..] {
@@ -102,7 +109,8 @@ impl<S: Read> Tokenizer<S> {
                                 "No fractional part after decimal point at index {}",
                                 token.end
                             ),
-                            ErrorKind::LexerFatal
+                            ErrorKind::LexerFatal,
+                            None
                         )
                     )
                 },
@@ -113,7 +121,8 @@ impl<S: Read> Tokenizer<S> {
                     Err(
                         Error::new(
                             &"Empty string treated as float by lexer...",
-                            ErrorKind::LexerFatal
+                            ErrorKind::LexerFatal,
+                            None
                         )
                     )
                 }

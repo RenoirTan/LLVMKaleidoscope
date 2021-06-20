@@ -73,7 +73,7 @@ impl<S: Read> FileStream<S> {
                 }
                 Err(e) => {
                     self.error = Some(
-                        Error::from_err(&e, ErrorKind::FileIOError)
+                        Error::from_err(Box::new(e), ErrorKind::FileIOError)
                     );
                     self.eof_reached = true;
                     false
@@ -125,7 +125,9 @@ impl FileStream<File> {
     pub fn from_path(path: &Path) -> Result<Self> {
         let file = match OpenOptions::new().read(true).open(path) {
             Ok(f) => f,
-            Err(e) => return Err(Error::from_err(&e, ErrorKind::FileIOError)),
+            Err(e) => return Err(
+                Error::from_err(Box::new(e), ErrorKind::FileIOError)
+            ),
         };
         let buffer = BufReader::new(file).lines().enumerate();
         let mut this = FileStream {
