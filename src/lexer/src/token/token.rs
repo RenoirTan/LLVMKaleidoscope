@@ -1,7 +1,7 @@
-use super::{TokenKind, FileIndex};
+use super::{FileIndex, TokenKind};
 
 /// A token in a Kaleidoscope file.
-/// 
+///
 /// This structural representation of a token contains the
 /// possible `TokenKind` of the token,
 /// the token as a string (stored as `span`),
@@ -11,7 +11,7 @@ pub struct Token {
     pub token_kind: TokenKind,
     pub span: String,
     pub start: FileIndex,
-    pub end: FileIndex
+    pub end: FileIndex,
 }
 
 use kaleidoscope_macro::impl_display;
@@ -24,7 +24,21 @@ impl Token {
         start: FileIndex,
         end: FileIndex
     ) -> Self {
-        Self {token_kind, span, start, end}
+        Self {
+            token_kind,
+            span,
+            start,
+            end,
+        }
+    }
+
+    pub fn new_eof(index: FileIndex) -> Self {
+        Self {
+            token_kind: TokenKind::Eof,
+            span: String::new(),
+            start: index,
+            end: index,
+        }
     }
 }
 
@@ -34,7 +48,7 @@ impl Default for Token {
             token_kind: TokenKind::Unknown,
             span: String::new(),
             start: Default::default(),
-            end: Default::default()
+            end: Default::default(),
         }
     }
 }

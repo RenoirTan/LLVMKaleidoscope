@@ -1,13 +1,17 @@
 //! Error types used in `kaleidoscope_lexer`.
 
-use std::{error, fmt::Display};
 use kaleidoscope_macro::impl_display;
+use std::{error, fmt::Display};
 
 /// The kind of error encountered.
 #[derive(Copy, Clone, Debug)]
 pub enum ErrorKind {
     FileIOError,
-    Other
+    InvalidChar,
+    BadChar,
+    InvalidToken,
+    LexerFatal,
+    Other,
 }
 
 impl_display!(ErrorKind);
@@ -16,16 +20,22 @@ impl_display!(ErrorKind);
 #[derive(Clone, Debug)]
 pub struct Error {
     description: String,
-    errorkind: ErrorKind
+    errorkind: ErrorKind,
 }
 
 impl Error {
-    pub fn new(description: String, errorkind: ErrorKind) -> Self {
-        Self {description, errorkind}
+    pub fn new(description: &dyn AsRef<str>, errorkind: ErrorKind) -> Self {
+        Self {
+            description: description.as_ref().to_string(),
+            errorkind,
+        }
     }
 
     pub fn from_err(err: &dyn Display, errorkind: ErrorKind) -> Self {
-        Self {description: format!("{}", err), errorkind}
+        Self {
+            description: format!("{}", err),
+            errorkind,
+        }
     }
 }
 

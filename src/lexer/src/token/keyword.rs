@@ -4,7 +4,7 @@ pub enum Keyword {
     /// `def` keyword. Define a function.
     Def,
     /// `extern` keyword. For foreign function interfaces.
-    Extern
+    Extern,
 }
 
 use kaleidoscope_macro::impl_display;

@@ -1,6 +1,5 @@
 //! Sub-crate for macros I will be using in this repo.
 
-
 /// Implement a default version of [`std::fmt::Display`] for a type if that
 /// type already implements [`std::fmt::Debug`].
 #[macro_export]
