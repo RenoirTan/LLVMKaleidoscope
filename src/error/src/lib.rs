@@ -5,15 +5,27 @@ use std::{
     fmt::{Debug, Display, self}
 };
 
+/// The traits every ErrorKind enum must satisfy.
+/// If your enum implements all of the following traits,
+/// then [`crate::ErrorKind`] gets automatically implemented.
+/// 
+/// 1. [`Clone`],
+/// 2. [`Debug`],
+/// 3. [`Display`],
+/// 4. [`Eq`]
+pub trait ErrorKind: Clone + Debug + Display + Eq {}
+
+impl<T: Clone + Debug + Display + Eq> ErrorKind for T {}
+
 /// A struct representing an error.
 #[derive(Debug)]
-pub struct Error<EK: Clone + Debug + Display> {
+pub struct Error<EK: ErrorKind> {
     description: String,
     errorkind: EK,
     source: Option<Box<dyn error::Error + 'static>>
 }
 
-impl<EK: Clone + Debug + Display> Error<EK> {
+impl<EK: ErrorKind> Error<EK> {
     /// A new error.
     pub fn new(
         description: &dyn AsRef<str>,
@@ -37,19 +49,19 @@ impl<EK: Clone + Debug + Display> Error<EK> {
     }
 }
 
-impl<EK: Clone + Debug + Display> Clone for Error<EK> {
+impl<EK: ErrorKind> Clone for Error<EK> {
     fn clone(&self) -> Self {
         Self::new(&self.description, self.errorkind.clone(), None)
     }
 }
 
-impl<EK: Clone + Debug + Display> Display for Error<EK> {
+impl<EK: ErrorKind> Display for Error<EK> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}: {}", self.errorkind, self.description)
     }
 }
 
-impl<EK: Clone + Debug + Display> error::Error for Error<EK> {
+impl<EK: ErrorKind> error::Error for Error<EK> {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match &self.source {
             None => None,
@@ -58,4 +70,9 @@ impl<EK: Clone + Debug + Display> error::Error for Error<EK> {
     }
 }
 
+/// A special [`std::result::Result`] type for Kaleidoscope.
+/// Instead of an error type parameter, you are instead asked for an
+/// ErrorKind enum type which implements the traits specified by
+/// [`crate::ErrorKind`]. This error kind enum is used by
+/// [`crate::Error`] to classify the error that has occurred.
 pub type Result<T, EK> = std::result::Result<T, Error<EK>>;

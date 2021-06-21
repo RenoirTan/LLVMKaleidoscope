@@ -102,7 +102,7 @@ impl<S: Read> Tokenizer<S> {
             TokenKind::Float => match <dyn AsRef<[u8]>>::as_ref(&token.span)
                 .last()
             {
-                Some(0x2e) => {
+                Some(unit) if *unit == '.' as u8 => {
                     Err(
                         Error::new(
                             &format!(

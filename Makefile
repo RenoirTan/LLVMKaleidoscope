@@ -1,6 +1,15 @@
 CARGO=cargo
+ARGS=--workspace --color=always
 
 .PHONY: doc
 
 doc:
-	$(CARGO) $@ --workspace --no-deps --color=always
+	$(CARGO) $@ $(ARGS) --no-deps
+
+
+dbuild:
+	$(CARGO) build $(ARGS)
+
+
+rbuild:
+	$(CARGO) build $(ARGS) --release

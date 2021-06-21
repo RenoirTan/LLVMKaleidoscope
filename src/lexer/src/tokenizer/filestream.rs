@@ -36,24 +36,35 @@ impl<S: Read> FileStream<S> {
         this
     }
 
+    /// Check if the file/stream has ended.
     pub fn eof_reached(&self) -> bool {
         self.eof_reached
     }
 
+    /// Get the character currently being read.
     pub fn get_unit(&self) -> Option<char> {
         self.line.get(self.cursor).cloned()
     }
 
+    /// Get the index of the current character.
     pub fn get_index(&self) -> FileIndex {
         self.index
     }
 
+    /// Get a mutable reference to the index of the current character.
+    #[warn(unsafe_code)]
     pub fn get_mut_index(&mut self) -> &mut FileIndex {
         &mut self.index
     }
 
+    /// Get the error currently being stored.
     pub fn get_err(&self) -> Option<Error> {
         self.error.clone()
+    }
+
+    /// Set the current error to [`None`] and return the old error.
+    pub fn silence_err(&mut self) -> Option<Error> {
+        self.error.take()
     }
 
     fn init(&mut self) -> &mut Self {
@@ -61,6 +72,10 @@ impl<S: Read> FileStream<S> {
         self
     }
 
+    /// Push the next line into the buffer.
+    /// If successful, [`true`] is returned.
+    /// Otherwise, if the file/stream has ended or an error has happened,
+    /// [`false`] is returned.
     pub fn next_line(&mut self) -> bool {
         if let Some((line_no, line)) = self.buffer.next() {
             self.index = FileIndex::new(Some(line_no), 0);
@@ -75,7 +90,7 @@ impl<S: Read> FileStream<S> {
                     self.error = Some(
                         Error::from_err(Box::new(e), ErrorKind::FileIOError)
                     );
-                    self.eof_reached = true;
+                    self.eof_reached = false;
                     false
                 }
             }
@@ -86,9 +101,12 @@ impl<S: Read> FileStream<S> {
         }
     }
 
+    /// Read the next character in the stream.
+    /// If there are no more characters or an error has occurred,
+    /// [`None`] is returned.
     pub fn next_unit(&mut self) -> Option<char> {
         loop {
-            if self.eof_reached() {
+            if self.eof_reached() || self.error.is_some() {
                 break None;
             }
             if self.cursor >= self.line.len() {

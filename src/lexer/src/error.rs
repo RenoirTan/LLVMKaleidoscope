@@ -4,7 +4,7 @@ use kaleidoscope_error as klerr;
 use kaleidoscope_macro::impl_display;
 
 /// The kind of error encountered.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum ErrorKind {
     FileIOError,
     InvalidChar,

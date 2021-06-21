@@ -1,5 +1,5 @@
 /// An enumerator of possible keywords that can be encountered in Kaleidoscope.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Keyword {
     /// `def` keyword. Define a function.
     Def,

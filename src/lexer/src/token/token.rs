@@ -18,6 +18,7 @@ use kaleidoscope_macro::impl_display;
 impl_display!(Token);
 
 impl Token {
+    /// Generate a new token from known values.
     pub fn new(
         token_kind: TokenKind,
         span: String,
@@ -32,6 +33,7 @@ impl Token {
         }
     }
 
+    /// A new token whose [`TokenKind`] is [`TokenKind::Eof`].
     pub fn new_eof(index: FileIndex) -> Self {
         Self {
             token_kind: TokenKind::Eof,
