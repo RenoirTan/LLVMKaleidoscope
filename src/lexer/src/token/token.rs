@@ -1,4 +1,5 @@
-use super::{FileIndex, TokenKind};
+use crate::{error::{Error, ErrorKind, Result}, utils};
+use super::{FileIndex, TokenKind, Keyword};
 
 /// A token in a Kaleidoscope file.
 ///
@@ -40,6 +41,169 @@ impl Token {
             span: String::new(),
             start: index,
             end: index,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.span.is_empty()
+    }
+
+    pub fn add_unit(&mut self, unit: char, index: FileIndex) -> Result<bool> {
+        if self.is_empty() {
+            self.add_unit_when_empty(unit, index)
+        } else {
+            self.add_unit_when_not_empty(unit, index)
+        }
+    }
+
+    fn add_unit_when_empty(
+        &mut self,
+        unit: char,
+        index: FileIndex
+    ) -> Result<bool> {
+        self.start = index;
+        if utils::is_whitespace(unit) {
+            return Ok(false);
+        } else if utils::is_alpha(unit) {
+            self.token_kind = TokenKind::Identifier;
+        } else if utils::is_decimal_digit(unit) {
+            self.token_kind = TokenKind::Integer;
+        } else {
+            return Err(Error::new(
+                &format!("Invalid char {} at {}", unit, index),
+                ErrorKind::InvalidChar,
+                None
+            ));
+        }
+        self.span.push(unit);
+        Ok(false)
+    }
+
+    fn add_unit_when_not_empty(
+        &mut self,
+        unit: char,
+        index: FileIndex
+    ) -> Result<bool> {
+        if utils::is_whitespace(unit) {
+            return self.resolve(index);
+        }
+        match self.token_kind {
+            TokenKind::Identifier => self.add_unit_if_identifier(unit, index),
+            TokenKind::Integer => self.add_unit_if_integer(unit, index),
+            TokenKind::Float => self.add_unit_if_float(unit, index),
+            _ => Err(Error::new(
+                &format!(
+                    "Uncaught TokenKind {} at {}",
+                    self.token_kind,
+                    index
+                ),
+                ErrorKind::LexerFatal,
+                None
+            ))
+        }
+    }
+
+    fn add_unit_if_identifier(
+        &mut self,
+        unit: char,
+        index: FileIndex
+    ) -> Result<bool> {
+        if utils::is_alphanum(unit) {
+            self.span.push(unit);
+            Ok(false)
+        } else {
+            self.resolve(index)
+        }
+    }
+
+    fn add_unit_if_integer(
+        &mut self,
+        unit: char,
+        index: FileIndex
+    ) -> Result<bool> {
+        if utils::is_decimal_digit(unit) {
+            self.span.push(unit);
+            Ok(false)
+        } else if utils::is_fullstop(unit) {
+            self.span.push(unit);
+            self.token_kind = TokenKind::Float;
+            Ok(false)
+        } else {
+            Err(Error::new(
+                &format!("Bad char {} at {}", unit, index),
+                ErrorKind::BadChar,
+                None
+            ))
+        }
+    }
+
+    fn add_unit_if_float(
+        &mut self,
+        unit: char,
+        index: FileIndex
+    ) -> Result<bool> {
+        if utils::is_decimal_digit(unit) {
+            self.span.push(unit);
+            Ok(false)
+        } else {
+            Err(Error::new(
+                &format!("Bad char {} at {}", unit, index),
+                ErrorKind::BadChar,
+                None
+            ))
+        }
+    }
+
+    pub fn resolve(&mut self, index: FileIndex) -> Result<bool> {
+        self.end = index;
+        match self.token_kind {
+            TokenKind::Unknown => Err(Error::new(
+                &format!(
+                    "Could not guess TokenKind from span '{}' at index {}",
+                    self.span,
+                    index
+                ),
+                ErrorKind::InvalidToken,
+                None
+            )),
+            TokenKind::Eof => Ok(true),
+            TokenKind::Identifier => {
+                match &self.span[..] {
+                    "def" => self.token_kind = TokenKind::Keyword {
+                        keyword: Keyword::Def
+                    },
+                    "extern" => self.token_kind = TokenKind::Keyword {
+                        keyword: Keyword::Extern
+                    },
+                    _ => {}
+                }
+                Ok(true)
+            },
+            TokenKind::Float => {
+                match <dyn AsRef<[u8]>>::as_ref(&self.span).last() {
+                    None => Err(Error::new(
+                        &format!(
+                            "Lexer detected a float in an empty span at index {}",
+                            index
+                        ),
+                        ErrorKind::LexerFatal,
+                        None
+                    )),
+                    Some(unit) => if *unit == '.' as u8 {
+                        Err(Error::new(
+                            &format!(
+                                "Float cannot end with floating point at index {}",
+                                index
+                            ),
+                            ErrorKind::BadChar,
+                            None
+                        ))
+                    } else {
+                        Ok(true)
+                    }
+                }
+            },
+            _ => Ok(true)
         }
     }
 }
