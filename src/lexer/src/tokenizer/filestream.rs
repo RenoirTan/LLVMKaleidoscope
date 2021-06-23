@@ -4,15 +4,17 @@ use crate::{
 };
 use std::{
     convert::TryFrom,
-    fs::{File, OpenOptions},
-    io::{stdin, BufRead, BufReader, Lines, Read, Stdin},
+    fs::OpenOptions,
+    io::{stdin, BufRead, BufReader, Lines, Read},
     iter::{Enumerate, Iterator},
     path::Path,
 };
 
+type BufferIterator = Enumerate<Lines<BufReader<Box<dyn Read>>>>;
+
 /// A file stream which returns a unicode codepoint one at a time.
-pub struct FileStream<S: Read> {
-    buffer: Enumerate<Lines<BufReader<S>>>,
+pub struct FileStream {
+    buffer: BufferIterator,
     line: Vec<char>,
     cursor: usize,
     index: FileIndex,
@@ -20,10 +22,10 @@ pub struct FileStream<S: Read> {
     eof_reached: bool
 }
 
-impl<S: Read> FileStream<S> {
+impl FileStream {
     /// Create a new `FileStream` from an iterator over the lines of a buffered
     /// reader.
-    pub fn new(buffer: Enumerate<Lines<BufReader<S>>>) -> Self {
+    pub fn new(buffer: BufferIterator) -> Self {
         let mut this = FileStream {
             buffer,
             cursor: 0,
@@ -119,11 +121,9 @@ impl<S: Read> FileStream<S> {
             }
         }
     }
-}
 
-impl FileStream<Stdin> {
     pub fn from_stdin() -> Self {
-        let stdin = stdin();
+        let stdin: Box<dyn Read> = Box::new(stdin());
         let buffer = BufReader::new(stdin).lines().enumerate();
         let mut this = Self {
             buffer,
@@ -136,13 +136,14 @@ impl FileStream<Stdin> {
         this.init();
         this
     }
-}
 
-impl FileStream<File> {
     /// Create a new `FileStream` from a path.
     pub fn from_path(path: &Path) -> Result<Self> {
-        let file = match OpenOptions::new().read(true).open(path) {
-            Ok(f) => f,
+        let file: Box<dyn Read> = match OpenOptions::new()
+            .read(true)
+            .open(path)
+        {
+            Ok(f) => Box::new(f),
             Err(e) => return Err(
                 Error::from_err(Box::new(e), ErrorKind::FileIOError)
             ),
@@ -161,14 +162,15 @@ impl FileStream<File> {
     }
 }
 
-impl TryFrom<&Path> for FileStream<File> {
+
+impl TryFrom<&Path> for FileStream {
     type Error = Error;
     fn try_from(path: &Path) -> Result<Self> {
         Self::from_path(path)
     }
 }
 
-impl<S: Read> Iterator for FileStream<S> {
+impl Iterator for FileStream {
     type Item = char;
     fn next(&mut self) -> Option<Self::Item> {
         let unit = self.get_unit();

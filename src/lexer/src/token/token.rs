@@ -166,7 +166,6 @@ impl Token {
                 ErrorKind::InvalidToken,
                 None
             )),
-            TokenKind::Eof => Ok(true),
             TokenKind::Identifier => {
                 match &self.span[..] {
                     "def" => self.token_kind = TokenKind::Keyword {
