@@ -1,0 +1,20 @@
+[package]
+name = "LLVMKaleidoscope-Ast"
+version = "0.1.0"
+authors = ["RenoirTan"]
+edition = "2018"
+description = "AST used in LLVM's Kaleidoscope tutorial but in Rust."
+license = "MIT"
+publish = false
+
+[dependencies]
+LLVMKaleidoscope-Error = {path = "../error"}
+"LLVMKaleidoscope-Macro" = {path = "../macro"}
+
+[lib]
+name = "kaleidoscope_ast"
+test = false
+doctest = false
+bench = false
+doc = true
+crate-type = ["lib"]
