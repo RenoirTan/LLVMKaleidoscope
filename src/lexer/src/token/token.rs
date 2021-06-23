@@ -1,5 +1,5 @@
 use crate::{error::{Error, ErrorKind, Result}, utils};
-use super::{FileIndex, TokenKind, Keyword};
+use super::{FileIndex, TokenKind, Keyword, Operator};
 
 /// A token in a Kaleidoscope file.
 ///
@@ -66,8 +66,14 @@ impl Token {
             return Ok(false);
         } else if utils::is_alpha(unit) {
             self.token_kind = TokenKind::Identifier;
+            self.span.push(unit);
         } else if utils::is_decimal_digit(unit) {
             self.token_kind = TokenKind::Integer;
+            self.span.push(unit);
+        } else if utils::is_opchar(unit) {
+            self.span.push(unit);
+            let operator = Operator::from_str(self.borrow_span());
+            self.token_kind = TokenKind::Operator {operator};
         } else {
             return Err(Error::new(
                 &format!("Invalid char {} at {}", unit, index),
@@ -75,7 +81,6 @@ impl Token {
                 None
             ));
         }
-        self.span.push(unit);
         Ok(false)
     }
 
@@ -91,6 +96,7 @@ impl Token {
             TokenKind::Identifier => self.add_unit_if_identifier(unit, index),
             TokenKind::Integer => self.add_unit_if_integer(unit, index),
             TokenKind::Float => self.add_unit_if_float(unit, index),
+            TokenKind::Operator {..} => self.add_unit_if_operator(unit, index),
             _ => Err(Error::new(
                 &format!(
                     "Uncaught TokenKind {} at {}",
@@ -154,6 +160,21 @@ impl Token {
         }
     }
 
+    fn add_unit_if_operator(
+        &mut self,
+        _unit: char,
+        index: FileIndex
+    ) -> Result<bool> {
+        Err(Error::new(
+            &format!(
+                "Kaleidoscope currently only accepts 1-character operands. Error at {}",
+                index
+            ),
+            ErrorKind::ExcessiveChars,
+            None
+        ))
+    }
+
     pub fn resolve(&mut self, index: FileIndex) -> Result<bool> {
         self.end = index;
         match self.token_kind {
@@ -205,6 +226,10 @@ impl Token {
             _ => Ok(true)
         }
     }
+
+    pub fn borrow_span(&self) -> &str {
+        &self.span[..]
+    }
 }
 
 impl Default for Token {
@@ -215,5 +240,11 @@ impl Default for Token {
             start: Default::default(),
             end: Default::default(),
         }
+    }
+}
+
+impl AsRef<str> for Token {
+    fn as_ref(&self) -> &str {
+        self.borrow_span()
     }
 }

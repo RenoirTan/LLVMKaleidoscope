@@ -24,3 +24,14 @@ pub fn is_alphanum(unit: char) -> bool {
 pub fn is_fullstop(unit: char) -> bool {
     unit == '.'
 }
+
+/// True if `unit` is a character used in one of the operator symbols.
+/// 
+/// For now this is restricted to the following characters:
+/// 1. +
+/// 2. -
+/// 3. *
+/// 4. /
+pub fn is_opchar(unit: char) -> bool {
+    matches!(unit, '+' | '-' | '*' | '/')
+}

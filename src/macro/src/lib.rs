@@ -21,3 +21,19 @@ macro_rules! impl_display {
     };
     */
 }
+
+/// Create a hash map
+/// 
+/// Stolen from https://stackoverflow.com/a/27582993
+#[macro_export]
+macro_rules! hash_map {
+    { $($key:expr => $value:expr),* } => {
+        {
+            let mut m = std::collections::HashMap::new();
+            $(
+                m.insert($key, $value);
+            )*
+            m
+        }
+     };
+}

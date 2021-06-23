@@ -8,7 +8,7 @@ license = "MIT"
 publish = false
 
 [dependencies]
-"LLVMKaleidoscope-Macro" = {path = "../macro"}
+LLVMKaleidoscope-Macro = {path = "../macro"}
 
 [lib]
 name = "kaleidoscope_error"

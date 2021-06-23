@@ -1,4 +1,4 @@
-use super::Keyword;
+use super::{Keyword, Operator};
 
 /// The type of token a token is.
 ///
@@ -18,6 +18,8 @@ pub enum TokenKind {
     Integer,
     /// The token kind representing a floating point decimal number.
     Float,
+    /// The token kind representing an operator (e.g. '+' in 1 + 2)
+    Operator {operator: Operator}
 }
 
 impl Default for TokenKind {
