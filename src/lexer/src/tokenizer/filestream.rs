@@ -162,6 +162,11 @@ impl FileStream {
     }
 }
 
+impl Default for FileStream {
+    fn default() -> Self {
+        Self::from_stdin()
+    }
+}
 
 impl TryFrom<&Path> for FileStream {
     type Error = Error;
