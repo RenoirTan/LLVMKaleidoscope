@@ -5,7 +5,6 @@ authors = ["RenoirTan"]
 edition = "2018"
 description = "LLVM's Kaleidoscope tutorial but in Rust."
 readme = "README.md"
-license = "MIT"
 license-file = "LICENSE"
 publish = false
 
