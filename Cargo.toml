@@ -26,8 +26,12 @@ members = [
 
 [lib]
 name = "kaleidoscope"
-test = false
-doctest = false
+test = true
+doctest = true
 bench = false
 doc = true
 crate-type = ["lib"]
+
+[[bin]]
+name = "filestream"
+path = "src/bin/filestream.rs"
