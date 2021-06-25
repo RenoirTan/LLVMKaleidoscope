@@ -1,8 +1,5 @@
 use super::FileStream;
-use crate::{
-    error::{Error, ErrorKind, Result},
-    token::Token
-};
+use crate::{error::{Error, ErrorKind, Result}, token::Token, utils};
 
 /// The tokeniser which iterates over the characters in a file stream and
 /// yields a stream of tokens.
@@ -19,7 +16,6 @@ impl Tokenizer {
         if self.stream.eof_reached() {
             return Ok(Token::new_eof(self.stream.get_index()));
         }
-        let mut token = Token::default();
         let mut unit = match self.stream.get_unit() {
             Some(u) => u,
             None => return Err(Error::new(
@@ -28,11 +24,21 @@ impl Tokenizer {
                 None
             ))
         };
+        let mut token = Token::default();
+        let mut is_comment = false;
         'stream: loop {
-            match token.add_unit(unit, self.stream.get_index()) {
-                Ok(true) => break 'stream,
-                Ok(false) => {},
-                Err(e) => return Err(e)
+            if is_comment {
+                if utils::is_eol(unit) {
+                    is_comment = false;
+                }
+            } else if utils::is_comment(unit) {
+                is_comment = true;
+            } else {
+                match token.add_unit(unit, self.stream.get_index()) {
+                    Ok(true) => break 'stream,
+                    Ok(false) => {},
+                    Err(e) => return Err(e)
+                }
             }
             unit = match self.stream.next() {
                 Some(u) => u,

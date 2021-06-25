@@ -80,12 +80,17 @@ impl FileStream {
     /// [`false`] is returned.
     pub fn next_line(&mut self) -> bool {
         if let Some((line_no, line)) = self.buffer.next() {
-            self.index = FileIndex::new(Some(line_no), 0);
             match line {
                 Ok(l) => {
                     self.line = l.chars().collect();
+                    // Mandatory extra new line character so that
+                    // the tokeniser knows that the end of the line has
+                    // been reached.
+                    // Useful for getting to the end of a comment or statement
+                    self.line.push('\n');
                     self.cursor = 0;
                     self.eof_reached = false;
+                    self.index = FileIndex::new(Some(line_no), 0);
                     true
                 }
                 Err(e) => {

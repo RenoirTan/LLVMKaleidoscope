@@ -1,5 +1,10 @@
 //! Utility functions for recognising tokens.
 
+/// Rudimentary check to see if the end of the line has been reached.
+pub fn is_eol(unit: char) -> bool {
+    matches!(unit, '\n')
+}
+
 /// True if `unit` is within '0' and '9'.
 pub fn is_decimal_digit(unit: char) -> bool {
     unit.is_ascii_digit()
@@ -34,4 +39,8 @@ pub fn is_fullstop(unit: char) -> bool {
 /// 4. /
 pub fn is_opchar(unit: char) -> bool {
     matches!(unit, '+' | '-' | '*' | '/')
+}
+
+pub fn is_comment(unit: char) -> bool {
+    unit == '#'
 }
