@@ -6,7 +6,12 @@ pub enum Operator {
     Plus,
     Minus,
     Multiply,
-    Divide
+    Divide,
+    LessThan,
+    GreaterThan,
+    Equals,
+    LessThanEqual,
+    GreaterThanEqual,
 }
 
 impl_display!(Operator);
@@ -19,6 +24,11 @@ impl Operator {
             "-" => Minus,
             "*" => Multiply,
             "/" => Divide,
+            "<" => LessThan,
+            ">" => GreaterThan,
+            "==" => Equals,
+            "<=" => LessThanEqual,
+            ">=" => GreaterThanEqual,
             _ => Unknown
         }
     }

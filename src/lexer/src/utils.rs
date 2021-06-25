@@ -38,7 +38,7 @@ pub fn is_fullstop(unit: char) -> bool {
 /// 3. *
 /// 4. /
 pub fn is_opchar(unit: char) -> bool {
-    matches!(unit, '+' | '-' | '*' | '/')
+    matches!(unit, '+' | '-' | '*' | '/' | '<' | '>' | '=')
 }
 
 pub fn is_comment(unit: char) -> bool {

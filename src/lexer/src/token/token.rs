@@ -1,5 +1,13 @@
-use crate::{error::{Error, ErrorKind, Result}, utils};
-use super::{FileIndex, TokenKind, Keyword, Operator};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    utils
+};
+use super::{
+    FileIndex,
+    TokenKind,
+    Keyword,
+    Operator
+};
 
 /// A token in a Kaleidoscope file.
 ///
