@@ -16,8 +16,8 @@ fn main() {
         None => FileStream::default()
     };
     let mut stdout = stdout();
-    for unit in &mut file {
-        print!("{}", unit);
+    while let Some(unit) = file.next_unit() {
+        print!("{:?} {}\n", unit, file.get_index());
         stdout.flush().unwrap();
     }
     if let Some(error) = file.get_err() {
