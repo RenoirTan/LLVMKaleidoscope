@@ -1,5 +1,10 @@
+use std::iter::Iterator;
 use super::FileStream;
-use crate::{error::{Error, ErrorKind, Result}, token::Token, utils};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    token::Token,
+    utils
+};
 
 /// The tokeniser which iterates over the characters in a file stream and
 /// yields a stream of tokens.
@@ -54,5 +59,12 @@ impl Tokenizer {
             };
         }
         Ok(token)
+    }
+}
+
+impl Iterator for Tokenizer {
+    type Item = Token;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next_token().ok()
     }
 }
