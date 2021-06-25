@@ -17,10 +17,12 @@ fn main() {
     };
     let mut stdout = stdout();
     for unit in &mut file {
-        print!("{}", unit);
+        print!("{:?}\n", unit);
         stdout.flush().unwrap();
     }
     if let Some(error) = file.get_err() {
-        println!("{}", error);
+        println!("[kaleidoscope(bin)::filestream::main:error] {}", error);
+    } else {
+        println!("[kaleidoscope(bin)::filestream::main] All ok");
     }
 }

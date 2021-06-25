@@ -114,11 +114,23 @@ impl FileStream {
     pub fn next_unit(&mut self) -> Option<char> {
         loop {
             if self.eof_reached() || self.error.is_some() {
+                println!(
+                    "[kaleidoscope_lexer::tokenizer::FileStream::next_unit] \
+                    Eof reached or error occurred."
+                );
                 break None;
             }
             if self.cursor >= self.line.len() {
+                println!(
+                    "[kaleidoscope_lexer::tokenizer::FileStream::next_unit] \
+                    Getting next line."
+                );
                 self.next_line();
             } else {
+                println!(
+                    "[kaleidoscope_lexer::tokenizer::FileStream::next_unit] \
+                    Getting next character."
+                );
                 let unit = self.get_unit();
                 self.cursor += 1;
                 self.index += 1;
