@@ -8,7 +8,7 @@ use kaleidoscope_lexer::tokenizer::FileStream;
 
 fn main() {
     let cmd_args = env::args().collect::<Vec<String>>();
-    let file = match cmd_args.get(1) {
+    let mut file = match cmd_args.get(1) {
         Some(path) => {
             let path = PathBuf::from(path);
             FileStream::try_from(&*path).unwrap()
@@ -16,8 +16,11 @@ fn main() {
         None => FileStream::default()
     };
     let mut stdout = stdout();
-    for unit in file {
+    for unit in &mut file {
         print!("{}", unit);
         stdout.flush().unwrap();
+    }
+    if let Some(error) = file.get_err() {
+        println!("{}", error);
     }
 }
