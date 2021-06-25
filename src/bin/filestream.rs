@@ -17,7 +17,7 @@ fn main() {
     };
     let mut stdout = stdout();
     for unit in &mut file {
-        print!("{:?}\n", unit);
+        print!("{}", unit);
         stdout.flush().unwrap();
     }
     if let Some(error) = file.get_err() {
