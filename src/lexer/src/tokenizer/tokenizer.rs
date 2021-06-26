@@ -10,39 +10,35 @@ use crate::{
 /// yields a stream of tokens.
 pub struct Tokenizer {
     pub stream: FileStream,
+    pub last_unit: Option<char>
 }
 
 impl Tokenizer {
     pub fn new(stream: FileStream) -> Self {
-        Self { stream }
+        Self { stream, last_unit: None }
     }
 
     pub fn next_token(&mut self) -> Result<Token> {
-        println!("[kaleidoscope_lexer::tokenizer::Tokenizer::next_token] called");
         if self.stream.eof_reached() {
             return Ok(Token::new_eof(self.stream.get_index()));
+        }
+        if self.last_unit.is_none() {
+            self.last_unit = match self.stream.next() {
+                Some(u) => Some(u),
+                None => {
+                    return match self.stream.get_err() {
+                        None => Ok(Token::new_eof(self.stream.get_index())),
+                        Some(e) => Err(e)
+                    };
+                }
+            }
         }
         let mut token = Token::default();
         let mut is_comment = false;
         'stream: loop {
             let index = self.stream.get_index();
-            let unit = match self.stream.next() {
-                Some(u) => u,
-                None => {
-                    match self.stream.get_err() {
-                        None => {
-                            token.resolve(index)?;
-                            break 'stream;
-                        },
-                        Some(e) => return Err(e)
-                    }
-                }
-            };
-            println!(
-                "[kaleidoscope_lexer::tokenizer::Tokenizer::next_token] {:?} {}",
-                unit,
-                index
-            );
+            // None case already handled above.
+            let unit = self.last_unit.unwrap();
             if is_comment {
                 if utils::is_eol(unit) {
                     is_comment = false;
@@ -56,6 +52,22 @@ impl Tokenizer {
                     Err(e) => return Err(e)
                 }
             }
+            self.last_unit = match self.stream.next() {
+                Some(u) => Some(u),
+                None => {
+                    match self.stream.get_err() {
+                        None => {
+                            if token.is_empty() && self.stream.eof_reached() {
+                                token = Token::new_eof(index);
+                            } else {
+                                token.resolve(index)?;
+                            }
+                            break 'stream;
+                        },
+                        Some(e) => return Err(e)
+                    }
+                }
+            };
         }
         Ok(token)
     }
@@ -64,6 +76,10 @@ impl Tokenizer {
 impl Iterator for Tokenizer {
     type Item = Token;
     fn next(&mut self) -> Option<Self::Item> {
-        self.next_token().ok()
+        if self.stream.eof_reached() {
+            None
+        } else {
+            self.next_token().ok()
+        }
     }
 }

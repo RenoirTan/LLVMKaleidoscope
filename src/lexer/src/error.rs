@@ -10,6 +10,7 @@ pub enum ErrorKind {
     InvalidChar,
     BadChar,
     InvalidToken,
+    InvalidCombo,
     ExcessiveChars,
     LexerFatal,
     Other,

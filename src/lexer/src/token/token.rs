@@ -7,7 +7,8 @@ use super::{
     TokenKind,
     Keyword,
     Operator,
-    Bracket
+    Bracket,
+    BracketKind
 };
 
 /// A token in a Kaleidoscope file.
@@ -139,7 +140,7 @@ impl Token {
     fn add_unit_if_integer(
         &mut self,
         unit: char,
-        index: FileIndex
+        _index: FileIndex
     ) -> Result<bool> {
         if utils::is_decimal_digit(unit) {
             self.span.push(unit);
@@ -149,59 +150,116 @@ impl Token {
             self.token_kind = TokenKind::Float;
             Ok(false)
         } else {
-            Err(Error::new(
-                &format!("Bad char {} at {}", unit, index),
-                ErrorKind::BadChar,
-                None
-            ))
+            Ok(true)
         }
     }
 
     fn add_unit_if_float(
         &mut self,
         unit: char,
-        index: FileIndex
+        _index: FileIndex
     ) -> Result<bool> {
         if utils::is_decimal_digit(unit) {
             self.span.push(unit);
             Ok(false)
         } else {
-            Err(Error::new(
-                &format!("Bad char {} at {}", unit, index),
-                ErrorKind::BadChar,
-                None
-            ))
+            Ok(true)
         }
     }
 
     fn add_unit_if_operator(
         &mut self,
-        _unit: char,
-        index: FileIndex
+        unit: char,
+        _index: FileIndex
     ) -> Result<bool> {
-        Err(Error::new(
-            &format!(
-                "Kaleidoscope currently only accepts 1-character operands. Error at {}",
-                index
-            ),
-            ErrorKind::ExcessiveChars,
-            None
-        ))
+        if utils::is_opchar(unit) {
+            self.span.push(unit);
+            Ok(false)
+        } else {
+            Ok(true)
+        }
     }
 
     fn add_unit_if_bracket(
         &mut self,
-        _unit: char,
-        index: FileIndex
+        unit: char,
+        _index: FileIndex
     ) -> Result<bool> {
-        Err(Error::new(
-            &format!(
-                "Kaleidoscope currently only accepts 1-character brackets. Error at {}",
-                index
-            ),
-            ErrorKind::ExcessiveChars,
-            None
-        ))
+        if utils::is_bracket(unit) {
+            self.span.push(unit);
+            Ok(false)
+        } else {
+            Ok(true)
+        }
+    }
+
+    fn resolve_identifier(&mut self, _index: FileIndex) -> Result<bool> {
+        if let Some(keyword) = Keyword::from_string(self.borrow_span()) {
+            self.token_kind = TokenKind::Keyword {keyword};
+        }
+        Ok(true)
+    }
+
+    fn resolve_float(&mut self, index: FileIndex) -> Result<bool> {
+        match self.span.as_bytes().last() {
+            None => Err(Error::new(
+                &format!(
+                    "Lexer detected a float in an empty span at index {}",
+                    index
+                ),
+                ErrorKind::LexerFatal,
+                None
+            )),
+            Some(unit) => if *unit == '.' as u8 {
+                Err(Error::new(
+                    &format!(
+                        "Float cannot end with floating point at index {}",
+                        index
+                    ),
+                    ErrorKind::BadChar,
+                    None
+                ))
+            } else {
+                Ok(true)
+            }
+        }
+    }
+
+    fn resolve_operator(&mut self, index: FileIndex) -> Result<bool> {
+        match Operator::from_string(self.borrow_span()) {
+            Operator::Unknown => Err(Error::new(
+                &format!(
+                    "Could not guess operator from span '{}' at index {}",
+                    self.borrow_span(),
+                    index
+                ),
+                ErrorKind::InvalidCombo,
+                None
+            )),
+            operator => {
+                self.token_kind = TokenKind::Operator {operator};
+                Ok(true)
+            }
+        }
+    }
+
+    fn resolve_bracket(&mut self, index: FileIndex) -> Result<bool> {
+        let bracket = Bracket::from_string(self.borrow_span());
+        match bracket.kind {
+            BracketKind::Unknown => Err(Error::new(
+                &format!(
+                    "Invalid bracket from span '{}' at index {}",
+                    self.borrow_span(),
+                    index
+                ),
+                ErrorKind::InvalidCombo,
+                None
+            )),
+            _ => {
+                self.token_kind = TokenKind::Bracket {bracket};
+                Ok(true)
+            }
+        }
     }
 
     pub fn resolve(&mut self, index: FileIndex) -> Result<bool> {
@@ -216,37 +274,10 @@ impl Token {
                 ErrorKind::InvalidToken,
                 None
             )),
-            TokenKind::Identifier => {
-                if let Some(keyword) = Keyword::from_string(self.borrow_span())
-                {
-                    self.token_kind = TokenKind::Keyword {keyword}
-                }
-                Ok(true)
-            },
-            TokenKind::Float => {
-                match self.span.as_bytes().last() {
-                    None => Err(Error::new(
-                        &format!(
-                            "Lexer detected a float in an empty span at index {}",
-                            index
-                        ),
-                        ErrorKind::LexerFatal,
-                        None
-                    )),
-                    Some(unit) => if *unit == '.' as u8 {
-                        Err(Error::new(
-                            &format!(
-                                "Float cannot end with floating point at index {}",
-                                index
-                            ),
-                            ErrorKind::BadChar,
-                            None
-                        ))
-                    } else {
-                        Ok(true)
-                    }
-                }
-            },
+            TokenKind::Identifier => self.resolve_identifier(index),
+            TokenKind::Float => self.resolve_float(index),
+            TokenKind::Operator {..} => self.resolve_operator(index),
+            TokenKind::Bracket {..} => self.resolve_bracket(index),
             _ => Ok(true)
         }
     }

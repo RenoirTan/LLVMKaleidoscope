@@ -4,7 +4,6 @@ use std::{
     path::PathBuf
 };
 use kaleidoscope_lexer::{
-    token::TokenKind,
     tokenizer::{FileStream, Tokenizer}
 };
 
@@ -18,11 +17,7 @@ fn main() {
         None => FileStream::default()
     };
     let mut tokenizer = Tokenizer::new(file);
-    loop {
-        let token = tokenizer.next_token().unwrap();
-        println!("{:#?}", token);
-        if let TokenKind::Eof = token.token_kind {
-            break;
-        }
+    for token in &mut tokenizer {
+        println!("{:?}", token);
     }
 }
