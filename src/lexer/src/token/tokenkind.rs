@@ -1,4 +1,4 @@
-use super::{Keyword, Operator};
+use super::{Keyword, Operator, Bracket};
 
 /// The type of token a token is.
 ///
@@ -19,7 +19,9 @@ pub enum TokenKind {
     /// The token kind representing a floating point decimal number.
     Float,
     /// The token kind representing an operator (e.g. '+' in 1 + 2)
-    Operator {operator: Operator}
+    Operator {operator: Operator},
+    /// The token kind representing a bracket (e.g. '{', '}')
+    Bracket {bracket: Bracket}
 }
 
 impl Default for TokenKind {

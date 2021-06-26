@@ -44,3 +44,7 @@ pub fn is_opchar(unit: char) -> bool {
 pub fn is_comment(unit: char) -> bool {
     unit == '#'
 }
+
+pub fn is_bracket(unit: char) -> bool {
+    matches!(unit, '(' | '[' | '{' | '<' | ')' | ']' | '}' | '>')
+}
