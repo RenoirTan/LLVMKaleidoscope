@@ -6,6 +6,7 @@ use kaleidoscope_macro::impl_display;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum BracketKind {
+    Unknown,
     Round,
     Square,
     Curly,
@@ -15,24 +16,24 @@ pub enum BracketKind {
 impl_display!(BracketKind);
 
 impl BracketKind {
-    pub fn from_int(code: i32) -> Option<Self> {
-        Some(match code {
+    pub fn from_int(code: i32) -> Self {
+        match code {
             0 => BracketKind::Round,
             1 => BracketKind::Square,
             2 => BracketKind::Curly,
             3 => BracketKind::Angled,
-            _ => return None
-        })
+            _ => BracketKind::Unknown
+        }
     }
 
-    pub fn from_string(string: &str) -> Option<Self> {
-        Some(match string {
+    pub fn from_string(string: &str) -> Self {
+        match string {
             "(" | ")" => BracketKind::Round,
             "[" | "]" => BracketKind::Square,
             "{" | "}" => BracketKind::Curly,
             "<" | ">" => BracketKind::Angled,
-            _ => return None
-        })
+            _ => BracketKind::Unknown
+        }
     }
 
     pub(crate) fn get_repr(self) -> [&'static str; 2] {
@@ -40,7 +41,8 @@ impl BracketKind {
             BracketKind::Round => ["(", ")"],
             BracketKind::Square => ["[", "]"],
             BracketKind::Curly => ["{", "}"],
-            BracketKind::Angled => ["<", ">"]
+            BracketKind::Angled => ["<", ">"],
+            BracketKind::Unknown => ["??", "??"]
         }
     }
 }
@@ -73,6 +75,12 @@ impl BracketSide {
             BracketSide::Left => 0,
             BracketSide::Right => 1
         }
+    }
+}
+
+impl Default for BracketSide {
+    fn default() -> Self {
+        BracketSide::Left
     }
 }
 
@@ -109,16 +117,16 @@ impl fmt::Display for Bracket {
 }
 
 impl Bracket {
-    pub fn from_codes(kind: i32, side: i32) -> Option<Self> {
-        BracketKind::from_int(kind)
-            .zip(BracketSide::from_int(side))
-            .map(|(kind, side)| Self {kind, side})
+    pub fn from_codes(kind: i32, side: i32) -> Self {
+        let kind = BracketKind::from_int(kind);
+        let side = BracketSide::from_int(side).unwrap_or_default();
+        Self {kind, side}
     }
 
-    pub fn from_string(string: &str) -> Option<Self> {
-        BracketKind::from_string(string)
-            .zip(BracketSide::from_string(string))
-            .map(|(kind, side)| Self {kind, side})
+    pub fn from_string(string: &str) -> Self {
+        let kind = BracketKind::from_string(string);
+        let side = BracketSide::from_string(string).unwrap_or_default();
+        Self {kind, side}
     }
 
     /// Get the bracket as a string

@@ -17,7 +17,7 @@ pub enum Operator {
 impl_display!(Operator);
 
 impl Operator {
-    pub fn from_str(slice: &str) -> Self {
+    pub fn from_string(slice: &str) -> Self {
         use Operator::*;
         match slice {
             "+" => Plus,

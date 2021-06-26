@@ -6,7 +6,8 @@ use super::{
     FileIndex,
     TokenKind,
     Keyword,
-    Operator
+    Operator,
+    Bracket
 };
 
 /// A token in a Kaleidoscope file.
@@ -80,8 +81,12 @@ impl Token {
             self.span.push(unit);
         } else if utils::is_opchar(unit) {
             self.span.push(unit);
-            let operator = Operator::from_str(self.borrow_span());
+            let operator = Operator::from_string(self.borrow_span());
             self.token_kind = TokenKind::Operator {operator};
+        } else if utils::is_bracket(unit) {
+            self.span.push(unit);
+            let bracket = Bracket::from_string(self.borrow_span());
+            self.token_kind = TokenKind::Bracket {bracket};
         } else {
             return Err(Error::new(
                 &format!("Invalid char {} at {}", unit, index),
@@ -105,6 +110,7 @@ impl Token {
             TokenKind::Integer => self.add_unit_if_integer(unit, index),
             TokenKind::Float => self.add_unit_if_float(unit, index),
             TokenKind::Operator {..} => self.add_unit_if_operator(unit, index),
+            TokenKind::Bracket {..} => self.add_unit_if_bracket(unit, index),
             _ => Err(Error::new(
                 &format!(
                     "Uncaught TokenKind {} at {}",
@@ -176,6 +182,21 @@ impl Token {
         Err(Error::new(
             &format!(
                 "Kaleidoscope currently only accepts 1-character operands. Error at {}",
+                index
+            ),
+            ErrorKind::ExcessiveChars,
+            None
+        ))
+    }
+
+    fn add_unit_if_bracket(
+        &mut self,
+        _unit: char,
+        index: FileIndex
+    ) -> Result<bool> {
+        Err(Error::new(
+            &format!(
+                "Kaleidoscope currently only accepts 1-character brackets. Error at {}",
                 index
             ),
             ErrorKind::ExcessiveChars,

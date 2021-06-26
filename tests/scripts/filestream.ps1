@@ -1,0 +1,1 @@
+cargo run --bin filestream ./tests/samples/fib.kld

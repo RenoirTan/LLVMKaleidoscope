@@ -1,0 +1,1 @@
+cargo run --bin tokenizer ./tests/samples/fib.kld
