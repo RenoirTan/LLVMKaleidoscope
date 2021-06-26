@@ -20,7 +20,7 @@ fn main() {
     let mut tokenizer = Tokenizer::new(file);
     loop {
         let token = tokenizer.next_token().unwrap();
-        println!("{}", token);
+        println!("{:#?}", token);
         if let TokenKind::Eof = token.token_kind {
             break;
         }

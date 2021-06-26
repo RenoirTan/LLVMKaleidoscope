@@ -5,6 +5,22 @@ pub enum Keyword {
     Def,
     /// `extern` keyword. For foreign function interfaces.
     Extern,
+    /// `if` keyword. Control flow.
+    If,
+    /// `else` keyword. Control flow.
+    Else,
+}
+
+impl Keyword {
+    pub fn from_string(string: &str) -> Option<Self> {
+        Some(match string {
+            "def" => Keyword::Def,
+            "extern" => Keyword::Extern,
+            "if" => Keyword::If,
+            "else" => Keyword::Else,
+            _ => return None
+        })
+    }
 }
 
 use kaleidoscope_macro::impl_display;

@@ -217,19 +217,14 @@ impl Token {
                 None
             )),
             TokenKind::Identifier => {
-                match &self.span[..] {
-                    "def" => self.token_kind = TokenKind::Keyword {
-                        keyword: Keyword::Def
-                    },
-                    "extern" => self.token_kind = TokenKind::Keyword {
-                        keyword: Keyword::Extern
-                    },
-                    _ => {}
+                if let Some(keyword) = Keyword::from_string(self.borrow_span())
+                {
+                    self.token_kind = TokenKind::Keyword {keyword}
                 }
                 Ok(true)
             },
             TokenKind::Float => {
-                match <dyn AsRef<[u8]>>::as_ref(&self.span).last() {
+                match self.span.as_bytes().last() {
                     None => Err(Error::new(
                         &format!(
                             "Lexer detected a float in an empty span at index {}",
