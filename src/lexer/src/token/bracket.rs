@@ -6,7 +6,7 @@ use kaleidoscope_macro::impl_display;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum BracketKind {
-    Circle,
+    Round,
     Square,
     Curly,
     Angled
@@ -17,7 +17,7 @@ impl_display!(BracketKind);
 impl BracketKind {
     pub fn from_int(code: i32) -> Option<Self> {
         Some(match code {
-            0 => BracketKind::Circle,
+            0 => BracketKind::Round,
             1 => BracketKind::Square,
             2 => BracketKind::Curly,
             3 => BracketKind::Angled,
@@ -27,7 +27,7 @@ impl BracketKind {
 
     pub fn from_string(string: &str) -> Option<Self> {
         Some(match string {
-            "(" | ")" => BracketKind::Circle,
+            "(" | ")" => BracketKind::Round,
             "[" | "]" => BracketKind::Square,
             "{" | "}" => BracketKind::Curly,
             "<" | ">" => BracketKind::Angled,
@@ -37,7 +37,7 @@ impl BracketKind {
 
     pub(crate) fn get_repr(self) -> [&'static str; 2] {
         match self {
-            BracketKind::Circle => ["(", ")"],
+            BracketKind::Round => ["(", ")"],
             BracketKind::Square => ["[", "]"],
             BracketKind::Curly => ["{", "}"],
             BracketKind::Angled => ["<", ">"]
@@ -143,21 +143,21 @@ impl Bracket {
     /// # Example
     /// 
     /// ```
-    /// let circle_left = Bracket {
-    ///     kind: BracketKind::Circle,
+    /// let round_left = Bracket {
+    ///     kind: BracketKind::Round,
     ///     side: BracketSide::Left
     /// };
-    /// let circle_right = Bracket {
-    ///     kind: BracketKind::Circle,
+    /// let round_right = Bracket {
+    ///     kind: BracketKind::Round,
     ///     side: BracketSide::Right
     /// };
-    /// assert!(circle_left.cancels_out(circle_right));
+    /// assert!(round_left.cancels_out(round_right));
     /// 
     /// let square_left = Bracket {
     ///     kind: BracketKind::Square,
     ///     side: BracketKind::Left
     /// };
-    /// assert!(!square_left.cancels_out(circle_right));
+    /// assert!(!square_left.cancels_out(round_right));
     /// ```
     pub fn cancels_out(self, other: Self) -> bool {
         self.kind == other.kind && self.side < other.side
