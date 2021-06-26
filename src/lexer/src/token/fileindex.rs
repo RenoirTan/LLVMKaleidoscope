@@ -68,7 +68,7 @@ impl FileIndex {
     /// // This newline sequence is 2 characters long.
     /// // You can call str.len() safely here because '\r\n' are both
     /// // 1-byte ASCII characters.
-    /// let fi_2 = fi_1.newline('\r\n'.len());
+    /// let fi_2 = fi_1.newline("\r\n".len());
     /// assert!(fi_2.get_column() == 7);
     /// ```
     pub fn newline(&self, newline_length: usize) -> Self {

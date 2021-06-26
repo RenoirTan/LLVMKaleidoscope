@@ -24,7 +24,7 @@ macro_rules! impl_display {
 
 /// Create a hash map
 /// 
-/// Stolen from https://stackoverflow.com/a/27582993
+/// Stolen from `<https://stackoverflow.com/a/27582993>`
 #[macro_export]
 macro_rules! hash_map {
     { $($key:expr => $value:expr),* } => {
