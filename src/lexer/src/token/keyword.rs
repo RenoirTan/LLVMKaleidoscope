@@ -9,6 +9,8 @@ pub enum Keyword {
     If,
     /// `else` keyword. Control flow.
     Else,
+    /// `then` keyword. Control flow.
+    Then,
 }
 
 impl Keyword {
@@ -18,6 +20,7 @@ impl Keyword {
             "extern" => Keyword::Extern,
             "if" => Keyword::If,
             "else" => Keyword::Else,
+            "then" => Keyword::Then,
             _ => return None
         })
     }
