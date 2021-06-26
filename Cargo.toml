@@ -34,7 +34,11 @@ crate-type = ["lib"]
 [[bin]]
 name = "filestream"
 path = "src/bin/filestream.rs"
+test = false
+doctest = false
 
 [[bin]]
 name = "tokenizer"
 path = "src/bin/tokenizer.rs"
+test = false
+doctest = false

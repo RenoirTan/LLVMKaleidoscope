@@ -1,3 +1,7 @@
+//! The type of token.
+//! 
+//! See [`TokenKind`].
+
 use super::{Keyword, Operator, Bracket};
 
 /// The type of token a token is.

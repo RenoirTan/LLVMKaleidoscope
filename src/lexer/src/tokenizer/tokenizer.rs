@@ -1,3 +1,7 @@
+//! A struct that reads a file and creates tokens from them.
+//! 
+//! See [`Tokenizer`].
+
 use std::iter::Iterator;
 use super::FileStream;
 use crate::{
@@ -14,10 +18,12 @@ pub struct Tokenizer {
 }
 
 impl Tokenizer {
+    /// Create a new [`Tokenizer`] from a [`FileStream`].
     pub fn new(stream: FileStream) -> Self {
         Self { stream, last_unit: None }
     }
 
+    /// Get the next token by reading from the file stream.
     pub fn next_token(&mut self) -> Result<Token> {
         if self.stream.eof_reached() {
             return Ok(Token::new_eof(self.stream.get_index()));

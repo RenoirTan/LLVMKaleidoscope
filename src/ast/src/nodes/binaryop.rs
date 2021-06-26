@@ -1,3 +1,5 @@
+//! A module defining a [`BinaryOperatorNode`].
+
 // use std::str::FromStr;
 // use kaleidoscope_lexer::token::{Token, TokenKind};
 use crate::{
@@ -7,6 +9,10 @@ use crate::{
 };
 use super::Operator;
 
+/// An AST representing an operator with 2 expressions by its side.
+/// For example, "1 + 2" is an expression with a binary operator, with
+/// '+' being the operator, and '1' and '2' being the 2 arguments of the
+/// operator.
 pub struct BinaryOperatorNode {
     operator: Operator,
     first: Box<dyn ExprNode>,
@@ -14,14 +20,17 @@ pub struct BinaryOperatorNode {
 }
 
 impl BinaryOperatorNode {
+    /// Get the operator in the expression.
     pub fn get_operator(&self) -> Operator {
         self.operator
     }
 
+    /// Get the first argument in the expression.
     pub fn get_first(&self) -> &dyn ExprNode {
         &*self.first
     }
 
+    /// Get the second argument in the expression.
     pub fn get_second(&self) -> &dyn ExprNode {
         &*self.second
     }

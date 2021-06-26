@@ -1,3 +1,7 @@
+//! A keyword token.
+//! 
+//! See [`Keyword`].
+
 /// An enumerator of possible keywords that can be encountered in Kaleidoscope.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Keyword {
@@ -14,6 +18,25 @@ pub enum Keyword {
 }
 
 impl Keyword {
+    /// Convert a string to a variant of the [`Keyword`] enum.
+    /// 
+    /// If the string is not a valid keyword, [`None`] is returned.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use kaleidoscope_lexer::token::Keyword;
+    /// 
+    /// assert!(matches!(
+    ///     Keyword::from_string("extern"),
+    ///     Some(Keyword::Extern)
+    /// ));
+    /// 
+    /// assert!(matches!(
+    ///     Keyword::from_string("not a keyword"),
+    ///     None
+    /// ));
+    /// ```
     pub fn from_string(string: &str) -> Option<Self> {
         Some(match string {
             "def" => Keyword::Def,

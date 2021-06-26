@@ -1,3 +1,7 @@
+//! A representation of the location of a character in a file.
+//! 
+//! See [`FileIndex`] for more information.
+
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 /// Represents the location of a character
@@ -10,8 +14,8 @@ use std::ops::{Add, AddAssign, Sub, SubAssign};
 /// If the character is the first of many in a line, then its column will be 0.
 ///
 /// If you don't know how many lines have passed, or if that data is
-/// irrelevant, you can set [`crate::token::FileIndex.line`] to `None` in
-/// [`crate::token::FileIndex::new`].
+/// irrelevant, you can set [`FileIndex::line`] to `None` in
+/// [`FileIndex::new`].
 ///
 /// You can also change the column of a `FileIndex` object using the
 /// add (`+`), add_assign (`+=`), sub (`-`) and sub_assign (`-=`) operators
@@ -24,7 +28,7 @@ pub struct FileIndex {
 }
 
 impl FileIndex {
-    /// Create a new [`crate::token::FileIndex`] object.
+    /// Create a new [`FileIndex`] object.
     pub fn new(line: Option<usize>, column: usize) -> Self {
         Self { line, column }
     }
@@ -63,6 +67,8 @@ impl FileIndex {
     /// # Example
     ///
     /// ```
+    /// use kaleidoscope_lexer::token::FileIndex;
+    /// 
     /// let fi_1 = FileIndex::new(None, 5); // 5 characters have passed
     /// // OwO what's this? A new line?
     /// // This newline sequence is 2 characters long.

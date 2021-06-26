@@ -1,3 +1,5 @@
+//! A module defining a node that represents an identifier.
+
 use kaleidoscope_lexer::token::{Token, TokenKind};
 use crate::{
     node::{FromToken, Node},
@@ -5,11 +7,14 @@ use crate::{
     error::{Error, ErrorKind, Result}
 };
 
+/// A struct representing a name or path that can identify an object, function
+/// or data structure like classes.
 pub struct Identifier {
     identifier: String
 }
 
 impl Identifier {
+    /// Get the name as a string.
     pub fn get_identifier(&self) -> &str {
         &self.identifier[..]
     }

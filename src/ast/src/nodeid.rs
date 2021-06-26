@@ -1,3 +1,5 @@
+//! A struct classifying each node type with an integer ID.
+
 use std::fmt;
 
 type IdInner = u32;
@@ -41,10 +43,12 @@ pub struct NodeId {
 }
 
 impl NodeId {
+    /// Create a new [`NodeId`] from a numeric ID.
     pub fn new(id: IdInner) -> Self {
         Self {numeric: id}
     }
 
+    /// Get the raw numeric ID.
     pub fn get_id(&self) -> IdInner {
         self.numeric
     }

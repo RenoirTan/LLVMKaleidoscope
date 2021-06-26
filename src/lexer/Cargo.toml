@@ -13,8 +13,8 @@ LLVMKaleidoscope-Macro = {path = "../macro"}
 
 [lib]
 name = "kaleidoscope_lexer"
-test = false
-doctest = false
+test = true
+doctest = true
 bench = false
 doc = true
 crate-type = ["lib"]

@@ -1,3 +1,5 @@
+//! Error types used in `kaleidoscope_ast`.
+
 use kaleidoscope_error as klerr;
 use kaleidoscope_macro::impl_display;
 
@@ -11,6 +13,7 @@ pub enum ErrorKind {
 
 impl_display!(ErrorKind);
 
+/// Special error type for this [`crate`].
 pub type Error = klerr::Error<ErrorKind>;
 
 /// Custom result type for the error type defined here.

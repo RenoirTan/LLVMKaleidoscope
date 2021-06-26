@@ -1,3 +1,7 @@
+//! A token in a file or stream.
+//! 
+//! See [`Token`] for more comprehensive information.
+
 use crate::{
     error::{Error, ErrorKind, Result},
     utils
@@ -54,10 +58,18 @@ impl Token {
         }
     }
 
+    /// Check if the span in the token is empty or not.
     pub fn is_empty(&self) -> bool {
         self.span.is_empty()
     }
 
+    /// Add a character into the token.
+    /// This method returns a boolean value if no error occurs.
+    /// 
+    /// If `true` is returned, this means that `unit` is a character that
+    /// this token cannot accept, so this token is complete.
+    /// If `false` is returned, it means that `unit` has been added to the
+    /// token's span and can continue to collect more characters.
     pub fn add_unit(&mut self, unit: char, index: FileIndex) -> Result<bool> {
         if self.is_empty() {
             self.add_unit_when_empty(unit, index)
@@ -282,6 +294,7 @@ impl Token {
         }
     }
 
+    /// Borrow the span as a string slice.
     pub fn borrow_span(&self) -> &str {
         &self.span[..]
     }

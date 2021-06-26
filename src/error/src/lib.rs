@@ -7,7 +7,7 @@ use std::{
 
 /// The traits every ErrorKind enum must satisfy.
 /// If your enum implements all of the following traits,
-/// then [`crate::ErrorKind`] gets automatically implemented.
+/// then [`ErrorKind`] gets automatically implemented.
 /// 
 /// 1. [`Clone`],
 /// 2. [`Debug`],
@@ -18,6 +18,11 @@ pub trait ErrorKind: Clone + Debug + Display + Eq {}
 impl<T: Clone + Debug + Display + Eq> ErrorKind for T {}
 
 /// A struct representing an error.
+/// As you can see from the type signature, you must provide a type
+/// (preferably an enum) that implements the 4 traits listed under the
+/// documentation for [`ErrorKind`]. This `EK` is used to classify the type
+/// of error that has occurred, and will be shown in a formatted string
+/// created by calling [`format!`] and related macros.
 #[derive(Debug)]
 pub struct Error<EK: ErrorKind> {
     description: String,
@@ -73,6 +78,6 @@ impl<EK: ErrorKind> error::Error for Error<EK> {
 /// A special [`std::result::Result`] type for Kaleidoscope.
 /// Instead of an error type parameter, you are instead asked for an
 /// ErrorKind enum type which implements the traits specified by
-/// [`crate::ErrorKind`]. This error kind enum is used by
-/// [`crate::Error`] to classify the error that has occurred.
+/// [`ErrorKind`]. This error kind enum is used by
+/// [`Error`] to classify the error that has occurred.
 pub type Result<T, EK> = std::result::Result<T, Error<EK>>;

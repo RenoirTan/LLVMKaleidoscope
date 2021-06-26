@@ -1,3 +1,7 @@
+//! A special structure which iterates over the characters in a file.
+//! 
+//! See [`FileStream`].
+
 use crate::{
     error::{Error, ErrorKind, Result},
     token::FileIndex,
@@ -13,6 +17,13 @@ use std::{
 type BufferIterator = Enumerate<Lines<BufReader<Box<dyn Read>>>>;
 
 /// A file stream which returns a unicode codepoint one at a time.
+/// This is in contrast to a normal [`std::fs::File`] which can only read
+/// bytes to an array.
+/// 
+/// An object of this struct also stores the index of the current character.
+/// See [`FileIndex`] for implementation details. This index stores the
+/// current line and character column, and can be retrieved by calling
+/// [`FileStream::get_index`].
 pub struct FileStream {
     buffer: BufferIterator,
     line: Vec<char>,
@@ -126,6 +137,8 @@ impl FileStream {
         }
     }
 
+    /// Create a [`FileStream`] from the [`stdin`] stream.
+    /// By [`Default`], [`FileStream`] reads from stdin.
     pub fn from_stdin() -> Self {
         let stdin: Box<dyn Read> = Box::new(stdin());
         let buffer = BufReader::new(stdin).lines().enumerate();

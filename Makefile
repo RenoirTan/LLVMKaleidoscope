@@ -4,7 +4,7 @@ ARGS=--workspace --color=always
 .PHONY: doc
 
 doc:
-	$(CARGO) $@ $(ARGS) --no-deps
+	$(CARGO) $@ $(ARGS) --no-deps --document-private-items
 
 
 dbuild:
@@ -13,3 +13,6 @@ dbuild:
 
 rbuild:
 	$(CARGO) build $(ARGS) --release
+
+test:
+	$(CARGO) test $(ARGS) --no-fail-fast

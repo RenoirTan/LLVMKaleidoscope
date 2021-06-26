@@ -1,3 +1,5 @@
+//! A module defining a node representing an integer.
+
 use std::str::FromStr;
 use kaleidoscope_lexer::token::{Token, TokenKind};
 use crate::{
@@ -6,13 +8,17 @@ use crate::{
     NodeId
 };
 
+/// The internal representation of an integer,
 pub type IntegerType = i128;
 
+/// A node representing an integer. This integer's internal representation
+/// depends on [`IntegerType`].
 pub struct IntegerNode {
     value: IntegerType
 }
 
 impl IntegerNode {
+    /// Get the value of this node as the raw value.
     pub fn get_value(&self) -> IntegerType {
         self.value
     }

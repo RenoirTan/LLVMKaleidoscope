@@ -41,10 +41,12 @@ pub fn is_opchar(unit: char) -> bool {
     matches!(unit, '+' | '-' | '*' | '/' | '<' | '>' | '=')
 }
 
+/// See if `unit` is the character that denotes the start of a comment.
 pub fn is_comment(unit: char) -> bool {
     unit == '#'
 }
 
+/// See if `unit` is a bracket character.
 pub fn is_bracket(unit: char) -> bool {
     matches!(unit, '(' | '[' | '{' | '<' | ')' | ']' | '}' | '>')
 }
