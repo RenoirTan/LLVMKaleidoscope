@@ -16,7 +16,7 @@ fn main() {
         None => FileStream::default()
     };
     let mut stdout = stdout();
-    while let Some(unit) = file.next_unit() {
+    while let Some(unit) = file.next() {
         print!("{:?} {}\n", unit, file.get_index());
         stdout.flush().unwrap();
     }
