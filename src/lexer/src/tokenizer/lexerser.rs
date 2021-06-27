@@ -1,18 +1,24 @@
+//! A module for serialising a tokeniser.
+
 use std::cell::RefCell;
 use serde::{Serialize, Serializer, ser::SerializeSeq};
 use super::Tokenizer;
 
-pub struct ImmutableTokenizer {
+/// Serialises a [`Tokenizer`] into a list of tokens.
+/// 
+/// Can be used to store tokens into a different format for later use.
+pub struct LexerSerializer {
     tokenizer: RefCell<Tokenizer>
 }
 
-impl ImmutableTokenizer {
+impl LexerSerializer {
+    /// Create a new tokeniser serialiser.
     pub fn new(tokenizer: Tokenizer) -> Self {
         Self {tokenizer: RefCell::new(tokenizer)}
     }
 }
 
-impl Serialize for ImmutableTokenizer {
+impl Serialize for LexerSerializer {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer

@@ -6,7 +6,7 @@ use clap::{App, Arg};
 use kaleidoscope_lexer::tokenizer::{
     FileStream,
     Tokenizer,
-    ImmutableTokenizer
+    LexerSerializer
 };
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -81,11 +81,11 @@ fn main() {
             }
         },
         OutputFormats::Json => {
-            let itok = ImmutableTokenizer::new(tokenizer);
+            let itok = LexerSerializer::new(tokenizer);
             println!("{}", serde_json::to_string_pretty(&itok).unwrap());
         },
         OutputFormats::Toml => {
-            let itok = ImmutableTokenizer::new(tokenizer);
+            let itok = LexerSerializer::new(tokenizer);
             println!("{}", toml::to_string_pretty(&itok).unwrap());
         }
     }

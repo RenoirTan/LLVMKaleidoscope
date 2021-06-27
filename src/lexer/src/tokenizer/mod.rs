@@ -3,9 +3,9 @@
 //! See also [`crate::tokenizer::Tokenizer`]
 
 mod filestream;
-mod immuttokenizer;
+mod lexerser;
 mod tokenizer;
 
 pub use filestream::FileStream;
-pub use immuttokenizer::ImmutableTokenizer;
+pub use lexerser::LexerSerializer;
 pub use tokenizer::Tokenizer;

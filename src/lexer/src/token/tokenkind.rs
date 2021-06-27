@@ -9,6 +9,7 @@ use super::{Keyword, Operator, Bracket};
 ///
 /// That's the worst explanation I have ever written in my life.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum TokenKind {
     /// Default value for [`TokenKind`].
     /// Reserved for situations where the token kind cannot be guessed yet.
