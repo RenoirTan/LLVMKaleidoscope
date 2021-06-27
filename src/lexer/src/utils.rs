@@ -15,6 +15,16 @@ pub fn is_whitespace(unit: char) -> bool {
     unit.is_whitespace()
 }
 
+/// True if `unit` is a character that can act as the first character of a name/identifier.
+pub fn is_identifier_start(unit: char) -> bool {
+    unit.is_ascii_alphabetic() || unit == '_'
+}
+
+/// True if `unit` is a character that can potentially be used in an identifier.
+pub fn is_identifier(unit: char) -> bool {
+    is_identifier_start(unit) || is_decimal_digit(unit)
+}
+
 /// True if `unit` is an ASCII alphabetical character.
 pub fn is_alpha(unit: char) -> bool {
     unit.is_ascii_alphabetic()

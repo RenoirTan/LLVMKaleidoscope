@@ -86,7 +86,7 @@ impl Token {
         self.start = index;
         if utils::is_whitespace(unit) {
             return Ok(false);
-        } else if utils::is_alpha(unit) {
+        } else if utils::is_identifier_start(unit) {
             self.token_kind = TokenKind::Identifier;
             self.span.push(unit);
         } else if utils::is_decimal_digit(unit) {
@@ -141,7 +141,7 @@ impl Token {
         unit: char,
         index: FileIndex
     ) -> Result<bool> {
-        if utils::is_alphanum(unit) {
+        if utils::is_identifier(unit) {
             self.span.push(unit);
             Ok(false)
         } else {
