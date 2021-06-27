@@ -15,7 +15,7 @@ help:
 	@echo ""
 	@echo "Helper Makefile"
 	@echo ""
-	@echo "USAGE: [TARGET_NAME] [OPTIONS]"
+	@echo "USAGE: make [TARGET_NAME] [OPTIONS]"
 	@echo ""
 	@echo " - help: Display this help message."
 	@echo " - dbuild: Build library with the debug profile."

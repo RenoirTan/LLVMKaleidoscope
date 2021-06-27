@@ -1,4 +1,4 @@
-//! An module that defines a node representing a function call.
+//! A module that defines a node representing a function call.
 
 use crate::{
     node::{Node, ExprNode},
