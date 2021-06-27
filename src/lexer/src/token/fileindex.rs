@@ -3,6 +3,7 @@
 //! See [`FileIndex`] for more information.
 
 use std::ops::{Add, AddAssign, Sub, SubAssign};
+use serde::{Serialize, Deserialize};
 
 /// Represents the location of a character
 /// (i.e. displayed glyphs, diacritics are counted as separate symbols)
@@ -21,7 +22,7 @@ use std::ops::{Add, AddAssign, Sub, SubAssign};
 /// add (`+`), add_assign (`+=`), sub (`-`) and sub_assign (`-=`) operators
 /// since I've so handily implemented the traits that code for these
 /// operators.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct FileIndex {
     line: Option<usize>,
     column: usize,

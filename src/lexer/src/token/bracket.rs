@@ -4,13 +4,14 @@ use std::{
     cmp::{Ord, Ordering, PartialOrd},
     fmt
 };
+use serde::{Serialize, Deserialize};
 use kaleidoscope_macro::impl_display;
 
 /// The type of bracket [`Bracket`] represents.
 /// This merely classifies a bracket by its shape
 /// (i.e. whether it's round, square or curly, etc.)
 /// and not its orientation.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BracketKind {
     Unknown,
     Round,
@@ -101,7 +102,7 @@ impl BracketKind {
 /// [`BracketSide::Right`]'s being 1. This is useful when you want to make
 /// sure that 2 brackets are in the correct order.
 /// See more: [`BracketSide::as_int`].
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BracketSide {
     Left,
     Right
@@ -193,7 +194,7 @@ impl_display!(BracketSide);
 
 /// A struct representing a bracket. This bracket can be grouped by its
 /// kind and side (see [`BracketKind`] and [`BracketSide`] respectively).
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Bracket {
     pub kind: BracketKind,
     pub side: BracketSide

@@ -9,6 +9,7 @@ license-file = "LICENSE"
 publish = false
 
 [dependencies]
+serde_json = "~1.0"
 LLVMKaleidoscope-Ast = {path = "src/ast"}
 LLVMKaleidoscope-Error = {path = "src/error"}
 LLVMKaleidoscope-Lexer = {path = "src/lexer"}

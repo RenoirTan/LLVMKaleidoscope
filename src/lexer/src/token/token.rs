@@ -2,6 +2,7 @@
 //! 
 //! See [`Token`] for more comprehensive information.
 
+use serde::{Serialize, Deserialize};
 use crate::{
     error::{Error, ErrorKind, Result},
     utils
@@ -21,7 +22,7 @@ use super::{
 /// possible `TokenKind` of the token,
 /// the token as a string (stored as `span`),
 /// as well as the start and end indices of the token.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Token {
     pub token_kind: TokenKind,
     pub span: String,

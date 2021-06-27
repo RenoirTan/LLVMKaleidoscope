@@ -2,8 +2,10 @@
 //! 
 //! See [`Keyword`].
 
+use serde::{Serialize, Deserialize};
+
 /// An enumerator of possible keywords that can be encountered in Kaleidoscope.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Keyword {
     /// `def` keyword. Define a function.
     Def,

@@ -2,12 +2,13 @@
 //! 
 //! See [`TokenKind`].
 
+use serde::{Serialize, Deserialize};
 use super::{Keyword, Operator, Bracket};
 
 /// The type of token a token is.
 ///
 /// That's the worst explanation I have ever written in my life.
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum TokenKind {
     /// Default value for [`TokenKind`].
     /// Reserved for situations where the token kind cannot be guessed yet.

@@ -4,6 +4,7 @@ use std::{
     path::PathBuf
 };
 use kaleidoscope_lexer::{
+    token::Token,
     tokenizer::{FileStream, Tokenizer}
 };
 
@@ -16,8 +17,9 @@ fn main() {
         },
         None => FileStream::default()
     };
-    let mut tokenizer = Tokenizer::new(file);
-    for token in &mut tokenizer {
-        println!("{:?}", token);
-    }
+    let tokenizer = Tokenizer::new(file);
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&tokenizer.collect::<Vec<Token>>()).unwrap()
+    );
 }

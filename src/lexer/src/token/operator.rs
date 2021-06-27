@@ -1,9 +1,10 @@
 //! A token representing an operator.
 
+use serde::{Serialize, Deserialize};
 use kaleidoscope_macro::impl_display;
 
 /// A token representing an operator.
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Operator {
     Unknown,
     Plus,
