@@ -44,7 +44,7 @@ macro_rules! impl_display {
 
 /// Create a hash map
 /// 
-/// Stolen from `<https://stackoverflow.com/a/27582993>`
+/// Stolen from <https://stackoverflow.com/a/27582993>
 #[macro_export]
 macro_rules! hash_map {
     { $($key:expr => $value:expr),* } => {
@@ -56,4 +56,48 @@ macro_rules! hash_map {
             m
         }
      };
+}
+
+/// See [`function_path`].
+#[macro_export]
+macro_rules! untrimmed_function_path {
+    () => {{
+        // Fully qualified name = "path::to::current_function::f"
+        fn f() {}
+        // f's identifier to string
+        fn type_name_of<T>(_: T) -> &'static str {
+            std::any::type_name::<T>()
+        }
+        type_name_of(f)
+    }};
+}
+
+/// Get the full qualified name of the current function/method.
+/// 
+/// Stolen from <https://stackoverflow.com/a/40234666>
+#[macro_export]
+macro_rules! function_path {
+    () => {{
+        use $crate::untrimmed_function_path;
+        let name = untrimmed_function_path!();
+        // Shave off "::f" in "path::to::current_function::f"
+        &name[..name.len() - 3]
+    }};
+}
+
+/// Get the name of the function (no paths) of the current function/method.
+/// 
+/// Stolen from <https://stackoverflow.com/a/63904992>
+#[macro_export]
+macro_rules! function_name {
+    () => {{
+        use $crate::untrimmed_function_path;
+        let name = untrimmed_function_path!();
+        // Shave off trailing "::f" and preserve only the characters after
+        // the first "::" from the right.
+        match &name[..name.len() - 3].rfind(':') {
+            Some(pos) => &name[pos + 1..name.len() - 3],
+            None => &name[..name.len() - 3],
+        }
+    }};
 }
