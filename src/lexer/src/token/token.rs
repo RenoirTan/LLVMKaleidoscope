@@ -194,15 +194,11 @@ impl Token {
 
     fn add_unit_if_bracket(
         &mut self,
-        unit: char,
+        _unit: char,
         _index: FileIndex
     ) -> Result<bool> {
-        if utils::is_bracket(unit) {
-            self.span.push(unit);
-            Ok(false)
-        } else {
-            Ok(true)
-        }
+        // All brackets are currently only length 1
+        Ok(true)
     }
 
     fn resolve_identifier(&mut self, _index: FileIndex) -> Result<bool> {

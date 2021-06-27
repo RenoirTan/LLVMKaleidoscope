@@ -53,7 +53,10 @@ impl Tokenizer {
                 is_comment = true;
             } else {
                 match token.add_unit(unit, index) {
-                    Ok(true) => break 'stream,
+                    Ok(true) => {
+                        token.end = index;
+                        break 'stream;
+                    },
                     Ok(false) => {},
                     Err(e) => return Err(e)
                 }
