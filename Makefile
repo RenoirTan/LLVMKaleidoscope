@@ -1,7 +1,11 @@
 CARGO=cargo
 ARGS=--workspace --color=always
 
-.PHONY: doc
+.PHONY: dfull rfull doc dbuild rbuild test
+
+dfull: dbuild doc test
+
+rfull: rbuild doc test
 
 doc:
 	$(CARGO) $@ $(ARGS) --no-deps --document-private-items
