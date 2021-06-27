@@ -1,3 +1,5 @@
+//! A module defining all the nodes in a Kaleidoscope Abstract Syntax Tree.
+
 mod binaryop;
 mod funccall;
 mod identifier;
