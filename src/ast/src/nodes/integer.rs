@@ -2,11 +2,7 @@
 
 use std::str::FromStr;
 use kaleidoscope_lexer::token::{Token, TokenKind};
-use crate::{
-    error::{Error, ErrorKind, Result},
-    node::{FromToken, Node, ExprNode},
-    NodeId
-};
+use crate::prelude::*;
 
 /// The internal representation of an integer,
 pub type IntegerType = i128;
@@ -18,6 +14,11 @@ pub struct IntegerNode {
 }
 
 impl IntegerNode {
+    /// Create a new [`IntegerNode`] object.
+    pub fn new(value: IntegerType) -> Self {
+        Self {value}
+    }
+
     /// Get the value of this node as the raw value.
     pub fn get_value(&self) -> IntegerType {
         self.value

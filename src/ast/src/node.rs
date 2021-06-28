@@ -21,3 +21,11 @@ pub trait Node: Any {
 
 /// A node representing an expression.
 pub trait ExprNode: Node {}
+
+impl<T: Node> Node for Box<T> {
+    fn node_id(&self) -> NodeId {
+        (**self).node_id()
+    }
+}
+
+impl<T: ExprNode> ExprNode for Box<T> {}

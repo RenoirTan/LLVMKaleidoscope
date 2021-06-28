@@ -6,3 +6,9 @@ pub mod nodes;
 mod nodeid;
 
 pub use nodeid::NodeId;
+
+pub mod prelude {
+    pub use crate::node::{Node, ExprNode, FromToken};
+    pub use crate::nodeid::NodeId;
+    pub use crate::error::{Error, ErrorKind, Result};
+}

@@ -1,12 +1,6 @@
 //! A module defining a [`BinaryOperatorNode`].
 
-// use std::str::FromStr;
-// use kaleidoscope_lexer::token::{Token, TokenKind};
-use crate::{
-    // error::{Error, ErrorKind, Result},
-    node::{Node, ExprNode},
-    NodeId,
-};
+use crate::prelude::*;
 use super::Operator;
 
 /// An AST representing an operator with 2 expressions by its side.
@@ -14,15 +8,24 @@ use super::Operator;
 /// '+' being the operator, and '1' and '2' being the 2 arguments of the
 /// operator.
 pub struct BinaryOperatorNode {
-    operator: Operator,
+    operator: Box<Operator>,
     first: Box<dyn ExprNode>,
     second: Box<dyn ExprNode>
 }
 
 impl BinaryOperatorNode {
+    /// Create a new instance of a [`BinaryOperatorNode`].
+    pub fn new(
+        operator: Box<Operator>,
+        first: Box<dyn ExprNode>,
+        second: Box<dyn ExprNode>
+    ) -> Self {
+        Self {operator, first, second}
+    }
+
     /// Get the operator in the expression.
-    pub fn get_operator(&self) -> Operator {
-        self.operator
+    pub fn get_operator(&self) -> &Operator {
+        &*self.operator
     }
 
     /// Get the first argument in the expression.

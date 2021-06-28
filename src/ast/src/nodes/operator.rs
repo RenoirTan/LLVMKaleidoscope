@@ -4,10 +4,7 @@
 //! [`kaleidoscope_lexer::token`] because I was too lazy to reimplement it.
 
 pub use kaleidoscope_lexer::token::Operator;
-use crate::{
-    node::Node,
-    NodeId
-};
+use crate::prelude::*;
 
 impl Node for Operator {
     fn node_id(&self) -> NodeId {
