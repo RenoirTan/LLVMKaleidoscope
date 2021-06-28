@@ -23,6 +23,11 @@ impl Tokenizer {
         Self { stream, last_unit: None }
     }
 
+    /// See if any more tokens are available.
+    pub fn is_done(&self) -> bool {
+        self.stream.eof_reached()
+    }
+
     /// Get the next token by reading from the file stream.
     pub fn next_token(&mut self) -> Result<Token> {
         if self.stream.eof_reached() {

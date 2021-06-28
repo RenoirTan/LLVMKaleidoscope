@@ -3,6 +3,9 @@ use kaleidoscope_macro::impl_display;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ErrorKind {
+    LexerError,
+    ParsingError,
+    SyntaxError,
     Other
 }
 

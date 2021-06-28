@@ -59,6 +59,10 @@ impl Token {
         }
     }
 
+    pub fn is_eof(&self) -> bool {
+        matches!(self.token_kind, TokenKind::Eof)
+    }
+
     /// Check if the span in the token is empty or not.
     pub fn is_empty(&self) -> bool {
         self.span.is_empty()

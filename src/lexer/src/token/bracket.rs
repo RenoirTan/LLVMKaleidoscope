@@ -164,6 +164,16 @@ impl BracketSide {
             BracketSide::Right => 1
         }
     }
+
+    #[inline]
+    pub fn is_left(&self) -> bool {
+        matches!(self, &BracketSide::Left)
+    }
+
+    #[inline]
+    pub fn is_right(&self) -> bool {
+        matches!(self, &BracketSide::Right)
+    }
 }
 
 impl Default for BracketSide {

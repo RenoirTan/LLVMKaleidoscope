@@ -101,3 +101,13 @@ macro_rules! function_name {
         }
     }};
 }
+
+#[macro_export]
+macro_rules! ok_none {
+    ($option: expr) => {
+        match $option {
+            Some(t) => t,
+            None => return Ok(None)
+        }
+    };
+}
