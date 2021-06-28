@@ -25,6 +25,8 @@
 //! into tokens.
 //! 4. [`kaleidoscope_macro`] - Assortment of macros which I use frequently in
 //! this crate.
+//! 5. [`kaleidoscope_parser`] - The parser. This library provides definitions
+//! to turn a series of tokens into an abstract syntax tree.
 
 pub use kaleidoscope_ast::{
     nodes,

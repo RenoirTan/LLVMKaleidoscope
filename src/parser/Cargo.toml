@@ -1,0 +1,22 @@
+[package]
+name = "LLVMKaleidoscope-Parser"
+version = "0.1.0"
+authors = ["RenoirTan"]
+edition = "2018"
+description = "Parser for LLVM's Kaleidoscope tutorial but in Rust."
+license = "MIT"
+publish = false
+
+[dependencies]
+LLVMKaleidoscope-Ast = {path = "../ast"}
+LLVMKaleidoscope-Error = {path = "../error"}
+LLVMKaleidoscope-Lexer = {path = "../lexer"}
+LLVMKaleidoscope-Macro = {path = "../macro"}
+
+[lib]
+name = "kaleidoscope_parser"
+test = true
+doctest = true
+bench = false
+doc = true
+crate-type = ["lib"]

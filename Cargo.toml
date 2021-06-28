@@ -16,6 +16,7 @@ LLVMKaleidoscope-Ast = {path = "src/ast"}
 LLVMKaleidoscope-Error = {path = "src/error"}
 LLVMKaleidoscope-Lexer = {path = "src/lexer"}
 LLVMKaleidoscope-Macro = {path = "src/macro"}
+LLVMKaleidoscope-Parser = {path = "src/parser"}
 
 [workspace]
 include = ["src"]
@@ -23,7 +24,8 @@ members = [
     "src/ast",
     "src/error",
     "src/lexer",
-    "src/macro"
+    "src/macro",
+    "src/parser"
 ]
 
 [lib]
