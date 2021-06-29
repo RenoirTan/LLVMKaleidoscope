@@ -1,18 +1,9 @@
 CARGO=cargo
 ARGS=--workspace --color=always
 
-.PHONY: help all dfull rfull doc dbuild rbuild test
+.PHONY: help all ascii_art dfull rfull doc dbuild rbuild test
 
-help:
-	@echo " _   __      _      _     _                                "
-	@echo "| | / /     | |    (_)   | |                               "
-	@echo "| |/ /  __ _| | ___ _  __| | ___  ___  ___ ___  _ __   ___ "
-	@echo "|    \\ / _  | |/ _ \\ |/ _\\ |/ _ \\/ __|/ __/ _ \\| '_ \\ / _ \\"
-	@echo "| |\\  \\ (_| | |  __/ | (_| | (_) \\__ \\ (_| (_) | |_) |  __/"
-	@echo "\\_| \\_/\\__,_|_|\\___|_|\\__,_|\\___/|___/\\___\\___/| .__/ \\___|"
-	@echo "                                               | |         "
-	@echo "                                               |_|         "
-	@echo ""
+help: ascii_art
 	@echo "Helper Makefile"
 	@echo ""
 	@echo "USAGE: make [TARGET_NAME] [OPTIONS]"
@@ -25,6 +16,18 @@ help:
 	@echo " - dfull: Build library with debug profile, generate docs and test."
 	@echo " - rfull: Build library with release profile, generate docs and test."
 	@echo " - all: Build library in debug and release mode, as well as the documentation and running tests."
+
+
+ascii_art:
+	@echo " _   __      _      _     _                                "
+	@echo "| | / /     | |    (_)   | |                               "
+	@echo "| |/ /  __ _| | ___ _  __| | ___  ___  ___ ___  _ __   ___ "
+	@echo "|    \\ / _  | |/ _ \\ |/ _\\ |/ _ \\/ __|/ __/ _ \\| '_ \\ / _ \\"
+	@echo "| |\\  \\ (_| | |  __/ | (_| | (_) \\__ \\ (_| (_) | |_) |  __/"
+	@echo "\\_| \\_/\\__,_|_|\\___|_|\\__,_|\\___/|___/\\___\\___/| .__/ \\___|"
+	@echo "                                               | |         "
+	@echo "                                               |_|         "
+	@echo ""
 
 
 all: dbuild rbuild test doc
