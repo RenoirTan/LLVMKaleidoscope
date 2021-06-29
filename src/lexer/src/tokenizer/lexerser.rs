@@ -2,19 +2,19 @@
 
 use std::cell::RefCell;
 use serde::{Serialize, Serializer, ser::SerializeSeq};
-use super::Tokenizer;
+use super::{TokenIterator};
 
-/// Serialises a [`Tokenizer`] into a list of tokens.
+/// Serialises a [`TokenIterator`] into a list of tokens.
 /// 
 /// Can be used to store tokens into a different format for later use.
 pub struct LexerSerializer {
-    tokenizer: RefCell<Tokenizer>
+    token_iter: RefCell<TokenIterator>
 }
 
 impl LexerSerializer {
     /// Create a new tokeniser serialiser.
-    pub fn new(tokenizer: Tokenizer) -> Self {
-        Self {tokenizer: RefCell::new(tokenizer)}
+    pub fn new(token_iter: TokenIterator) -> Self {
+        Self {token_iter: RefCell::new(token_iter)}
     }
 }
 
@@ -24,7 +24,7 @@ impl Serialize for LexerSerializer {
         S: Serializer
     {
         let mut state = serializer.serialize_seq(None)?;
-        while let Some(token) = self.tokenizer.borrow_mut().next() {
+        while let Some(token) = self.token_iter.borrow_mut().next() {
             state.serialize_element(&token)?;
         }
         state.end()

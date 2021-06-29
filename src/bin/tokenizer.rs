@@ -6,6 +6,7 @@ use clap::{App, Arg};
 use kaleidoscope_lexer::tokenizer::{
     FileStream,
     Tokenizer,
+    TokenIterator,
     LexerSerializer
 };
 
@@ -73,19 +74,20 @@ fn main() {
         Some(path) => FileStream::try_from(&*PathBuf::from(path)).unwrap(),
         None => FileStream::default()
     };
-    let mut tokenizer = Tokenizer::new(file);
+    let tokenizer = Tokenizer::new();
+    let mut token_iterator = TokenIterator::new(file, tokenizer);
     match output_format {
         OutputFormats::Debug => {
-            for token in &mut tokenizer {
+            for token in &mut token_iterator {
                 println!("{:?}", token);
             }
         },
         OutputFormats::Json => {
-            let itok = LexerSerializer::new(tokenizer);
+            let itok = LexerSerializer::new(token_iterator);
             println!("{}", serde_json::to_string_pretty(&itok).unwrap());
         },
         OutputFormats::Toml => {
-            let itok = LexerSerializer::new(tokenizer);
+            let itok = LexerSerializer::new(token_iterator);
             println!("{}", toml::to_string_pretty(&itok).unwrap());
         }
     }

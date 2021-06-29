@@ -1,10 +1,10 @@
 use kaleidoscope_ast::{
-    node::{Node, ExprNode},
+    node::{ExprNode},
     nodes::{IntegerType, IntegerNode}
 };
 use kaleidoscope_lexer::{
-    token::{Token, TokenKind, BracketKind, BracketSide},
-    tokenizer::Tokenizer
+    token::{Token, TokenKind, BracketKind},
+    tokenizer::LexerTupleMut
 };
 use kaleidoscope_macro::ok_none;
 use crate::error::{Error, ErrorKind, Result};
@@ -28,9 +28,10 @@ impl Parser {
     #[inline]
     fn grab_token_from_tokenizer(
         &mut self,
-        tokenizer: &mut Tokenizer
+        st: LexerTupleMut<'_>
     ) -> Result<&mut Self> {
-        self.next_token(match tokenizer.next_token() {
+        let LexerTupleMut(stream, tokenizer) = st;
+        self.next_token(match tokenizer.next_token(stream) {
             Ok(token) => token,
             Err(e) => return Err(Error::from_err(
                 Box::new(e),
@@ -40,9 +41,9 @@ impl Parser {
     }
 
     #[inline]
-    fn grab_if_none(&mut self, tokenizer: &mut Tokenizer) -> Result<&mut Self> {
+    fn grab_if_none(&mut self, st: LexerTupleMut<'_>) -> Result<&mut Self> {
         if self.current_token.is_none() {
-            self.grab_token_from_tokenizer(tokenizer)?;
+            self.grab_token_from_tokenizer(st)?;
         }
         Ok(self)
     }
@@ -61,16 +62,17 @@ impl Parser {
 
     pub fn parse_expression(
         &mut self,
-        _tokenizer: &mut Tokenizer
+        _st: LexerTupleMut<'_>
     ) -> Result<Option<Box<dyn ExprNode>>> {
         Ok(None)
     }
 
     pub fn parse_integer(
         &mut self,
-        tokenizer: &mut Tokenizer
+        st: LexerTupleMut<'_>
     ) -> Result<Option<Box<IntegerNode>>> {
-        self.grab_if_none(tokenizer)?;
+        let LexerTupleMut(stream, tokenizer) = st;
+        self.grab_if_none(LexerTupleMut(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
         if let TokenKind::Integer = token.token_kind {
             let rust_integer = match
@@ -82,7 +84,7 @@ impl Parser {
                     ErrorKind::ParsingError
                 ))
             };
-            self.grab_token_from_tokenizer(tokenizer)?;
+            self.grab_token_from_tokenizer(LexerTupleMut(stream, tokenizer))?;
             Ok(Some(Box::new(IntegerNode::new(rust_integer))))
         } else {
             Ok(None)
@@ -91,9 +93,10 @@ impl Parser {
 
     pub fn parse_round_bracket_expression(
         &mut self,
-        tokenizer: &mut Tokenizer
+        st: LexerTupleMut<'_>
     ) -> Result<Option<Box<dyn ExprNode>>> {
-        self.grab_if_none(tokenizer)?;
+        let LexerTupleMut(stream, tokenizer) = st;
+        self.grab_if_none(LexerTupleMut(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
         let left_bracket = match token.token_kind {
             TokenKind::Bracket {bracket} => bracket,
@@ -109,8 +112,10 @@ impl Parser {
                 None
             ));
         }
-        self.grab_token_from_tokenizer(tokenizer)?;
-        let expression = match self.parse_expression(tokenizer)? {
+        self.grab_token_from_tokenizer(LexerTupleMut(stream, tokenizer))?;
+        let expression = match self.parse_expression(
+            LexerTupleMut(stream, tokenizer)
+        )? {
             Some(x) => x,
             None => return Err(Error::new(
                 &"Expected expression.",

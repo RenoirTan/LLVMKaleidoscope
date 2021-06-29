@@ -260,7 +260,7 @@ impl Bracket {
     /// # Example
     /// 
     /// ```
-    /// use kaleidoscope_lexer::token::Bracket;
+    /// use kaleidoscope_lexer::token::{Bracket, BracketKind, BracketSide};
     /// 
     /// let left_round = Bracket {
     ///     kind: BracketKind::Round,

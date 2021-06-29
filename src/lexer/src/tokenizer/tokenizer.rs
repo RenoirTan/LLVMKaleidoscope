@@ -3,7 +3,7 @@
 //! See [`Tokenizer`].
 
 use std::iter::Iterator;
-use super::FileStream;
+use super::{FileStream, TokenIterator, LexerTupleRef, LexerTupleMut};
 use crate::{
     error::Result,
     token::Token,
@@ -13,32 +13,51 @@ use crate::{
 /// The tokeniser which iterates over the characters in a file stream and
 /// yields a stream of tokens.
 pub struct Tokenizer {
-    pub stream: FileStream,
     pub last_unit: Option<char>
 }
 
 impl Tokenizer {
-    /// Create a new [`Tokenizer`] from a [`FileStream`].
-    pub fn new(stream: FileStream) -> Self {
-        Self { stream, last_unit: None }
+    /// Create a new [`Tokenizer`].
+    pub fn new() -> Self {
+        Self { last_unit: None }
     }
 
     /// See if any more tokens are available.
-    pub fn is_done(&self) -> bool {
-        self.stream.eof_reached()
+    #[inline]
+    pub fn is_done(&self, stream: &FileStream) -> bool {
+        stream.eof_reached()
     }
 
-    /// Get the next token by reading from the file stream.
-    pub fn next_token(&mut self) -> Result<Token> {
-        if self.stream.eof_reached() {
-            return Ok(Token::new_eof(self.stream.get_index()));
+    /// Convert this tokenizer into an iterator.
+    pub fn to_iter(self, stream: FileStream) -> TokenIterator {
+        TokenIterator::new(stream, self)
+    }
+
+    pub fn to_tuple_ref<'a>(
+        &'a self,
+        stream: &'a FileStream
+    ) -> LexerTupleRef<'a> {
+        LexerTupleRef(stream, self)
+    }
+
+    pub fn to_tuple_mut<'a>(
+        &'a mut self,
+        stream: &'a mut FileStream
+    ) -> LexerTupleMut<'a> {
+        LexerTupleMut(stream, self)
+    }
+
+    /// Get the next token by reading from a file stream.
+    pub fn next_token(&mut self, stream: &mut FileStream) -> Result<Token> {
+        if stream.eof_reached() {
+            return Ok(Token::new_eof(stream.get_index()));
         }
         if self.last_unit.is_none() {
-            self.last_unit = match self.stream.next() {
+            self.last_unit = match stream.next() {
                 Some(u) => Some(u),
                 None => {
-                    return match self.stream.get_err() {
-                        None => Ok(Token::new_eof(self.stream.get_index())),
+                    return match stream.get_err() {
+                        None => Ok(Token::new_eof(stream.get_index())),
                         Some(e) => Err(e)
                     };
                 }
@@ -47,7 +66,7 @@ impl Tokenizer {
         let mut token = Token::default();
         let mut is_comment = false;
         'stream: loop {
-            let index = self.stream.get_index();
+            let index = stream.get_index();
             // None case already handled above.
             let unit = self.last_unit.unwrap();
             if is_comment {
@@ -66,12 +85,12 @@ impl Tokenizer {
                     Err(e) => return Err(e)
                 }
             }
-            self.last_unit = match self.stream.next() {
+            self.last_unit = match stream.next() {
                 Some(u) => Some(u),
                 None => {
-                    match self.stream.get_err() {
+                    match stream.get_err() {
                         None => {
-                            if token.is_empty() && self.stream.eof_reached() {
+                            if token.is_empty() && stream.eof_reached() {
                                 token = Token::new_eof(index);
                             } else {
                                 token.resolve(index)?;
@@ -84,16 +103,5 @@ impl Tokenizer {
             };
         }
         Ok(token)
-    }
-}
-
-impl Iterator for Tokenizer {
-    type Item = Token;
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.stream.eof_reached() {
-            None
-        } else {
-            self.next_token().ok()
-        }
     }
 }
