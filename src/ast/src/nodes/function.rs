@@ -1,9 +1,11 @@
 //! A module defining a [`FunctionNode`].
 
+use std::fmt;
 use crate::prelude::*;
 use super::FunctionPrototypeNode;
 
 
+#[derive(Debug)]
 pub struct FunctionNode {
     prototype: Box<FunctionPrototypeNode>,
     body: Box<dyn ExprNode>
@@ -26,5 +28,17 @@ impl FunctionNode {
     /// Get the body of the function.
     pub fn get_body(&self) -> &dyn ExprNode {
         &*self.body
+    }
+}
+
+impl fmt::Display for FunctionNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}\n{}", self.prototype, self.body)
+    }
+}
+
+impl Node for FunctionNode {
+    fn node_id(&self) -> NodeId {
+        NodeId::new(14)
     }
 }

@@ -1,14 +1,22 @@
 //! A module that defines a node representing a function call.
 
+use std::fmt;
 use crate::prelude::*;
 use super::Identifier;
 
 /// A node representing a function call.
 /// This struct stores the name of the function
 /// and the list of arguments as a [`Vec`]tor.
+#[derive(Debug)]
 pub struct FunctionCallNode {
     identifier: Box<Identifier>,
     arguments: Vec<Box<dyn ExprNode>>
+}
+
+impl fmt::Display for FunctionCallNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}{:?})", self.identifier, self.arguments)
+    }
 }
 
 impl FunctionCallNode {

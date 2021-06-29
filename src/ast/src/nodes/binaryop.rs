@@ -1,5 +1,6 @@
 //! A module defining a [`BinaryOperatorNode`].
 
+use std::fmt;
 use crate::prelude::*;
 use super::Operator;
 
@@ -7,10 +8,17 @@ use super::Operator;
 /// For example, "1 + 2" is an expression with a binary operator, with
 /// '+' being the operator, and '1' and '2' being the 2 arguments of the
 /// operator.
+#[derive(Debug)]
 pub struct BinaryOperatorNode {
     operator: Box<Operator>,
     first: Box<dyn ExprNode>,
     second: Box<dyn ExprNode>
+}
+
+impl fmt::Display for BinaryOperatorNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}{}{})", self.operator, self.first, self.second)
+    }
 }
 
 impl BinaryOperatorNode {

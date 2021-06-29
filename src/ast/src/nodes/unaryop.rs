@@ -1,5 +1,6 @@
 //! A module defining a [`UnaryOperatorNode`].
 
+use std::fmt;
 use crate::prelude::*;
 use super::Operator;
 
@@ -11,6 +12,7 @@ use super::Operator;
 /// !true // Boolean Not: false
 /// ~50 // Bitwise Not: 205 (8-bit unsigned integer)
 /// ```
+#[derive(Debug)]
 pub struct UnaryOperatorNode {
     operator: Box<Operator>,
     first: Box<dyn ExprNode>
@@ -30,6 +32,12 @@ impl UnaryOperatorNode {
     /// Get the first argument in the expression.
     pub fn get_first(&self) -> &dyn ExprNode {
         &*self.first
+    }
+}
+
+impl fmt::Display for UnaryOperatorNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}{})", self.operator, self.first)
     }
 }
 

@@ -1,6 +1,9 @@
 //! Module which defines traits AST nodes can implement.
 
-use std::any::Any;
+use std::{
+    any::Any,
+    fmt::{Debug, Display}
+};
 use kaleidoscope_lexer::token::Token;
 use crate::error::Result;
 use super::NodeId;
@@ -13,7 +16,7 @@ pub trait FromToken: Sized {
 }
 
 /// The trait that all node types must implement.
-pub trait Node: Any {
+pub trait Node: Any + Debug + Display {
     /// Get the [`NodeId`] of a node. This [`NodeId`] classifies the type
     /// of [`Node`], not the [`Node`] instance itself.
     fn node_id(&self) -> NodeId;

@@ -1,10 +1,12 @@
 //! A module defining a node that represents an identifier.
 
+use std::fmt;
 use kaleidoscope_lexer::token::{Token, TokenKind};
 use crate::prelude::*;
 
 /// A struct representing a name or path that can identify an object, function
 /// or data structure like classes.
+#[derive(Debug)]
 pub struct Identifier {
     identifier: String
 }
@@ -18,6 +20,12 @@ impl Identifier {
     /// Get the name as a string.
     pub fn get_identifier(&self) -> &str {
         &self.identifier[..]
+    }
+}
+
+impl fmt::Display for Identifier {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.identifier)
     }
 }
 

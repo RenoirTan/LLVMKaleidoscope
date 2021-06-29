@@ -1,7 +1,11 @@
 //! A token kind representing a bracket.
 
 use std::{
-    cmp::{Ord, Ordering, PartialOrd},
+    cmp::{
+        Ord,
+        Ordering,
+        PartialOrd
+    },
     fmt
 };
 use serde::{Serialize, Deserialize};
@@ -243,6 +247,46 @@ impl Bracket {
             .unwrap()
     }
 
+    pub fn is_invalid(&self) -> bool {
+        matches!(self.kind, BracketKind::Unknown)
+    }
+
+    /// Check if the string representation of a bracket matches a bracket
+    /// represented internally using a [`Bracket`] object.
+    /// 
+    /// If both `self` and the other bracket are unknown, this method will
+    /// still return false for safety (like NaN !== NaN in JavaScript).
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// use kaleidoscope_lexer::token::Bracket;
+    /// 
+    /// let left_round = Bracket {
+    ///     kind: BracketKind::Round,
+    ///     side: BracketSide::Left
+    /// };
+    /// let unknown = Bracket {
+    ///     kind: BracketKind::Unknown,
+    ///     side: BracketSide::Left
+    /// };
+    /// 
+    /// assert!(left_round.is_str("("));
+    /// assert!(!left_round.is_str("]"));
+    /// 
+    /// // Although both `unknown` and "???" are both not brackets,
+    /// // `false` is still returned.
+    /// assert!(!unknown.is_str("???"));
+    /// ```
+    pub fn is_str(&self, string: &str) -> bool {
+        let other = Bracket::from_string(string);
+        if let BracketKind::Unknown = other.kind {
+            false
+        } else {
+            *self == other
+        }
+    }
+
     /// Checks if 2 brackets are of the same type.
     /// 
     /// In addition, the first bracket must be the left bracket and the
@@ -274,5 +318,11 @@ impl Bracket {
     /// ```
     pub fn cancels_out(self, other: Self) -> bool {
         self.kind == other.kind && self.side < other.side
+    }
+}
+
+impl<T: AsRef<str>> PartialEq<T> for Bracket {
+    fn eq(&self, other: &T) -> bool {
+        self.is_str(other.as_ref())
     }
 }

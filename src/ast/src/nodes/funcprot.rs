@@ -1,12 +1,20 @@
 //! A module for [`FunctionPrototypeNode`].
 
+use std::fmt;
 use crate::prelude::*;
 use super::Identifier;
 
 
+#[derive(Debug)]
 pub struct FunctionPrototypeNode {
     identifier: Box<Identifier>,
     parameters: Vec<Box<Identifier>>
+}
+
+impl fmt::Display for FunctionPrototypeNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "def {}{:?}", self.identifier, self.parameters)
+    }
 }
 
 
