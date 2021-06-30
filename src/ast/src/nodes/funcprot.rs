@@ -2,13 +2,13 @@
 
 use std::fmt;
 use crate::prelude::*;
-use super::Identifier;
+use super::IdentifierNode;
 
 
 #[derive(Debug)]
 pub struct FunctionPrototypeNode {
-    identifier: Box<Identifier>,
-    parameters: Vec<Box<Identifier>>
+    identifier: Box<IdentifierNode>,
+    parameters: Vec<Box<IdentifierNode>>
 }
 
 impl fmt::Display for FunctionPrototypeNode {
@@ -21,19 +21,19 @@ impl fmt::Display for FunctionPrototypeNode {
 impl FunctionPrototypeNode {
     /// Create a new [`FunctionPrototypeNode`] object.
     pub fn new(
-        identifier: Box<Identifier>,
-        parameters: Vec<Box<Identifier>>
+        identifier: Box<IdentifierNode>,
+        parameters: Vec<Box<IdentifierNode>>
     ) -> Self {
         FunctionPrototypeNode {identifier, parameters}
     }
 
     /// Get the identifier in the prototype.
-    pub fn get_identifier(&self) -> &Identifier {
+    pub fn get_identifier(&self) -> &IdentifierNode {
         &*self.identifier
     }
 
     /// Get the parameters in the prototype.
-    pub fn get_parameters(&self) -> &[Box<Identifier>] {
+    pub fn get_parameters(&self) -> &[Box<IdentifierNode>] {
         &*self.parameters
     }
 }

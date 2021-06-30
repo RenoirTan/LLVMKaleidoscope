@@ -2,14 +2,14 @@
 
 use std::fmt;
 use crate::prelude::*;
-use super::Identifier;
+use super::IdentifierNode;
 
 
 /// An expression where it's just one variable. This is essentially like
 /// `y` in the statement `x = y` in typical "C-like" languages.
 #[derive(Debug)]
 pub struct VariableExpressionNode {
-    identifier: Box<Identifier>
+    identifier: Box<IdentifierNode>
 }
 
 impl fmt::Display for VariableExpressionNode {
@@ -20,12 +20,12 @@ impl fmt::Display for VariableExpressionNode {
 
 impl VariableExpressionNode {
     /// Create a new [`VariableExpressionNode`] object.
-    pub fn new(identifier: Box<Identifier>) -> Self {
+    pub fn new(identifier: Box<IdentifierNode>) -> Self {
         Self {identifier}
     }
 
     /// Get the identifier.
-    pub fn get_identifier(&self) -> &Identifier {
+    pub fn get_identifier(&self) -> &IdentifierNode {
         &*self.identifier
     }
 }

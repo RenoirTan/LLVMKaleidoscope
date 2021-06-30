@@ -7,14 +7,14 @@ use crate::prelude::*;
 /// A struct representing a name or path that can identify an object, function
 /// or data structure like classes.
 #[derive(Debug)]
-pub struct Identifier {
+pub struct IdentifierNode {
     identifier: String
 }
 
-impl Identifier {
+impl IdentifierNode {
     /// Create a new [`Identifier`] object.
     pub fn new(identifier: String) -> Self {
-        Self {identifier}
+        IdentifierNode {identifier}
     }
 
     /// Get the name as a string.
@@ -23,16 +23,16 @@ impl Identifier {
     }
 }
 
-impl fmt::Display for Identifier {
+impl fmt::Display for IdentifierNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.identifier)
     }
 }
 
-impl FromToken for Identifier {
+impl FromToken for IdentifierNode {
     fn from_token(token: Token) -> Result<Self> {
         if let TokenKind::Identifier = token.token_kind {
-            Ok(Self {
+            Ok(IdentifierNode {
                 identifier: token.span.clone()
             })
         } else {
@@ -45,7 +45,7 @@ impl FromToken for Identifier {
     }
 }
 
-impl Node for Identifier {
+impl Node for IdentifierNode {
     fn node_id(&self) -> NodeId {
         NodeId::new(2)
     }

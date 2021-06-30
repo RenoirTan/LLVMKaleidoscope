@@ -2,14 +2,14 @@
 
 use std::fmt;
 use crate::prelude::*;
-use super::Identifier;
+use super::IdentifierNode;
 
 /// A node representing a function call.
 /// This struct stores the name of the function
 /// and the list of arguments as a [`Vec`]tor.
 #[derive(Debug)]
 pub struct FunctionCallNode {
-    identifier: Box<Identifier>,
+    identifier: Box<IdentifierNode>,
     arguments: Vec<Box<dyn ExprNode>>
 }
 
@@ -21,12 +21,12 @@ impl fmt::Display for FunctionCallNode {
 
 impl FunctionCallNode {
     /// Create a new instance of a [`FunctionCallNode`].
-    pub fn new(identifier: Box<Identifier>, arguments: Vec<Box<dyn ExprNode>>) -> Self {
+    pub fn new(identifier: Box<IdentifierNode>, arguments: Vec<Box<dyn ExprNode>>) -> Self {
         Self {identifier, arguments}
     }
 
     /// Get the name of the function.
-    pub fn get_identifier(&self) -> &Identifier {
+    pub fn get_identifier(&self) -> &IdentifierNode {
         &*self.identifier
     }
 

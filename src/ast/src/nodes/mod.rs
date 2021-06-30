@@ -14,7 +14,7 @@ pub use binaryop::BinaryOperatorNode;
 pub use funccall::FunctionCallNode;
 pub use funcprot::FunctionPrototypeNode;
 pub use function::FunctionNode;
-pub use identifier::Identifier;
+pub use identifier::IdentifierNode;
 pub use integer::{IntegerNode, IntegerType};
 pub use operator::Operator;
 pub use unaryop::UnaryOperatorNode;

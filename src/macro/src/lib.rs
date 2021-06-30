@@ -111,3 +111,12 @@ macro_rules! ok_none {
         }
     };
 }
+
+#[macro_export]
+macro_rules! return_ok_some {
+    ($option: expr) => {
+        if $option.is_some() {
+            return Ok($option);
+        }
+    };
+}

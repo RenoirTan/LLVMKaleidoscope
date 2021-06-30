@@ -1,14 +1,16 @@
 use kaleidoscope_ast::{
     node::{ExprNode},
-    nodes::{IntegerType, IntegerNode}
+    nodes::{IntegerNode, IntegerType, VariableExpressionNode, IdentifierNode}
 };
 use kaleidoscope_lexer::{
     ltuplemut,
     token::{Token, TokenKind, BracketKind},
     tokenizer::LexerTupleMut
 };
-use kaleidoscope_macro::ok_none;
+use kaleidoscope_macro::{ok_none, return_ok_some};
 use crate::error::{Error, ErrorKind, Result};
+
+pub type ParseResult<T> = Result<Option<Box<T>>>;
 
 pub struct Parser {
     pub current_token: Option<Token>
@@ -62,15 +64,24 @@ impl Parser {
 
     pub fn parse_expression(
         &mut self,
-        ltuplemut!(_stream, _tokenizer): LexerTupleMut<'_>
-    ) -> Result<Option<Box<dyn ExprNode>>> {
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+    ) -> ParseResult<dyn ExprNode> {
+        return_ok_some!(
+            self.parse_integer_expression(ltuplemut!(stream, tokenizer))?
+        );
+        return_ok_some!(
+            self.parse_round_bracket_expression(ltuplemut!(stream, tokenizer))?
+        );
+        return_ok_some!(
+            self.parse_variable_expression(ltuplemut!(stream, tokenizer))?
+        );
         Ok(None)
     }
 
-    pub fn parse_integer(
+    pub fn parse_integer_expression(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
-    ) -> Result<Option<Box<IntegerNode>>> {
+    ) -> ParseResult<dyn ExprNode> {
         self.grab_if_none(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
         if let TokenKind::Integer = token.token_kind {
@@ -90,10 +101,26 @@ impl Parser {
         }
     }
 
+    pub fn parse_variable_expression(
+        &mut self,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+    ) -> ParseResult<dyn ExprNode> {
+        self.grab_if_none(ltuplemut!(stream, tokenizer))?;
+        let token = ok_none!(self.get_current_token());
+        if let TokenKind::Identifier = token.token_kind {
+            let identifier = Box::new(
+                IdentifierNode::new(token.borrow_span().to_string())
+            );
+            Ok(Some(Box::new(VariableExpressionNode::new(identifier))))
+        } else {
+            Ok(None)
+        }
+    }
+
     pub fn parse_round_bracket_expression(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
-    ) -> Result<Option<Box<dyn ExprNode>>> {
+    ) -> ParseResult<dyn ExprNode> {
         self.grab_if_none(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
         let left_bracket = match token.token_kind {
