@@ -1,7 +1,7 @@
 CARGO=cargo
 ARGS=--workspace --color=always
 
-.PHONY: help all ascii_art dfull rfull doc dbuild rbuild test
+.PHONY: help clean all ascii_art dfull rfull doc dbuild rbuild test
 
 help: ascii_art
 	@echo "Helper Makefile"
@@ -9,6 +9,7 @@ help: ascii_art
 	@echo "USAGE: make [TARGET_NAME] [OPTIONS]"
 	@echo ""
 	@echo " - help: Display this help message."
+	@echo " - clean: Remove the target directory along with any other cache folders."
 	@echo " - dbuild: Build library with the debug profile."
 	@echo " - rbuild: Build library with the release profile."
 	@echo " - doc: Generate the documentation for this library."
@@ -52,3 +53,6 @@ rbuild:
 
 test:
 	$(CARGO) test $(ARGS) --no-fail-fast
+
+clean:
+	$(CARGO) clean

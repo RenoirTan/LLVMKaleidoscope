@@ -133,8 +133,18 @@ impl Parser {
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
     ) -> ParseResult<dyn ExprNode> {
+        self.parse_primary_expression(ltuplemut!(stream, tokenizer))
+    }
+
+    pub fn parse_primary_expression(
+        &mut self,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+    ) -> ParseResult<dyn ExprNode> {
         return_ok_some!(
             self.parse_integer_expression(ltuplemut!(stream, tokenizer))?
+        );
+        return_ok_some!(
+            self.parse_float_expression(ltuplemut!(stream, tokenizer))?
         );
         return_ok_some!(
             self.parse_round_bracket_expression(ltuplemut!(stream, tokenizer))?
@@ -204,6 +214,15 @@ impl Parser {
         } else {
             Ok(None)
         }
+    }
+
+    pub fn parse_binary_operator_expression(
+        &mut self,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+    ) -> ParseResult<dyn ExprNode> {
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        // TODO: Complete binary operator parser
+        Ok(None)
     }
 
     pub fn parse_round_bracket_expression(
