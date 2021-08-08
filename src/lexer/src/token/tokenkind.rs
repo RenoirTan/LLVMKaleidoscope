@@ -27,7 +27,11 @@ pub enum TokenKind {
     /// The token kind representing an operator (e.g. '+' in 1 + 2)
     Operator {operator: Operator},
     /// The token kind representing a bracket (e.g. '{', '}')
-    Bracket {bracket: Bracket}
+    Bracket {bracket: Bracket},
+    /// The token kind representing a comma separator.
+    Comma,
+    /// The token kind representing a period, used in attribute accessors.
+    Dot
 }
 
 impl Default for TokenKind {

@@ -60,3 +60,13 @@ pub fn is_comment(unit: char) -> bool {
 pub fn is_bracket(unit: char) -> bool {
     matches!(unit, '(' | '[' | '{' | '<' | ')' | ']' | '}' | '>')
 }
+
+/// See if `unit` is a comma separator.
+pub fn is_comma(unit: char) -> bool {
+    unit == ','
+}
+
+/// See if `unit` is a fullstop.
+pub fn is_dot(unit: char) -> bool {
+    unit == '.'
+}
