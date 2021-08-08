@@ -2,6 +2,7 @@ use std::ops;
 use kaleidoscope_ast::{
     node::{ExprNode},
     nodes::{
+        BinaryOperatorNode,
         IntegerNode,
         IntegerType,
         FloatNode,
@@ -16,7 +17,10 @@ use kaleidoscope_lexer::{
     tokenizer::LexerTupleMut
 };
 use kaleidoscope_macro::{ok_none, return_ok_some};
-use crate::error::{Error, ErrorKind, Result};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    precedence::BinaryOperatorPrecedence
+};
 
 pub type ParseResult<T> = Result<Option<Box<T>>>;
 
@@ -133,7 +137,15 @@ impl Parser {
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
     ) -> ParseResult<dyn ExprNode> {
-        self.parse_primary_expression(ltuplemut!(stream, tokenizer))
+        let lhs = self.parse_primary_expression(ltuplemut!(stream, tokenizer))?;
+        match lhs {
+            None => Ok(None),
+            Some(lhs) => self.parse_binary_operator_rhs_expression(
+                lhs,
+                BinaryOperatorPrecedence::Unknown,
+                ltuplemut!(stream, tokenizer)
+            )
+        }
     }
 
     pub fn parse_primary_expression(
@@ -216,13 +228,65 @@ impl Parser {
         }
     }
 
-    pub fn parse_binary_operator_expression(
+    pub fn parse_binary_operator_rhs_expression(
         &mut self,
+        mut lhs: Box<dyn ExprNode>,
+        minimum_operator_precedence: BinaryOperatorPrecedence,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         // TODO: Complete binary operator parser
-        Ok(None)
+        // I have no idea what the code below does
+        loop {
+            let token = ok_none!(self.get_current_token());
+            let operator = match token.token_kind {
+                TokenKind::Operator {operator} => operator,
+                _ => return Ok(Some(lhs))
+            };
+            let precedence: BinaryOperatorPrecedence = operator.into();
+            if precedence < minimum_operator_precedence {
+                return Ok(Some(lhs));
+            }
+            let mut rhs = match self.parse_primary_expression(
+                ltuplemut!(stream, tokenizer)
+            )? {
+                Some(rhs) => rhs,
+                None => return Err(Error::new(
+                    &format!(
+                        "No right-hand side expression after binary operator \
+                        {}",
+                        operator
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                ))
+            };
+            self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+            let next_token = ok_none!(self.get_current_token());
+            let next_operator = match next_token.token_kind {
+                TokenKind::Operator {operator} => operator,
+                _ => return Ok(Some(Box::new(BinaryOperatorNode::new(
+                    Box::new(operator),
+                    lhs,
+                    rhs
+                ))))
+            };
+            let next_precedence = BinaryOperatorPrecedence::from_operator(
+                next_operator
+            );
+            if precedence < next_precedence {
+                rhs = ok_none!(self.parse_binary_operator_rhs_expression(
+                    rhs,
+                    next_precedence,
+                    ltuplemut!(stream, tokenizer)
+                )?);
+            }
+            lhs = Box::new(BinaryOperatorNode::new(
+                Box::new(operator),
+                lhs,
+                rhs
+            ));
+        }
     }
 
     pub fn parse_round_bracket_expression(

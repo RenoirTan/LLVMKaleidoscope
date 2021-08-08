@@ -114,11 +114,12 @@ macro_rules! ok_none {
 
 #[macro_export]
 macro_rules! return_ok_some {
-    ($option: expr) => {
-        if $option.is_some() {
-            return Ok($option);
+    ($option: expr) => {{
+        let __opt = $option;
+        if __opt.is_some() {
+            return Ok(__opt);
         }
-    };
+    }};
 }
 
 /// Convert an iterator into a string with each element being a separated by
@@ -130,8 +131,8 @@ macro_rules! return_ok_some {
 /// use kaleidoscope_macro::iterator_to_str;
 /// 
 /// let sequence = vec![1, 2, 3, 4, 5];
-/// let string = iterator_to_str!(sequence.iter(), " ??? ")
-/// assert_eq!(string, "1 ??? 2 ??? 3 ??? 4 ??? 5")
+/// let string = iterator_to_str!(sequence.iter(), " ??? ");
+/// assert_eq!(string, "1 ??? 2 ??? 3 ??? 4 ??? 5");
 /// ```
 #[macro_export]
 macro_rules! iterator_to_str {
