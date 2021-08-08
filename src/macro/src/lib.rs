@@ -120,3 +120,28 @@ macro_rules! return_ok_some {
         }
     };
 }
+
+/// Convert an iterator into a string with each element being a separated by
+/// a string.
+/// 
+/// # Example
+/// 
+/// ```
+/// use kaleidoscope_macro::iterator_to_str;
+/// 
+/// let sequence = vec![1, 2, 3, 4, 5];
+/// let string = iterator_to_str!(sequence.iter(), " ??? ")
+/// assert_eq!(string, "1 ??? 2 ??? 3 ??? 4 ??? 5")
+/// ```
+#[macro_export]
+macro_rules! iterator_to_str {
+    ($iterator: expr, $separator: expr) => {
+        $iterator
+            .map(|e| format!("{}", e))
+            .collect::<Vec<String>>()
+            .join($separator)
+    };
+    ($iterator: expr) => {
+        iterator_to_str!($iterator, "")
+    }
+}

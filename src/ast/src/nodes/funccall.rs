@@ -1,6 +1,7 @@
 //! A module that defines a node representing a function call.
 
 use std::fmt;
+use kaleidoscope_macro::iterator_to_str;
 use crate::prelude::*;
 use super::IdentifierNode;
 
@@ -15,13 +16,17 @@ pub struct FunctionCallNode {
 
 impl fmt::Display for FunctionCallNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}{:?})", self.identifier, self.arguments)
+        let args = iterator_to_str!(self.arguments.iter(), ", ");
+        write!(f, "{}({})", self.identifier, args)
     }
 }
 
 impl FunctionCallNode {
     /// Create a new instance of a [`FunctionCallNode`].
-    pub fn new(identifier: Box<IdentifierNode>, arguments: Vec<Box<dyn ExprNode>>) -> Self {
+    pub fn new(
+        identifier: Box<IdentifierNode>,
+        arguments: Vec<Box<dyn ExprNode>>
+    ) -> Self {
         Self {identifier, arguments}
     }
 

@@ -1,6 +1,7 @@
 //! A module for [`FunctionPrototypeNode`].
 
 use std::fmt;
+use kaleidoscope_macro::iterator_to_str;
 use crate::prelude::*;
 use super::IdentifierNode;
 
@@ -13,7 +14,8 @@ pub struct FunctionPrototypeNode {
 
 impl fmt::Display for FunctionPrototypeNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "def {}{:?}", self.identifier, self.parameters)
+        let params = iterator_to_str!(self.parameters.iter(), ", ");
+        write!(f, "def {}({})", self.identifier, params)
     }
 }
 
