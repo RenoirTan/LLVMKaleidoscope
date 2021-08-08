@@ -91,25 +91,21 @@ impl Token {
         self.start = index;
         if utils::is_whitespace(unit) {
             return Ok(false);
-        } else if utils::is_identifier_start(unit) {
+        }
+        self.span.push(unit);
+        if utils::is_identifier_start(unit) {
             self.token_kind = TokenKind::Identifier;
-            self.span.push(unit);
         } else if utils::is_decimal_digit(unit) {
             self.token_kind = TokenKind::Integer;
-            self.span.push(unit);
         } else if utils::is_opchar(unit) {
-            self.span.push(unit);
             let operator = Operator::from_string(self.borrow_span());
             self.token_kind = TokenKind::Operator {operator};
         } else if utils::is_bracket(unit) {
-            self.span.push(unit);
             let bracket = Bracket::from_string(self.borrow_span());
             self.token_kind = TokenKind::Bracket {bracket};
         } else if utils::is_comma(unit) {
-            self.span.push(unit);
             self.token_kind = TokenKind::Comma;
         } else if utils::is_dot(unit) {
-            self.span.push(unit);
             self.token_kind = TokenKind::Dot;
         } else {
             return Err(Error::new(
