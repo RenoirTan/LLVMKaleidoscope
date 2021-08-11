@@ -41,10 +41,27 @@ impl fmt::Display for UnaryOperatorNode {
     }
 }
 
+impl Clone for UnaryOperatorNode {
+    fn clone(&self) -> Self {
+        Self::new(
+            self.operator.clone(),
+            self.first.expr_node_clone()
+        )
+    }
+}
+
 impl Node for UnaryOperatorNode {
     fn node_id(&self) -> NodeId {
         NodeId::new(7)
     }
+
+    fn node_clone(&self) -> Box<dyn Node> {
+        Box::new(self.clone())
+    }
 }
 
-impl ExprNode for UnaryOperatorNode {}
+impl ExprNode for UnaryOperatorNode {
+    fn expr_node_clone(&self) -> Box<dyn ExprNode> {
+        Box::new(self.clone())
+    }
+}

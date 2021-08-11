@@ -31,6 +31,15 @@ impl FunctionNode {
     }
 }
 
+impl Clone for FunctionNode {
+    fn clone(&self) -> Self {
+        Self::new(
+            self.prototype.clone(),
+            self.body.expr_node_clone()
+        )
+    }
+}
+
 impl fmt::Display for FunctionNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}\n{}", self.prototype, self.body)
@@ -40,5 +49,9 @@ impl fmt::Display for FunctionNode {
 impl Node for FunctionNode {
     fn node_id(&self) -> NodeId {
         NodeId::new(14)
+    }
+
+    fn node_clone(&self) -> Box<dyn Node> {
+        Box::new(self.clone())
     }
 }

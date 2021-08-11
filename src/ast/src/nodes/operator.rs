@@ -10,4 +10,8 @@ impl Node for Operator {
     fn node_id(&self) -> NodeId {
         NodeId::new(3)
     }
+
+    fn node_clone(&self) -> Box<dyn Node> {
+        Box::new(self.clone())
+    }
 }

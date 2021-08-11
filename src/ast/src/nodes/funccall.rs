@@ -41,8 +41,25 @@ impl FunctionCallNode {
     }
 }
 
+impl Clone for FunctionCallNode {
+    fn clone(&self) -> Self {
+        let arguments = self.arguments
+            .iter()
+            .map(|a| a.expr_node_clone())
+            .collect();
+        Self::new(
+            self.identifier.clone(),
+            arguments
+        )
+    }
+}
+
 impl Node for FunctionCallNode {
     fn node_id(&self) -> NodeId {
         NodeId::new(11)
+    }
+
+    fn node_clone(&self) -> Box<dyn Node> {
+        Box::new(self.clone())
     }
 }
