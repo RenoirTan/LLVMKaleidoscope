@@ -1,9 +1,6 @@
 //! Module which defines traits AST nodes can implement.
 
-use std::{
-    any::Any,
-    fmt::{Debug, Display}
-};
+use std::{any::Any, fmt::{Debug, Display}, ops::Deref};
 use kaleidoscope_lexer::token::Token;
 use crate::error::Result;
 use super::NodeId;
@@ -20,15 +17,27 @@ pub trait Node: Any + Debug + Display {
     /// Get the [`NodeId`] of a node. This [`NodeId`] classifies the type
     /// of [`Node`], not the [`Node`] instance itself.
     fn node_id(&self) -> NodeId;
+
+    fn node_clone(&self) -> Box<dyn Node>;
 }
 
 /// A node representing an expression.
-pub trait ExprNode: Node {}
+pub trait ExprNode: Node {
+    fn expr_node_clone(&self) -> Box<dyn ExprNode>;
+}
 
 impl<T: Node> Node for Box<T> {
     fn node_id(&self) -> NodeId {
         (**self).node_id()
     }
+
+    fn node_clone(&self) -> Box<dyn Node> {
+        self.deref().node_clone()
+    }
 }
 
-impl<T: ExprNode> ExprNode for Box<T> {}
+impl<T: ExprNode> ExprNode for Box<T> {
+    fn expr_node_clone(&self) -> Box<dyn ExprNode> {
+        self.deref().expr_node_clone()
+    }
+}

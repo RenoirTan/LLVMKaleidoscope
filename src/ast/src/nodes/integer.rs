@@ -9,7 +9,7 @@ pub type IntegerType = i128;
 
 /// A node representing an integer. This integer's internal representation
 /// depends on [`IntegerType`].
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IntegerNode {
     value: IntegerType
 }
@@ -58,6 +58,14 @@ impl Node for IntegerNode {
     fn node_id(&self) -> NodeId {
         NodeId::new(4)
     }
+
+    fn node_clone(&self) -> Box<dyn Node> {
+        Box::new(self.clone())
+    }
 }
 
-impl ExprNode for IntegerNode {}
+impl ExprNode for IntegerNode {
+    fn expr_node_clone(&self) -> Box<dyn ExprNode> {
+        Box::new(self.clone())
+    }
+}

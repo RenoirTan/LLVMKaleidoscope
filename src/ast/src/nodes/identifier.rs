@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 /// A struct representing a name or path that can identify an object, function
 /// or data structure like classes.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IdentifierNode {
     identifier: String
 }
@@ -48,5 +48,9 @@ impl FromToken for IdentifierNode {
 impl Node for IdentifierNode {
     fn node_id(&self) -> NodeId {
         NodeId::new(2)
+    }
+
+    fn node_clone(&self) -> Box<dyn Node> {
+        Box::new(self.clone())
     }
 }
