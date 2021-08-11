@@ -63,3 +63,9 @@ impl Node for FunctionCallNode {
         Box::new(self.clone())
     }
 }
+
+impl ExprNode for FunctionCallNode {
+    fn expr_node_clone(&self) -> Box<dyn ExprNode> {
+        Box::new(self.clone())
+    }
+}
