@@ -142,16 +142,7 @@ impl FileStream {
     pub fn from_stdin() -> Self {
         let stdin: Box<dyn Read> = Box::new(stdin());
         let buffer = BufReader::new(stdin).lines().enumerate();
-        let mut this = Self {
-            buffer,
-            line: Vec::new(),
-            cursor: 0,
-            index: Default::default(),
-            error: None,
-            eof_reached: false,
-        };
-        this.init();
-        this
+        Self::new(buffer)
     }
 
     /// Create a new `FileStream` from a path.
@@ -166,16 +157,7 @@ impl FileStream {
             ),
         };
         let buffer = BufReader::new(file).lines().enumerate();
-        let mut this = FileStream {
-            buffer,
-            cursor: 0,
-            line: Vec::new(),
-            index: Default::default(),
-            error: None,
-            eof_reached: false,
-        };
-        this.init();
-        Ok(this)
+        Ok(Self::new(buffer))
     }
 }
 

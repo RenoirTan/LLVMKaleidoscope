@@ -1,7 +1,7 @@
 //! A token representing an operator.
 
+use std::fmt;
 use serde::{Serialize, Deserialize};
-use kaleidoscope_macro::impl_display;
 
 /// A token representing an operator.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -18,7 +18,11 @@ pub enum Operator {
     GreaterThanEqual,
 }
 
-impl_display!(Operator);
+impl fmt::Display for Operator {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad(self.to_string())
+    }
+}
 
 impl Operator {
     /// Convert a string representation of an operator to an [`Operator`] enum.
@@ -35,6 +39,22 @@ impl Operator {
             "<=" => LessThanEqual,
             ">=" => GreaterThanEqual,
             _ => Unknown
+        }
+    }
+
+    pub fn to_string(&self) -> &'static str {
+        use Operator::*;
+        match self {
+            Plus => "+",
+            Minus => "-",
+            Multiply => "*",
+            Divide => "/",
+            LessThan => "<",
+            GreaterThan => ">",
+            Equals => "==",
+            LessThanEqual => "<=",
+            GreaterThanEqual => ">=",
+            Unknown => "???"
         }
     }
 }
