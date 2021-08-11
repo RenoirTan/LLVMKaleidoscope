@@ -8,7 +8,8 @@ use kaleidoscope_ast::{
         FloatNode,
         FloatType,
         VariableExpressionNode,
-        IdentifierNode
+        IdentifierNode,
+        Operator
     }
 };
 use kaleidoscope_lexer::{
@@ -142,6 +143,7 @@ impl Parser {
             None => Ok(None),
             Some(lhs) => self.parse_binary_operator_rhs_expression(
                 lhs,
+                Operator::Unknown,
                 BinaryOperatorPrecedence::Unknown,
                 ltuplemut!(stream, tokenizer)
             )
@@ -231,20 +233,68 @@ impl Parser {
     pub fn parse_binary_operator_rhs_expression(
         &mut self,
         mut lhs: Box<dyn ExprNode>,
+        loperator: Operator,
         minimum_operator_precedence: BinaryOperatorPrecedence,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
     ) -> ParseResult<dyn ExprNode> {
-        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        // TODO: Complete binary operator parser
+
+        #[inline]
+        fn up(
+            operator: Operator,
+            lhs: Box<dyn ExprNode>,
+            rhs: Box<dyn ExprNode>
+        ) -> ParseResult<dyn ExprNode> {
+            Ok(Some(Box::new(BinaryOperatorNode::new(
+                Box::new(operator),
+                lhs,
+                rhs
+            ))))
+        }
+
         // I have no idea what the code below does
+        // UPDATE
+        // I think I know what this does!
+        // So let P be any arbitrary primary expression.
+        // Given an expression like this:
+        //     P1 + P2 * P3 + P4
+        // When you enter this function, you are implicitly given
+        // P1 as the left-hand side (abbreviated as LHS). Then you
+        // make sure that the next token is an binary operator.
+        // If the next token is not an operator, you can return P1
+        // by itself.
+        //
+        // Then the loop looks for the next expression (i.e. P2).
+        // If P2 is not found, an error is returned (because
+        // Kaleidoscope doesn't have suffix unary operators).
+        // However, if P2 is indeed found, we go on to the juicy part
+        // of the algorithm:
+        //
+        // The parser takes a look at the second operator ('*' in this case).
+        // Since * has a higher precedence than +, the parser tries to form
+        // an expression around P2 and P3 to create (+ P1 (* P2 P3)).
+        // As the third operator ('+') does not have a equal or higher
+        // priority when compared to *, the parser ends off here.
+        //
+        // Given the left-hand nature of Kaleidoscope, 2 binary operators
+        // with equal precedence (using '+' in this example) will be treated
+        // like this (+ (+ P1 P2) P3).
         loop {
-            let token = ok_none!(self.get_current_token());
-            let operator = match token.token_kind {
-                TokenKind::Operator {operator} => operator,
-                _ => return Ok(Some(lhs))
+            self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+            // Unknown as an argument is a special value. It signifies
+            let loperator = if let Operator::Unknown = loperator {
+                let possible_loperator = match self.get_current_token() {
+                    Some(o) => o,
+                    None => return Ok(Some(lhs))
+                };
+                match possible_loperator.token_kind {
+                    TokenKind::Operator {operator} => operator,
+                    _ => return Ok(Some(lhs))
+                }
+            } else {
+                loperator
             };
-            let precedence: BinaryOperatorPrecedence = operator.into();
-            if precedence < minimum_operator_precedence {
+            let lprecedence: BinaryOperatorPrecedence = loperator.into();
+            if lprecedence < minimum_operator_precedence {
                 return Ok(Some(lhs));
             }
             let mut rhs = match self.parse_primary_expression(
@@ -253,36 +303,36 @@ impl Parser {
                 Some(rhs) => rhs,
                 None => return Err(Error::new(
                     &format!(
-                        "No right-hand side expression after binary operator \
-                        {}",
-                        operator
+                        "No right-hand side expression after {}",
+                        loperator
                     ),
                     ErrorKind::SyntaxError,
                     None
                 ))
             };
             self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-            let next_token = ok_none!(self.get_current_token());
-            let next_operator = match next_token.token_kind {
-                TokenKind::Operator {operator} => operator,
-                _ => return Ok(Some(Box::new(BinaryOperatorNode::new(
-                    Box::new(operator),
-                    lhs,
-                    rhs
-                ))))
+            let possible_roperator = match self.get_current_token() {
+                Some(token) => token,
+                None => return up(loperator, lhs, rhs)
             };
-            let next_precedence = BinaryOperatorPrecedence::from_operator(
-                next_operator
-            );
-            if precedence < next_precedence {
+            let roperator = match possible_roperator.token_kind {
+                TokenKind::Operator {operator} => operator,
+                _ => return up(loperator, lhs, rhs)
+            };
+            let rprecedence =
+                BinaryOperatorPrecedence::from_operator(roperator);
+            if lprecedence < rprecedence {
                 rhs = ok_none!(self.parse_binary_operator_rhs_expression(
                     rhs,
-                    next_precedence,
+                    roperator,
+                    rprecedence,
                     ltuplemut!(stream, tokenizer)
                 )?);
             }
+            // Collect all expressions to the left-hand side.
+            // For a right-hand language, rhs is replaced instead.
             lhs = Box::new(BinaryOperatorNode::new(
-                Box::new(operator),
+                Box::new(loperator),
                 lhs,
                 rhs
             ));
