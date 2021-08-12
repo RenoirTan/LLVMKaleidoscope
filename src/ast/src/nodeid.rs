@@ -38,6 +38,8 @@ type IdInner = u32;
 /// 14: Function Definition,
 /// 
 /// 15: Variable Expression
+///
+/// 16: Extern Function
 /// 
 #[derive(Copy, Clone, Debug)]
 pub struct NodeId {

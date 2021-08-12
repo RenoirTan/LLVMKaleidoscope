@@ -3,6 +3,7 @@ use kaleidoscope_ast::{
     node::ExprNode,
     nodes::{
         BinaryOperatorNode,
+        ExternFunctionNode,
         FloatNode,
         FloatType,
         FunctionNode,
@@ -588,5 +589,35 @@ impl Parser {
             ))
         };
         Ok(Some(Box::new(FunctionNode::new(prototype, body))))
+    }
+
+    pub fn parse_extern_function(
+        &mut self,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+    ) -> ParseResult<ExternFunctionNode> {
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let extern_token = ok_none!(self.get_current_token());
+        match extern_token.token_kind {
+            TokenKind::Keyword {keyword}
+                if matches!(keyword, Keyword::Extern) => (),
+            _ => {
+                self.current_token.uses -= 1;
+                return Ok(None);
+            }
+        };
+        let prototype = match
+            self.parse_function_prototype(ltuplemut!(stream, tokenizer))?
+        {
+            Some(p) => p,
+            None => return Err(Error::new(
+                &format!(
+                    "No function prototype for extern keyword at {}",
+                    extern_token.start
+                ),
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
+        Ok(Some(Box::new(ExternFunctionNode::new(prototype))))
     }
 }

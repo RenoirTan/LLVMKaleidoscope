@@ -1,6 +1,7 @@
 //! A module defining all the nodes in a Kaleidoscope Abstract Syntax Tree.
 
 mod binaryop;
+mod externfunc;
 mod float;
 mod funccall;
 mod funcprot;
@@ -12,6 +13,7 @@ mod unaryop;
 mod varexpr;
 
 pub use binaryop::BinaryOperatorNode;
+pub use externfunc::ExternFunctionNode;
 pub use float::{FloatNode, FloatType};
 pub use funccall::FunctionCallNode;
 pub use funcprot::FunctionPrototypeNode;
