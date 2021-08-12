@@ -120,6 +120,11 @@ macro_rules! return_ok_some {
             return Ok(__opt);
         }
     }};
+    ($option: expr => $retval: expr) => {{
+        if $option.is_some() {
+            return Ok($retval);
+        }
+    }};
 }
 
 /// Convert an iterator into a string with each element being a separated by

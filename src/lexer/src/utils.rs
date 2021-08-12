@@ -70,3 +70,8 @@ pub fn is_comma(unit: char) -> bool {
 pub fn is_dot(unit: char) -> bool {
     unit == '.'
 }
+
+/// See if `unit` is a semicolon.
+pub fn is_semicolon(unit: char) -> bool {
+    unit == ';'
+}

@@ -107,6 +107,8 @@ impl Token {
             self.token_kind = TokenKind::Comma;
         } else if utils::is_dot(unit) {
             self.token_kind = TokenKind::Dot;
+        } else if utils::is_semicolon(unit) {
+            self.token_kind = TokenKind::Semicolon;
         } else {
             return Err(Error::new(
                 &format!("Invalid char {} at {}", unit, index),
@@ -131,8 +133,9 @@ impl Token {
             TokenKind::Float => self.add_unit_if_float(unit, index),
             TokenKind::Operator {..} => self.add_unit_if_operator(unit, index),
             TokenKind::Bracket {..} => self.add_unit_if_bracket(unit, index),
-            TokenKind::Comma => self.add_unit_if_comma(unit, index),
-            TokenKind::Dot => self.add_unit_if_dot(unit, index),
+            TokenKind::Comma
+            | TokenKind::Dot
+            | TokenKind::Semicolon => Ok(true),
             _ => Err(Error::new(
                 &format!(
                     "Uncaught TokenKind {} at {}",
@@ -207,22 +210,6 @@ impl Token {
         _index: FileIndex
     ) -> Result<bool> {
         // All brackets are currently only length 1
-        Ok(true)
-    }
-
-    fn add_unit_if_comma(
-        &mut self,
-        _unit: char,
-        _index: FileIndex
-    ) -> Result<bool> {
-        Ok(true)
-    }
-
-    fn add_unit_if_dot(
-        &mut self,
-        _unit: char,
-        _index: FileIndex
-    ) -> Result<bool> {
         Ok(true)
     }
 

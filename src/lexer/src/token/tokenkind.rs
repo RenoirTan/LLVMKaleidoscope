@@ -31,7 +31,9 @@ pub enum TokenKind {
     /// The token kind representing a comma separator.
     Comma,
     /// The token kind representing a period, used in attribute accessors.
-    Dot
+    Dot,
+    /// A semicolon denotes the end of a statement/expression
+    Semicolon
 }
 
 impl Default for TokenKind {

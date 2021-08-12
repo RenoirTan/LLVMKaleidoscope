@@ -186,6 +186,26 @@ impl Parser {
         }
     }
 
+    pub fn parse_top_level_expression(
+        &mut self,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+    ) -> ParseResult<FunctionNode> {
+        let expression = match
+            self.parse_expression(ltuplemut!(stream, tokenizer))?
+        {
+            Some(ex) => ex,
+            None => return Ok(None)
+        };
+        let prototype = FunctionPrototypeNode::new(
+            Box::new(IdentifierNode::new(String::from(""))),
+            Vec::new()
+        );
+        Ok(Some(Box::new(FunctionNode::new(
+            Box::new(prototype),
+            expression
+        ))))
+    }
+
     pub fn parse_expression(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
