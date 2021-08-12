@@ -1,20 +1,30 @@
 use std::ops;
 use kaleidoscope_ast::{
-    node::{ExprNode},
+    node::{
+        ExprNode,
+        Node
+    },
     nodes::{
         BinaryOperatorNode,
-        IntegerNode,
-        IntegerType,
         FloatNode,
         FloatType,
-        VariableExpressionNode,
+        FunctionPrototypeNode,
         IdentifierNode,
-        Operator
+        IntegerNode,
+        IntegerType,
+        Operator,
+        VariableExpressionNode
     }
 };
 use kaleidoscope_lexer::{
     ltuplemut,
-    token::{Token, TokenKind, BracketKind},
+    token::{
+        BracketKind,
+        FileIndex,
+        Keyword,
+        Token,
+        TokenKind
+    },
     tokenizer::LexerTupleMut
 };
 use kaleidoscope_macro::{ok_none, return_ok_some};
@@ -131,6 +141,49 @@ impl Parser {
                 Some(t.clone())
             },
             None => None
+        }
+    }
+
+    fn find_matching_right_round_bracket(
+        &mut self,
+        lbracket_index: FileIndex,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+    ) -> Result<Token> {
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        match self.get_current_token() {
+            None => Err(Error::new(
+                &format!(
+                    "No matching right round bracket found for '(' at {}",
+                    lbracket_index
+                ),
+                ErrorKind::SyntaxError,
+                None
+            )),
+            Some(token) => match token.token_kind {
+                TokenKind::Bracket {bracket} => if
+                    bracket.side.is_right() &&
+                    matches!(bracket.kind, BracketKind::Round)
+                {
+                    Ok(token)
+                } else {
+                    Err(Error::new(
+                        &format!(
+                            "Expected right round bracket at {}",
+                            token.start
+                        ),
+                        ErrorKind::SyntaxError,
+                        None
+                    ))
+                }
+                _ => Err(Error::new(
+                    &format!(
+                        "Expected right round bracket at {}",
+                        token.start
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                ))
+            }
         }
     }
 
@@ -389,5 +442,132 @@ impl Parser {
             ));
         }
         Ok(Some(expression))
+    }
+
+    pub fn parse_function_prototype(
+        &mut self,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+    ) -> ParseResult<dyn Node> {
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let def_token = ok_none!(self.get_current_token());
+        match def_token.token_kind {
+            TokenKind::Keyword {keyword} => match keyword {
+                Keyword::Def => (),
+                _ => return Ok(None)
+            },
+            _ => return Ok(None)
+        };
+
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let function_identifier_token = match self.get_current_token() {
+            Some(t) => t,
+            None => return Err(Error::new(
+                &format!(
+                    "Expected function prototype after 'def' at {}",
+                    def_token.start
+                ),
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
+        let function_identifier = match function_identifier_token.token_kind {
+            TokenKind::Identifier => Box::new(IdentifierNode::new(
+                function_identifier_token.to_string()
+            )),
+            _ => return Err(Error::new(
+                &format!(
+                    "Expected valid identifier (name) of function prototype at {}",
+                    function_identifier_token.start
+                ),
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
+
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let lbracket_token = match self.get_current_token() {
+            Some(t) => t,
+            None => return Err(Error::new(
+                &format!(
+                    "Expected parameter list after function name at {}",
+                    function_identifier_token.start
+                ),
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
+        match lbracket_token.token_kind {
+            TokenKind::Bracket {bracket} if (
+                bracket.side.is_left() &&
+                matches!(bracket.kind, BracketKind::Round)
+            ) => (),
+            _ => return Err(Error::new(
+                &format!(
+                    "Expected '(' to delimit the beginning of the parameter list at {}",
+                    function_identifier_token.start
+                ),
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
+
+        let mut parameters: Vec<Box<IdentifierNode>> = Vec::new();
+        let mut ended = false;
+
+        loop {
+            self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+            if let Some(parameter_token) = self.get_current_token() {
+                self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+                match self.get_current_token() {
+                    Some(comma_token) => match comma_token.token_kind {
+                        TokenKind::Comma => (),
+                        _ => return Err(Error::new(
+                            &format!(
+                                "Unexpected token after parameter name at {}",
+                                comma_token.start
+                            ),
+                            ErrorKind::SyntaxError,
+                            None
+                        ))
+                    },
+                    None => {ended = true;}
+                }
+                parameters.push(match parameter_token.token_kind {
+                    TokenKind::Identifier => Box::new(IdentifierNode::new(
+                        parameter_token.to_string()
+                    )),
+                    _ => return Err(Error::new(
+                        &format!(
+                            "Expected identifier at {}",
+                            parameter_token.start,
+                        ),
+                        ErrorKind::SyntaxError,
+                        None
+                    ))
+                });
+
+                if ended {
+                    self.find_matching_right_round_bracket(
+                        lbracket_token.start,
+                        ltuplemut!(stream, tokenizer)
+                    )?;
+                    break;
+                }
+            } else {
+                return Err(Error::new(
+                    &format!(
+                        "Unexpected EOF for function prototype at {}",
+                        stream.get_index()
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                ));
+            }
+        }
+
+        Ok(Some(Box::new(FunctionPrototypeNode::new(
+            function_identifier,
+            parameters
+        ))))
     }
 }
