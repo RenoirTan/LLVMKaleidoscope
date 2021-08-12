@@ -1,13 +1,11 @@
 use std::ops;
 use kaleidoscope_ast::{
-    node::{
-        ExprNode,
-        Node
-    },
+    node::ExprNode,
     nodes::{
         BinaryOperatorNode,
         FloatNode,
         FloatType,
+        FunctionNode,
         FunctionPrototypeNode,
         IdentifierNode,
         IntegerNode,
@@ -447,7 +445,7 @@ impl Parser {
     pub fn parse_function_prototype(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
-    ) -> ParseResult<dyn Node> {
+    ) -> ParseResult<FunctionPrototypeNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let def_token = ok_none!(self.get_current_token());
         match def_token.token_kind {
@@ -569,5 +567,26 @@ impl Parser {
             function_identifier,
             parameters
         ))))
+    }
+
+    pub fn parse_function(
+        &mut self,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+    ) -> ParseResult<FunctionNode> {
+        let prototype = ok_none!(
+            self.parse_function_prototype(ltuplemut!(stream, tokenizer))?
+        );
+        let body = match self.parse_expression(ltuplemut!(stream, tokenizer))? {
+            Some(expression) => expression,
+            None => return Err(Error::new(
+                &format!(
+                    "Expected function body for function prototype at {}",
+                    stream.get_index()
+                ),
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
+        Ok(Some(Box::new(FunctionNode::new(prototype, body))))
     }
 }
