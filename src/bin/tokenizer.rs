@@ -1,6 +1,7 @@
 use std::{
     convert::TryFrom,
-    path::PathBuf
+    path::PathBuf,
+    process::exit
 };
 use clap::{App, Arg};
 use kaleidoscope_lexer::tokenizer::{
@@ -78,8 +79,14 @@ fn main() {
     let mut token_iterator = TokenIterator::new(file, tokenizer);
     match output_format {
         OutputFormats::Debug => {
-            for token in &mut token_iterator {
-                println!("{:?}", token);
+            while !token_iterator.eof_reached() {
+                match token_iterator.next_token() {
+                    Ok(token) => println!("{:?}", token),
+                    Err(error) => {
+                        println!("{}", error);
+                        exit(1);
+                    }
+                }
             }
         },
         OutputFormats::Json => {

@@ -20,6 +20,10 @@ impl TokenIterator {
         self.tokenizer.is_done(&self.stream)
     }
 
+    pub fn eof_reached(&self) -> bool {
+        self.eof_count >= 1
+    }
+
     pub fn next_token(&mut self) -> Result<Token> {
         let token = self.tokenizer.next_token(&mut self.stream)?;
         if token.is_eof() {

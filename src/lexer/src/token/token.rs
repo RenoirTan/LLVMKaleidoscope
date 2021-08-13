@@ -111,7 +111,7 @@ impl Token {
             self.token_kind = TokenKind::Semicolon;
         } else {
             return Err(Error::new(
-                &format!("Invalid char {} at {}", unit, index),
+                &format!("Invalid char {:?} at {}", unit, index),
                 ErrorKind::InvalidChar,
                 None
             ));
