@@ -22,6 +22,7 @@ use serde::{Serialize, Deserialize};
 /// add (`+`), add_assign (`+=`), sub (`-`) and sub_assign (`-=`) operators
 /// since I've so handily implemented the traits that code for these
 /// operators.
+#[allow(rustdoc::private_intra_doc_links)]
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct FileIndex {
     line: Option<usize>,

@@ -12,7 +12,7 @@ pub struct IdentifierNode {
 }
 
 impl IdentifierNode {
-    /// Create a new [`Identifier`] object.
+    /// Create a new [`IdentifierNode`] object.
     pub fn new(identifier: String) -> Self {
         IdentifierNode {identifier}
     }
