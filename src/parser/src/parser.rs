@@ -226,18 +226,22 @@ impl Parser {
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
     ) -> ParseResult<dyn ExprNode> {
-        return_ok_some!(
-            self.parse_integer_expression(ltuplemut!(stream, tokenizer))?
-        );
-        return_ok_some!(
-            self.parse_float_expression(ltuplemut!(stream, tokenizer))?
-        );
-        return_ok_some!(
-            self.parse_round_bracket_expression(ltuplemut!(stream, tokenizer))?
-        );
-        return_ok_some!(
-            self.parse_variable_expression(ltuplemut!(stream, tokenizer))?
-        );
+        let integer = self.parse_integer_expression(
+            ltuplemut!(stream, tokenizer)
+        )?;
+        return_ok_some!(integer);
+        let float = self.parse_float_expression(
+            ltuplemut!(stream, tokenizer)
+        )?;
+        return_ok_some!(float);
+        let rbexpr = self.parse_round_bracket_expression(
+            ltuplemut!(stream, tokenizer)
+        )?;
+        return_ok_some!(rbexpr);
+        let variable = self.parse_variable_expression(
+            ltuplemut!(stream, tokenizer)
+        )?;
+        return_ok_some!(variable);
         Ok(None)
     }
 

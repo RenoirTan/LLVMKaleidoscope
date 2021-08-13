@@ -114,10 +114,9 @@ macro_rules! ok_none {
 
 #[macro_export]
 macro_rules! return_ok_some {
-    ($option: expr) => {{
-        let __opt = $option;
-        if __opt.is_some() {
-            return Ok(__opt);
+    ($option: ident) => {{
+        if $option.is_some() {
+            return Ok($option);
         }
     }};
     ($option: expr => $retval: expr) => {{
