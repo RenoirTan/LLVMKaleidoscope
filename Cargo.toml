@@ -47,3 +47,9 @@ name = "tokenizer"
 path = "src/bin/tokenizer.rs"
 test = false
 doctest = false
+
+[[bin]]
+name = "repl"
+path = "src/bin/repl.rs"
+test = false
+doctest = false

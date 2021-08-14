@@ -216,6 +216,13 @@ impl Interpreter {
 }
 
 
+impl Default for Interpreter {
+    fn default() -> Self {
+        Self::new(true, FileStream::default())
+    }
+}
+
+
 impl Iterator for Interpreter {
     type Item = Result<()>;
 

@@ -26,7 +26,11 @@ use kaleidoscope_lexer::{
     },
     tokenizer::LexerTupleMut
 };
-use kaleidoscope_macro::{ok_none, return_ok_some};
+use kaleidoscope_macro::{
+    function_path,
+    ok_none,
+    return_ok_some
+};
 use crate::{
     error::{Error, ErrorKind, Result},
     precedence::BinaryOperatorPrecedence
@@ -190,6 +194,7 @@ impl Parser {
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
     ) -> ParseResult<FunctionNode> {
+        println!("[{}] Entering", function_path!()); 
         let expression = match
             self.parse_expression(ltuplemut!(stream, tokenizer))?
         {
@@ -200,6 +205,7 @@ impl Parser {
             Box::new(IdentifierNode::new(String::from(""))),
             Vec::new()
         );
+		println!("[{}] Parsed", function_path!());
         Ok(Some(Box::new(FunctionNode::new(
             Box::new(prototype),
             expression
@@ -471,6 +477,7 @@ impl Parser {
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
     ) -> ParseResult<FunctionPrototypeNode> {
+        println!("[{}] Entering", function_path!());
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let def_token = ok_none!(self.get_current_token());
         match def_token.token_kind {
@@ -480,6 +487,7 @@ impl Parser {
             },
             _ => return Ok(None)
         };
+		println!("[{}] def keyword found!", function_path!());
 
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let function_identifier_token = match self.get_current_token() {
@@ -506,6 +514,11 @@ impl Parser {
                 None
             ))
         };
+		println!(
+            "[{}] identifier name: {}",
+            function_path!(),
+            function_identifier.get_identifier()
+        );
 
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let lbracket_token = match self.get_current_token() {
@@ -533,6 +546,7 @@ impl Parser {
                 None
             ))
         };
+		println!("[{}] left bracket found", function_path!());
 
         let mut parameters: Vec<Box<IdentifierNode>> = Vec::new();
         let mut ended = false;
@@ -587,6 +601,7 @@ impl Parser {
                 ));
             }
         }
+		println!("[{}] Parsed", function_path!());
 
         Ok(Some(Box::new(FunctionPrototypeNode::new(
             function_identifier,
@@ -619,16 +634,21 @@ impl Parser {
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
     ) -> ParseResult<ExternFunctionNode> {
+        println!("[{}] Entering", function_path!());
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let extern_token = ok_none!(self.get_current_token());
         match extern_token.token_kind {
             TokenKind::Keyword {keyword}
                 if matches!(keyword, Keyword::Extern) => (),
             _ => {
-                self.current_token.uses -= 1;
+                if self.current_token.uses > 0 {
+                    self.current_token.uses -= 1;
+				}
                 return Ok(None);
             }
         };
+        println!("[{}] extern keyword found", function_path!());
+
         let prototype = match
             self.parse_function_prototype(ltuplemut!(stream, tokenizer))?
         {
@@ -642,6 +662,7 @@ impl Parser {
                 None
             ))
         };
+		println!("[{}] Parsed", function_path!());
         Ok(Some(Box::new(ExternFunctionNode::new(prototype))))
     }
 }
