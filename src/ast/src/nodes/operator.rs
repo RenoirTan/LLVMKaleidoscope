@@ -7,7 +7,7 @@ pub use kaleidoscope_lexer::token::Operator;
 use crate::prelude::*;
 
 impl Node for Operator {
-    fn node_id(&self) -> NodeId {
+    fn node_id_of_val(&self) -> NodeId {
         NodeId::new(3)
     }
 

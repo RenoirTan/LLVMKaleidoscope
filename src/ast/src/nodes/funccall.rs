@@ -55,7 +55,7 @@ impl Clone for FunctionCallNode {
 }
 
 impl Node for FunctionCallNode {
-    fn node_id(&self) -> NodeId {
+    fn node_id_of_val(&self) -> NodeId {
         NodeId::new(11)
     }
 

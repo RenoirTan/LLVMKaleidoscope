@@ -47,7 +47,7 @@ impl fmt::Display for FunctionNode {
 }
 
 impl Node for FunctionNode {
-    fn node_id(&self) -> NodeId {
+    fn node_id_of_val(&self) -> NodeId {
         NodeId::new(14)
     }
 

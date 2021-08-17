@@ -15,5 +15,5 @@ fn test_parse_integer() {
     let expression = parser.parse_integer_expression(
         ltuplemut!(&mut stream, &mut tokenizer)
     ).unwrap().unwrap();
-    assert_eq!(expression.node_id(), 4);
+    assert_eq!(expression.node_id_of_val(), 4);
 }

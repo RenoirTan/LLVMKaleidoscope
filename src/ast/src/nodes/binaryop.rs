@@ -58,7 +58,7 @@ impl Clone for BinaryOperatorNode {
 }
 
 impl Node for BinaryOperatorNode {
-    fn node_id(&self) -> NodeId {
+    fn node_id_of_val(&self) -> NodeId {
         NodeId::new(7)
     }
 

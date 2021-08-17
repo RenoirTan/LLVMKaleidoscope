@@ -31,7 +31,7 @@ impl fmt::Display for ExternFunctionNode {
 }
 
 impl Node for ExternFunctionNode {
-    fn node_id(&self) -> NodeId {
+    fn node_id_of_val(&self) -> NodeId {
         NodeId::new(16)
     }
 

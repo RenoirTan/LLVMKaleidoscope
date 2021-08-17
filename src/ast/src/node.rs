@@ -16,7 +16,7 @@ pub trait FromToken: Sized {
 pub trait Node: Any + Debug + Display {
     /// Get the [`NodeId`] of a node. This [`NodeId`] classifies the type
     /// of [`Node`], not the [`Node`] instance itself.
-    fn node_id(&self) -> NodeId;
+    fn node_id_of_val(&self) -> NodeId;
 
     fn node_clone(&self) -> Box<dyn Node>;
 }
@@ -24,4 +24,18 @@ pub trait Node: Any + Debug + Display {
 /// A node representing an expression.
 pub trait ExprNode: Node + Any {
     fn expr_node_clone(&self) -> Box<dyn ExprNode>;
+}
+
+unsafe fn _inner_node<T: Node + Clone>(
+    node: Box<dyn Node>,
+    surrogate: &T
+) -> Option<T> {
+
+    let id = node.node_id_of_val();
+    if id != surrogate.node_id_of_val() {
+        return None;
+    } else {
+        let pointer = Box::into_raw(node) as *mut T;
+        Some((*pointer).clone())
+    }
 }

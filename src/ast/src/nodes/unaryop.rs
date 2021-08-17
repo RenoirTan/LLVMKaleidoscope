@@ -51,7 +51,7 @@ impl Clone for UnaryOperatorNode {
 }
 
 impl Node for UnaryOperatorNode {
-    fn node_id(&self) -> NodeId {
+    fn node_id_of_val(&self) -> NodeId {
         NodeId::new(7)
     }
 

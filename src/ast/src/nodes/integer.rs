@@ -55,7 +55,7 @@ impl FromToken for IntegerNode {
 }
 
 impl Node for IntegerNode {
-    fn node_id(&self) -> NodeId {
+    fn node_id_of_val(&self) -> NodeId {
         NodeId::new(4)
     }
 
