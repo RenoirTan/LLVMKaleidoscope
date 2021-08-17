@@ -108,9 +108,9 @@ impl Parser {
     }
 
     #[inline]
-    fn grab_token_from_tokenizer(
+    fn grab_token_from_tokenizer<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> Result<&mut Self> {
         self.next_token(match tokenizer.next_token(stream) {
             Ok(token) => token,
@@ -122,9 +122,9 @@ impl Parser {
     }
 
     #[inline]
-    fn grab_if_used(
+    fn grab_if_used<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> Result<&mut Self> {
         self.replace_used_token(match tokenizer.next_token(stream) {
             Ok(token) => token,
@@ -147,10 +147,10 @@ impl Parser {
         }
     }
 
-    fn find_matching_right_round_bracket(
+    fn find_matching_right_round_bracket<'a, 'b: 'a>(
         &mut self,
         lbracket_index: FileIndex,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> Result<Token> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         match self.get_current_token() {
@@ -190,9 +190,9 @@ impl Parser {
         }
     }
 
-    pub fn parse_top_level_expression(
+    pub fn parse_top_level_expression<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<FunctionNode> {
         println!("[{}] Entering", function_path!()); 
         let expression = match
@@ -212,9 +212,9 @@ impl Parser {
         ))))
     }
 
-    pub fn parse_expression(
+    pub fn parse_expression<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         let lhs = self.parse_primary_expression(ltuplemut!(stream, tokenizer))?;
         match lhs {
@@ -228,9 +228,9 @@ impl Parser {
         }
     }
 
-    pub fn parse_primary_expression(
+    pub fn parse_primary_expression<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         let integer = self.parse_integer_expression(
             ltuplemut!(stream, tokenizer)
@@ -251,9 +251,9 @@ impl Parser {
         Ok(None)
     }
 
-    pub fn parse_integer_expression(
+    pub fn parse_integer_expression<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
@@ -274,9 +274,9 @@ impl Parser {
         }
     }
 
-    pub fn parse_float_expression(
+    pub fn parse_float_expression<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
@@ -295,9 +295,9 @@ impl Parser {
         }
     }
 
-    pub fn parse_variable_expression(
+    pub fn parse_variable_expression<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
@@ -312,12 +312,12 @@ impl Parser {
         }
     }
 
-    pub fn parse_binary_operator_rhs_expression(
+    pub fn parse_binary_operator_rhs_expression<'a, 'b: 'a>(
         &mut self,
         mut lhs: Box<dyn ExprNode>,
         loperator: Operator,
         minimum_operator_precedence: BinaryOperatorPrecedence,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
 
         #[inline]
@@ -421,9 +421,9 @@ impl Parser {
         }
     }
 
-    pub fn parse_round_bracket_expression(
+    pub fn parse_round_bracket_expression<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
@@ -473,9 +473,9 @@ impl Parser {
         Ok(Some(expression))
     }
 
-    pub fn parse_function_prototype(
+    pub fn parse_function_prototype<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<FunctionPrototypeNode> {
         println!("[{}] Entering", function_path!());
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
@@ -609,9 +609,9 @@ impl Parser {
         ))))
     }
 
-    pub fn parse_function(
+    pub fn parse_function<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<FunctionNode> {
         let prototype = ok_none!(
             self.parse_function_prototype(ltuplemut!(stream, tokenizer))?
@@ -630,9 +630,9 @@ impl Parser {
         Ok(Some(Box::new(FunctionNode::new(prototype, body))))
     }
 
-    pub fn parse_extern_function(
+    pub fn parse_extern_function<'a, 'b: 'a>(
         &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'_>
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<ExternFunctionNode> {
         println!("[{}] Entering", function_path!());
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;

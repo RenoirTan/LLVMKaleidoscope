@@ -138,9 +138,9 @@ impl Default for Driver {
 }
 
 
-pub struct Interpreter {
+pub struct Interpreter<'a> {
     driver: Driver,
-    istream: FileStream,
+    istream: FileStream<'a>,
     tokenizer: Tokenizer,
     parser: Parser,
     proceed_even_if_error: bool,
@@ -149,8 +149,8 @@ pub struct Interpreter {
 }
 
 
-impl Interpreter {
-    pub fn new(interactive: bool, istream: FileStream) -> Self {
+impl<'a> Interpreter<'a> {
+    pub fn new(interactive: bool, istream: FileStream<'a>) -> Self {
         Self {
             driver: Driver::new(interactive, DEFAULT_PROMPT.to_string()),
             istream,
@@ -166,7 +166,7 @@ impl Interpreter {
         self.istream.eof_reached()
     }
 
-    pub fn relinquish_istream(self) -> FileStream {
+    pub fn relinquish_istream(self) -> FileStream<'a> {
         self.istream
     }
 
@@ -216,14 +216,14 @@ impl Interpreter {
 }
 
 
-impl Default for Interpreter {
+impl<'a> Default for Interpreter<'a> {
     fn default() -> Self {
         Self::new(true, FileStream::default())
     }
 }
 
 
-impl Iterator for Interpreter {
+impl<'a> Iterator for Interpreter<'a> {
     type Item = Result<()>;
 
     fn next(&mut self) -> Option<Self::Item> {

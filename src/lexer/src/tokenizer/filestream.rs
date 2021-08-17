@@ -14,7 +14,7 @@ use std::{
     path::Path,
 };
 
-type BufferIterator = Enumerate<Lines<BufReader<Box<dyn Read>>>>;
+type BufferIterator<'a> = Enumerate<Lines<BufReader<Box<dyn Read + 'a>>>>;
 
 /// A file stream which returns a unicode codepoint one at a time.
 /// This is in contrast to a normal [`std::fs::File`] which can only read
@@ -24,8 +24,8 @@ type BufferIterator = Enumerate<Lines<BufReader<Box<dyn Read>>>>;
 /// See [`FileIndex`] for implementation details. This index stores the
 /// current line and character column, and can be retrieved by calling
 /// [`FileStream::get_index`].
-pub struct FileStream {
-    buffer: BufferIterator,
+pub struct FileStream<'a> {
+    buffer: BufferIterator<'a>,
     line: Vec<char>,
     cursor: usize,
     index: FileIndex,
@@ -33,10 +33,10 @@ pub struct FileStream {
     eof_reached: bool
 }
 
-impl FileStream {
+impl<'a> FileStream<'a> {
     /// Create a new `FileStream` from an iterator over the lines of a buffered
     /// reader.
-    pub fn new(buffer: BufferIterator) -> Self {
+    pub fn new(buffer: BufferIterator<'a>) -> Self {
         let mut this = FileStream {
             buffer,
             cursor: 0,
@@ -161,20 +161,20 @@ impl FileStream {
     }
 }
 
-impl Default for FileStream {
+impl<'a> Default for FileStream<'a> {
     fn default() -> Self {
         Self::from_stdin()
     }
 }
 
-impl TryFrom<&Path> for FileStream {
+impl<'a> TryFrom<&Path> for FileStream<'a> {
     type Error = Error;
     fn try_from(path: &Path) -> Result<Self> {
         Self::from_path(path)
     }
 }
 
-impl Iterator for FileStream {
+impl<'a> Iterator for FileStream<'a> {
     type Item = char;
     fn next(&mut self) -> Option<Self::Item> {
         self.next_unit()

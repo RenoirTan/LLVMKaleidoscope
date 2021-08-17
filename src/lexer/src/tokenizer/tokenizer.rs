@@ -33,17 +33,17 @@ impl Tokenizer {
         TokenIterator::new(stream, self)
     }
 
-    pub fn to_tuple_ref<'a>(
+    pub fn to_tuple_ref<'a, 'b: 'a>(
         &'a self,
-        stream: &'a FileStream
-    ) -> LexerTupleRef<'a> {
+        stream: &'a FileStream<'b>
+    ) -> LexerTupleRef<'a, 'b> {
         LexerTupleRef(stream, self)
     }
 
-    pub fn to_tuple_mut<'a>(
+    pub fn to_tuple_mut<'a, 'b: 'a>(
         &'a mut self,
-        stream: &'a mut FileStream
-    ) -> LexerTupleMut<'a> {
+        stream: &'a mut FileStream<'b>
+    ) -> LexerTupleMut<'a, 'b> {
         LexerTupleMut(stream, self)
     }
 

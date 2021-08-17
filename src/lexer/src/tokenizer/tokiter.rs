@@ -5,14 +5,14 @@ use crate::{
 };
 use super::{FileStream, Tokenizer, LexerTupleRef, LexerTupleMut};
 
-pub struct TokenIterator {
-    stream: FileStream,
+pub struct TokenIterator<'a> {
+    stream: FileStream<'a>,
     tokenizer: Tokenizer,
     eof_count: usize
 }
 
-impl TokenIterator {
-    pub fn new(stream: FileStream, tokenizer: Tokenizer) -> Self {
+impl<'a> TokenIterator<'a> {
+    pub fn new(stream: FileStream<'a>, tokenizer: Tokenizer) -> Self {
         Self {stream, tokenizer, eof_count: 0}
     }
 
@@ -32,16 +32,16 @@ impl TokenIterator {
         Ok(token)
     }
 
-    pub fn to_tuple_ref<'a>(&'a self) -> LexerTupleRef<'a> {
+    pub fn to_tuple_ref(&'a self) -> LexerTupleRef<'a, 'a> {
         LexerTupleRef(&self.stream, &self.tokenizer)
     }
 
-    pub fn to_tuple_mut<'a>(&'a mut self) -> LexerTupleMut<'a> {
+    pub fn to_tuple_mut(&'a mut self) -> LexerTupleMut<'a, 'a> {
         LexerTupleMut(&mut self.stream, &mut self.tokenizer)
     }
 }
 
-impl Iterator for TokenIterator {
+impl<'a> Iterator for TokenIterator<'a> {
     type Item = Token;
     fn next(&mut self) -> Option<Self::Item> {
         if self.eof_count >= 1 {
