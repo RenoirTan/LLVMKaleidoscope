@@ -41,7 +41,7 @@ type IdInner = u32;
 ///
 /// 16: Extern Function
 /// 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct NodeId {
     numeric: IdInner
 }
@@ -55,6 +55,12 @@ impl NodeId {
     /// Get the raw numeric ID.
     pub fn get_id(&self) -> IdInner {
         self.numeric
+    }
+}
+
+impl PartialEq<IdInner> for NodeId {
+    fn eq(&self, other: &IdInner) -> bool {
+        self.numeric == *other
     }
 }
 

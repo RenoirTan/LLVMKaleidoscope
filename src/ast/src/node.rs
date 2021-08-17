@@ -22,7 +22,7 @@ pub trait Node: Any + Debug + Display {
 }
 
 /// A node representing an expression.
-pub trait ExprNode: Node {
+pub trait ExprNode: Node + Any {
     fn expr_node_clone(&self) -> Box<dyn ExprNode>;
 }
 
