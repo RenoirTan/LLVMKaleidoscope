@@ -19,7 +19,6 @@ LLVMKaleidoscope-Macro = {path = "src/macro"}
 LLVMKaleidoscope-Parser = {path = "src/parser"}
 
 [workspace]
-include = ["src"]
 members = [
     "src/ast",
     "src/error",
