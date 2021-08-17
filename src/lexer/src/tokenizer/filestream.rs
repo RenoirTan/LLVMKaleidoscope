@@ -159,6 +159,13 @@ impl<'a> FileStream<'a> {
         let buffer = BufReader::new(file).lines().enumerate();
         Ok(Self::new(buffer))
     }
+
+    /// Create a new `FileStream` from a slice of bytes.
+    pub fn from_bytes(byte_array: &'a [u8]) -> Self {
+        let read: Box<dyn Read + 'a> = Box::new(byte_array);
+        let buffer = BufReader::new(read).lines().enumerate();
+        Self::new(buffer)
+    }
 }
 
 impl<'a> Default for FileStream<'a> {
@@ -171,6 +178,18 @@ impl<'a> TryFrom<&Path> for FileStream<'a> {
     type Error = Error;
     fn try_from(path: &Path) -> Result<Self> {
         Self::from_path(path)
+    }
+}
+
+impl<'a> From<&'a [u8]> for FileStream<'a> {
+    fn from(byte_array: &'a [u8]) -> Self {
+        Self::from_bytes(byte_array)
+    }
+}
+
+impl<'a> From<&'a str> for FileStream<'a> {
+    fn from(string: &'a str) -> Self {
+        Self::from_bytes(string.as_bytes())
     }
 }
 
