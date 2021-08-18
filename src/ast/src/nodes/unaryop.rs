@@ -62,7 +62,7 @@ impl Node for UnaryOperatorNode {
 
 impl NodeType for UnaryOperatorNode {
     fn node_id() -> NodeId {
-        NodeId::new(7)
+        NodeId::new(6)
     }
 }
 
