@@ -31,16 +31,29 @@ pub trait ExprNode: Node + Any {
     fn expr_node_clone(&self) -> Box<dyn ExprNode>;
 }
 
-unsafe fn _inner_node<T: Node + Clone>(
-    node: Box<dyn Node>,
-    surrogate: &T
-) -> Option<T> {
-
-    let id = node.node_id_of_val();
-    if id != surrogate.node_id_of_val() {
-        return None;
-    } else {
-        let pointer = Box::into_raw(node) as *mut T;
-        Some((*pointer).clone())
+/// Convert a node as a trait object and convert it into a concrete node with
+/// a known type.
+///
+/// # Example
+///
+/// ```
+/// use kaleidoscope_ast::{
+///     nodes::IntegerNode,
+///     node::reify_node   
+/// };
+/// 
+/// let unknown: Box<dyn Node> = Box::new(IntegerNode::new(10));
+/// let resolved: Box<IntegerNode> = reify_node(unknown).unwrap();
+/// assert_eq!(resolved.get_value(), 10);
+/// ```
+pub fn reify_node<N>(node: Box<dyn Node>) -> Option<Box<N>>
+where
+    N: Node + NodeType + Clone
+{
+    if node.node_id_of_val() == N::node_id() { unsafe {
+        let pointer = Box::into_raw(node) as *mut N;
+        Some(Box::from_raw(pointer))
+    }} else {
+        None
     }
 }
