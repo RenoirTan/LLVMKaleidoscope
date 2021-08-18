@@ -48,10 +48,16 @@ impl fmt::Display for FunctionNode {
 
 impl Node for FunctionNode {
     fn node_id_of_val(&self) -> NodeId {
-        NodeId::new(14)
+        Self::node_id()
     }
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl NodeType for FunctionNode {
+    fn node_id() -> NodeId {
+        NodeId::new(14)
     }
 }

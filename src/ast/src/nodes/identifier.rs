@@ -47,10 +47,16 @@ impl FromToken for IdentifierNode {
 
 impl Node for IdentifierNode {
     fn node_id_of_val(&self) -> NodeId {
-        NodeId::new(2)
+        Self::node_id()
     }
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl NodeType for IdentifierNode {
+    fn node_id() -> NodeId {
+        NodeId::new(2)
     }
 }

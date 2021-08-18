@@ -52,11 +52,17 @@ impl Clone for UnaryOperatorNode {
 
 impl Node for UnaryOperatorNode {
     fn node_id_of_val(&self) -> NodeId {
-        NodeId::new(7)
+        Self::node_id()
     }
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl NodeType for UnaryOperatorNode {
+    fn node_id() -> NodeId {
+        NodeId::new(7)
     }
 }
 

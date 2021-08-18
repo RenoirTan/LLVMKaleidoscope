@@ -26,11 +26,17 @@ impl fmt::Display for FloatNode {
 
 impl Node for FloatNode {
     fn node_id_of_val(&self) -> NodeId {
-        NodeId::new(5)
+        Self::node_id()
     }
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl NodeType for FloatNode {
+    fn node_id() -> NodeId {
+        NodeId::new(5)
     }
 }
 

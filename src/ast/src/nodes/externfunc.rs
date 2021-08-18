@@ -32,10 +32,16 @@ impl fmt::Display for ExternFunctionNode {
 
 impl Node for ExternFunctionNode {
     fn node_id_of_val(&self) -> NodeId {
-        NodeId::new(16)
+        Self::node_id()
     }
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl NodeType for ExternFunctionNode {
+    fn node_id() -> NodeId {
+        NodeId::new(16)
     }
 }

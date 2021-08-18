@@ -8,10 +8,16 @@ use crate::prelude::*;
 
 impl Node for Operator {
     fn node_id_of_val(&self) -> NodeId {
-        NodeId::new(3)
+        Self::node_id()
     }
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl NodeType for Operator {
+    fn node_id() -> NodeId {
+        NodeId::new(3)
     }
 }

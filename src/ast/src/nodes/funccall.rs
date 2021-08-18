@@ -56,11 +56,17 @@ impl Clone for FunctionCallNode {
 
 impl Node for FunctionCallNode {
     fn node_id_of_val(&self) -> NodeId {
-        NodeId::new(11)
+        Self::node_id()
     }
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl NodeType for FunctionCallNode {
+    fn node_id() -> NodeId {
+        NodeId::new(11)
     }
 }
 

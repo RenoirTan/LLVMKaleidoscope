@@ -21,6 +21,11 @@ pub trait Node: Any + Debug + Display {
     fn node_clone(&self) -> Box<dyn Node>;
 }
 
+pub trait NodeType {
+    /// Get the [`NodeId`] of a node type.
+    fn node_id() -> NodeId;
+}
+
 /// A node representing an expression.
 pub trait ExprNode: Node + Any {
     fn expr_node_clone(&self) -> Box<dyn ExprNode>;

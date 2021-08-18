@@ -42,10 +42,16 @@ impl FunctionPrototypeNode {
 
 impl Node for FunctionPrototypeNode {
     fn node_id_of_val(&self) -> NodeId {
-        NodeId::new(12)
+        Self::node_id()
     }
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl NodeType for FunctionPrototypeNode {
+    fn node_id() -> NodeId {
+        NodeId::new(12)
     }
 }
