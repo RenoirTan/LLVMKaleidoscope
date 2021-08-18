@@ -1,3 +1,7 @@
+use kaleidoscope_ast::{
+    nodes::IntegerNode,
+    node::reify_expr_node
+};
 use kaleidoscope_lexer::{
     ltuplemut,
     tokenizer::{
@@ -15,5 +19,6 @@ fn test_parse_integer() {
     let expression = parser.parse_integer_expression(
         ltuplemut!(&mut stream, &mut tokenizer)
     ).unwrap().unwrap();
-    assert_eq!(expression.node_id_of_val(), 4);
+    let node = reify_expr_node::<IntegerNode>(expression).unwrap();
+    assert_eq!(node.get_value(), 420);
 }
