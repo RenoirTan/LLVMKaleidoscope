@@ -5,6 +5,9 @@ pub mod node;
 pub mod nodes;
 mod nodeid;
 
+#[cfg(test)]
+mod tests;
+
 pub use nodeid::NodeId;
 
 pub mod prelude {

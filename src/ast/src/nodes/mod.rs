@@ -12,9 +12,6 @@ mod operator;
 mod unaryop;
 mod varexpr;
 
-#[cfg(test)]
-mod tests;
-
 pub use binaryop::BinaryOperatorNode;
 pub use externfunc::ExternFunctionNode;
 pub use float::{FloatNode, FloatType};
