@@ -32,11 +32,16 @@ pub trait ExprNode: Node {
 }
 
 /// Convert an [`ExprNode`] to [`Node`].
+/// 
+/// DO NOT USE FOR NOW.
 #[inline]
+#[warn(unstable_features)]
 pub fn upcast_expr_node(node: Box<dyn ExprNode>) -> Box<dyn Node> {
     use crate::nodes::IntegerNode as Arbitrary;
     unsafe {
         // Indirect pointer casting through a concrete pointer
+        // Unfortunately this workaround causes the final vtable to point to
+        // IntegerNode's methods.
         let pointer = Box::into_raw(node) as *mut Arbitrary as *mut dyn Node;
         Box::from_raw(pointer)
     }
@@ -50,7 +55,7 @@ pub fn upcast_expr_node(node: Box<dyn ExprNode>) -> Box<dyn Node> {
 /// ```
 /// use kaleidoscope_ast::{
 ///     nodes::IntegerNode,
-///     node::reify_node   
+///     node::{Node, reify_node}
 /// };
 /// 
 /// let unknown: Box<dyn Node> = Box::new(IntegerNode::new(10));
@@ -77,7 +82,7 @@ where
 /// ```
 /// use kaleidoscope_ast::{
 ///     nodes::IntegerNode,
-///     node::reify_expr_node   
+///     node::{ExprNode, reify_expr_node}
 /// };
 /// 
 /// let unknown: Box<dyn ExprNode> = Box::new(IntegerNode::new(10));

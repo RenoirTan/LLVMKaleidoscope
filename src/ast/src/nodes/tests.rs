@@ -42,9 +42,9 @@ fn test_ensure_all_nodes_have_unique_ids() {
 
 #[test]
 fn test_upcast_expr_node() {
-    let expr_node: Box<dyn ExprNode> = Box::new(IntegerNode::new(420));
+    let expr_node: Box<dyn ExprNode> = Box::new(FloatNode::new(34209.39843));
     let node: Box<dyn Node> = upcast_expr_node(expr_node);
-    assert_eq!(node.node_id_of_val(), IntegerNode::node_id());
+    assert_eq!(node.node_id_of_val(), FloatNode::node_id());
 }
 
 #[test]
@@ -67,7 +67,10 @@ fn test_reify_expr_node() {
 
     let unknown: Box<dyn ExprNode> = Box::new(IntegerNode::new(55));
     assert!(reify_expr_node::<FloatNode>(unknown).is_none());
+}
 
+#[test]
+fn test_reify_expr_node_after_upcast() {
     let unknown: Box<dyn ExprNode> = Box::new(VariableExpressionNode::new(
         Box::new(IdentifierNode::new(String::from("__name__")))
     ));
