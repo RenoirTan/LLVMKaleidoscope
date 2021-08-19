@@ -1,4 +1,6 @@
-//! A special structure which iterates over the characters in a file.
+//! A special structure which iterates over the characters in a file. It has
+//! special functions to ensure smooth traversal through a file or any
+//! sequence that can be iterated over.
 //! 
 //! See [`FileStream`].
 
@@ -49,7 +51,8 @@ impl<'a> FileStream<'a> {
         this
     }
 
-    /// Check if the file/stream has ended.
+    /// Check if the file/stream has ended (i.e. whether the stream has
+    /// encountered an EOF character).
     pub fn eof_reached(&self) -> bool {
         self.eof_reached
     }
@@ -145,7 +148,7 @@ impl<'a> FileStream<'a> {
         Self::new(buffer)
     }
 
-    /// Create a new `FileStream` from a path.
+    /// Create a new [`FileStream`] from a path.
     pub fn from_path(path: &Path) -> Result<Self> {
         let file: Box<dyn Read> = match OpenOptions::new()
             .read(true)
@@ -160,7 +163,7 @@ impl<'a> FileStream<'a> {
         Ok(Self::new(buffer))
     }
 
-    /// Create a new `FileStream` from a slice of bytes.
+    /// Create a new [`FileStream`] from a slice of bytes.
     pub fn from_bytes(byte_array: &'a [u8]) -> Self {
         let read: Box<dyn Read + 'a> = Box::new(byte_array);
         let buffer = BufReader::new(read).lines().enumerate();

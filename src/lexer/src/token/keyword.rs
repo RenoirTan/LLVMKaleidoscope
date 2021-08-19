@@ -1,7 +1,10 @@
-//! A keyword token.
+//! A enum representing a keyword. A key reason why I chose to define a special
+//! enum because manually checking if the span in a token is what I was
+//! looking for matches a keyword.
 //! 
 //! See [`Keyword`].
 
+use std::fmt;
 use serde::{Serialize, Deserialize};
 
 /// An enumerator of possible keywords that can be encountered in Kaleidoscope.
@@ -49,7 +52,29 @@ impl Keyword {
             _ => return None
         })
     }
+
+    /// Convert the keyword enum into a string representation of itself.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kaleidoscope_lexer::token::Keyword;
+    ///
+    /// assert_eq!(Keyword::from_string("def").unwrap().to_string(), "def");
+    /// ```
+    pub fn to_string(&self) -> &'static str {
+        match *self {
+            Keyword::Def => "def",
+            Keyword::Extern => "extern",
+            Keyword::If => "if",
+            Keyword::Else => "else",
+            Keyword::Then => "then"
+        }
+    }
 }
 
-use kaleidoscope_macro::impl_display;
-impl_display!(Keyword);
+impl fmt::Display for Keyword {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.pad(self.to_string())
+    }
+}

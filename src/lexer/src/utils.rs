@@ -1,4 +1,48 @@
-//! Utility functions for recognising tokens.
+//! Utility functions for recognising tokens and checking whether they have
+//! certain "characteristics" that makes them suitable to be part of a token
+//! of a certain type.
+//!
+//! For example, an identifier must start with an ASCII letter (both miniscule
+//! and majuscule) or an underscore `_`. Any following characters must be an
+//! ASCII letter, underscore or numeric digit (0 to 9). If you want to ensure
+//! that a given string can be a valid identifier, you can create a function
+//! that checks the correctness of the identifier and return the index of
+//! the first character that causes the string to fail the test. An example
+//! implementation is shown below.
+//!
+//! ```
+//! use kaleidoscope_lexer::utils;
+//! 
+//! fn validate_identifier(string: &str) -> (bool, Option<usize>) {
+//!     if string.len() == 0 {
+//!         (false, None)
+//!     } else {
+//!         let units: Vec<char> = string.chars().collect();
+//!         if !utils::is_identifier_start(units[0]) {
+//!             return (false, Some(0))
+//!         }
+//!         for (index, unit) in units[1..].iter().enumerate() {
+//!             if !utils::is_identifier(*unit) {
+//!                 return (false, Some(index+1))
+//!             }
+//!         }
+//!         (true, None)
+//!     }
+//! }
+//! 
+//! let (ok, index) = validate_identifier("citizen_839293927392738");
+//! assert!(ok); assert!(index.is_none());
+//! let (ok, index) = validate_identifier("7huhfe");
+//! assert!(!ok); assert!(matches!(index, Some(0)));
+//! let (ok, index) = validate_identifier("");
+//! assert!(!ok); assert!(index.is_none());
+//! let (ok, index) = validate_identifier("hmm???");
+//! assert!(!ok); assert!(matches!(index, Some(3)));
+//! ```
+//!
+//! This is not the only application of the functions defined in this module.
+//! You can tests for brackets, operators, numbers and punctuation, which play
+//! an important role in the grammar of the language.
 
 /// Rudimentary check to see if the end of the line has been reached.
 pub fn is_eol(unit: char) -> bool {
@@ -30,7 +74,7 @@ pub fn is_alpha(unit: char) -> bool {
     unit.is_ascii_alphabetic()
 }
 
-// True if `unit` is an ASCII alphabetical character or an ASCII decimal digit.
+/// True if `unit` is an ASCII alphabetical character or an ASCII decimal digit.
 pub fn is_alphanum(unit: char) -> bool {
     unit.is_ascii_alphanumeric()
 }

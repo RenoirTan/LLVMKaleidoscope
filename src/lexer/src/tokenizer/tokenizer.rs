@@ -33,6 +33,7 @@ impl Tokenizer {
         TokenIterator::new(stream, self)
     }
 
+    /// Package this tokeniser with a filestream.
     pub fn to_tuple_ref<'a, 'b: 'a>(
         &'a self,
         stream: &'a FileStream<'b>
@@ -40,6 +41,7 @@ impl Tokenizer {
         LexerTupleRef(stream, self)
     }
 
+    /// Package this tokeniser with a filestream.
     pub fn to_tuple_mut<'a, 'b: 'a>(
         &'a mut self,
         stream: &'a mut FileStream<'b>

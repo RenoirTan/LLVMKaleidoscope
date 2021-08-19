@@ -1,4 +1,7 @@
-//! A token kind representing a bracket.
+//! A bunch of types representing a bracket such as `(` or `]`.
+//! Objects of these types can also check to see if they match or cancel
+//! out each other, which can make sure that the brackets in a programme are
+//! balanced out properly.
 
 use std::{
     cmp::{
@@ -169,11 +172,14 @@ impl BracketSide {
         }
     }
 
+    /// As the name of this method suggests, it checks whether the
+    /// [`BracketSide`] matches [`BracketSide::Left`].
     #[inline]
     pub fn is_left(&self) -> bool {
         matches!(self, &BracketSide::Left)
     }
 
+    /// Check whether the [`BracketSide`] matches [`BracketSide::Right`].
     #[inline]
     pub fn is_right(&self) -> bool {
         matches!(self, &BracketSide::Right)
@@ -230,13 +236,39 @@ impl Bracket {
     }
 
     /// Create a [`Bracket`] from a string of a bracket.
+    /// If the string does not contain a valid bracket, [`Bracket::kind`]
+    /// becomes [`BracketKind::Unknown`] and [`Bracket::side`] resets to
+    /// [`BracketSide::Left`] by default.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kaleidoscope_lexer::token::{Bracket, BracketKind};
+    ///
+    /// let lr_bracket = Bracket::from_string("(");
+    /// assert!(matches!(lr_bracket.kind, BracketKind::Round));
+    /// assert!(lr_bracket.side.is_left());
+    ///
+    /// let bad_bracket = Bracket::from_string("clearly not a bracket");
+    /// assert!(matches!(bad_bracket.kind, BracketKind::Unknown));
+    /// assert!(bad_bracket.side.is_left());
+    /// ```
     pub fn from_string(string: &str) -> Self {
         let kind = BracketKind::from_string(string);
         let side = BracketSide::from_string(string).unwrap_or_default();
         Self {kind, side}
     }
 
-    /// Get the bracket as a string
+    /// Return the bracket as a string representaton of itself.
+    /// 
+    /// # Example
+    ///
+    /// ```
+    /// use kaleidoscope_lexer::token::Bracket;
+    ///
+    /// let rs_bracket = Bracket::from_string("]");
+    /// assert_eq!(rs_bracket.str_repr(), "]");
+    /// ```
     pub fn str_repr(&self) -> &'static str {
         // Can be unwrapped safely as BracketSide::as_int
         // only returns 0 or 1.

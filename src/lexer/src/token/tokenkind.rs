@@ -1,4 +1,5 @@
-//! The type of token.
+//! The type of the token. Such a classification allows the parser to make
+//! sure that the input given is correct.
 //! 
 //! See [`TokenKind`].
 

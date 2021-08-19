@@ -1,4 +1,5 @@
-//! A module for serialising a tokeniser.
+//! A module for serialising a tokeniser. This only exists so I can convert
+//! a Kaleidoscope programme into a JSON file.
 
 use std::cell::RefCell;
 use serde::{Serialize, Serializer, ser::SerializeSeq};

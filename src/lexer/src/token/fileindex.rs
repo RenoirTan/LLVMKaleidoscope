@@ -1,6 +1,8 @@
-//! A representation of the location of a character in a file.
+//! A representation of the location of a character in a file. This can aid
+//! in identifying the source of a syntax error or which part of the code
+//! caused or encountered an error at compile time or runtime.
 //! 
-//! See [`FileIndex`] for more information.
+//! See [`FileIndex`] for more implementation details.
 
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 use serde::{Serialize, Deserialize};
@@ -35,17 +37,18 @@ impl FileIndex {
         Self { line, column }
     }
 
-    /// Get the line of the byte.
+    /// Get the line of the represented by this object.
     pub fn get_line(&self) -> Option<usize> {
         self.line
     }
 
-    /// Get the line of the byte but treat an unknown line number as 0.
+    /// Get the line of the represented by this object but treat an unknown
+    /// line number as 0.
     pub fn get_line_number(&self) -> usize {
         self.line.unwrap_or(0)
     }
 
-    /// Get the column of the byte.
+    /// Get the column of the represented by this index.
     pub fn get_column(&self) -> usize {
         self.column
     }
@@ -74,9 +77,7 @@ impl FileIndex {
     /// let fi_1 = FileIndex::new(None, 5); // 5 characters have passed
     /// // OwO what's this? A new line?
     /// // This newline sequence is 2 characters long.
-    /// // You can call str.len() safely here because '\r\n' are both
-    /// // 1-byte ASCII characters.
-    /// let fi_2 = fi_1.newline("\r\n".len());
+    /// let fi_2 = fi_1.newline("\r\n".chars().count());
     /// assert!(fi_2.get_column() == 7);
     /// ```
     pub fn newline(&self, newline_length: usize) -> Self {

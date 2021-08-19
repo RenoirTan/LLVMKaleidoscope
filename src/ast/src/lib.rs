@@ -10,6 +10,8 @@ mod tests;
 
 pub use nodeid::NodeId;
 
+/// Module which re-exports some of the most commonly used items in this
+/// member.
 pub mod prelude {
     pub use crate::node::{
         Node,

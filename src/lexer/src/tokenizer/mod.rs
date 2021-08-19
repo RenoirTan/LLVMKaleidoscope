@@ -1,4 +1,4 @@
-//! The tokeniser which spits out tokens from a Kaleidoscope file.
+//! Types that converts a file into a list of tokens.
 //!
 //! See also [`crate::tokenizer::Tokenizer`]
 

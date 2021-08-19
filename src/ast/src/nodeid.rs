@@ -1,4 +1,9 @@
 //! A struct classifying each node type with an integer ID.
+//! This helps when converting node of an unknown type to a concrete type
+//! by making sure that NodeId of the object matches that of the desired
+//! node type.
+//!
+//! See [`NodeId`] for more implementation details.
 
 use std::fmt;
 

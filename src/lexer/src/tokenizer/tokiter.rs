@@ -1,3 +1,6 @@
+//! A module defining a [`TokenIterator`] that can continually read a file
+//! stream and spit out tokens in a for loop.
+
 use std::iter::Iterator;
 use crate::{
     error::Result,
@@ -5,6 +8,8 @@ use crate::{
 };
 use super::{FileStream, Tokenizer, LexerTupleRef, LexerTupleMut};
 
+/// A structure that takes a [`FileStream`] and reads the characters to produce
+/// one token for each iteration in a for loop.
 pub struct TokenIterator<'a> {
     stream: FileStream<'a>,
     tokenizer: Tokenizer,
@@ -12,18 +17,22 @@ pub struct TokenIterator<'a> {
 }
 
 impl<'a> TokenIterator<'a> {
+    /// Create a new [`TokenIterator`].
     pub fn new(stream: FileStream<'a>, tokenizer: Tokenizer) -> Self {
         Self {stream, tokenizer, eof_count: 0}
     }
 
+    /// Check if this iterator can produce more tokens.
     pub fn is_done(&self) -> bool {
         self.tokenizer.is_done(&self.stream)
     }
 
+    /// Check if an EOF character has been encountered.
     pub fn eof_reached(&self) -> bool {
         self.eof_count >= 1
     }
 
+    /// Get the next token in from the tokeniser.
     pub fn next_token(&mut self) -> Result<Token> {
         let token = self.tokenizer.next_token(&mut self.stream)?;
         if token.is_eof() {
@@ -32,10 +41,14 @@ impl<'a> TokenIterator<'a> {
         Ok(token)
     }
 
+    /// Convert this iterator into a neatly packaged tuple for transport
+    /// across functions.
     pub fn to_tuple_ref(&'a self) -> LexerTupleRef<'a, 'a> {
         LexerTupleRef(&self.stream, &self.tokenizer)
     }
 
+    /// Convert this iterator into a neatly packaged tuple for transport
+    /// across functions.
     pub fn to_tuple_mut(&'a mut self) -> LexerTupleMut<'a, 'a> {
         LexerTupleMut(&mut self.stream, &mut self.tokenizer)
     }

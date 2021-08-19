@@ -1,4 +1,5 @@
-//! A token in a file or stream.
+//! A token in a file or stream. This is the most basic unit in a file above
+//! a character and includes integers, floats, names and operators.
 //! 
 //! See [`Token`] for more comprehensive information.
 
@@ -59,6 +60,15 @@ impl Token {
         }
     }
 
+    /// Check if this token represents an EOF character.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kaleidoscope_lexer::token::{Token, FileIndex};
+    ///
+    /// assert!(Token::new_eof(FileIndex::new(None, 0)).is_eof());
+    /// ```
     pub fn is_eof(&self) -> bool {
         matches!(self.token_kind, TokenKind::Eof)
     }
@@ -282,6 +292,8 @@ impl Token {
         }
     }
 
+    /// Resolve the value of the token when the end of the sequence happens.
+    /// If this function is successful, it will always return `Ok(true)`.
     pub fn resolve(&mut self, index: FileIndex) -> Result<bool> {
         self.end = index;
         match self.token_kind {
@@ -302,7 +314,7 @@ impl Token {
         }
     }
 
-    /// Borrow the span as a string slice.
+    /// Borrow the span occupied by the token as a string slice.
     pub fn borrow_span(&self) -> &str {
         &self.span[..]
     }
