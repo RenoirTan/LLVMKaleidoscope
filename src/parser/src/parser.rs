@@ -73,9 +73,18 @@ impl ParserToken {
         }
     }
 
+    pub fn snitch(&self) -> Option<Token> {
+        self.token.clone()
+    }
+
     pub fn use_once(&mut self) -> &mut Self {
         self.uses += 1;
         self
+    }
+
+    pub fn utilize(&mut self) -> Option<Token> {
+        self.uses += 1;
+        self.token.clone()
     }
 }
 
@@ -136,15 +145,16 @@ impl Parser {
     }
 
     #[inline]
-    fn get_current_token(&self) -> Option<Token> {
-        match *self.current_token {
-            Some(ref t) => if t.is_eof() {
-                None
-            } else {
-                Some(t.clone())
-            },
-            None => None
-        }
+    fn get_current_token(&mut self) -> Option<Token> {
+        let token = self.current_token.utilize();
+        println!("GRABBED {:?}", token);
+        token
+    }
+
+    #[inline]
+    #[allow(dead_code)]
+    fn peek_current_token(&self) -> Option<Token> {
+        self.current_token.snitch()
     }
 
     fn find_matching_right_round_bracket<'a, 'b: 'a>(
@@ -267,7 +277,6 @@ impl Parser {
                     ErrorKind::ParsingError
                 ))
             };
-            self.current_token.use_once();
             Ok(Some(Box::new(IntegerNode::new(rust_integer))))
         } else {
             Ok(None)
@@ -280,6 +289,7 @@ impl Parser {
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
+        println!("[{}] token: {:?}", function_path!(), token);
         if let TokenKind::Float = token.token_kind {
             let rust_float = match token.borrow_span().parse::<FloatType>() {
                 Ok(f) => f,
@@ -288,7 +298,6 @@ impl Parser {
                     ErrorKind::ParsingError
                 ))
             };
-            self.current_token.use_once();
             Ok(Some(Box::new(FloatNode::new(rust_float))))
         } else {
             Ok(None)
@@ -302,7 +311,6 @@ impl Parser {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
         if let TokenKind::Identifier = token.token_kind {
-            self.grab_if_used(ltuplemut!(stream, tokenizer))?;
             let identifier = Box::new(
                 IdentifierNode::new(token.borrow_span().to_string())
             );
@@ -427,24 +435,27 @@ impl Parser {
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.get_current_token());
+        println!("[{}] token: {:?}", function_path!(), token);
         let left_bracket = match token.token_kind {
             TokenKind::Bracket {bracket} => bracket,
             _ => return Ok(None)
         };
         if !matches!(left_bracket.kind, BracketKind::Round) {
-            return Ok(None);
+            if !left_bracket.side.is_left() {
+                return Err(Error::new(
+                    &"Mismatched right bracket.",
+                    ErrorKind::SyntaxError,
+                    None
+                ));
+            } else {
+                return Ok(None);
+            }
         }
-        if !left_bracket.side.is_left() {
-            return Err(Error::new(
-                &"Mismatched right bracket.",
-                ErrorKind::SyntaxError,
-                None
-            ));
-        }
+        println!("[{}] left bracket verified", function_path!());
         self.grab_token_from_tokenizer(ltuplemut!(stream, tokenizer))?;
-        let expression = match self.parse_expression(
-            ltuplemut!(stream, tokenizer)
-        )? {
+        let expression = match
+            self.parse_expression(ltuplemut!(stream, tokenizer))?
+        {
             Some(x) => x,
             None => return Err(Error::new(
                 &"Expected expression.",
@@ -452,24 +463,32 @@ impl Parser {
                 None
             ))
         };
+        println!("[{}] inner expression parsed", function_path!());
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        self.current_token.use_once();
-        let token = ok_none!(self.get_current_token());
+        let token = match self.get_current_token() {
+            Some(t) => t,
+            None => return Err(Error::new(
+                &"Unexpected EOF.",
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
         let right_bracket = match token.token_kind {
             TokenKind::Bracket {bracket} => bracket,
             _ => return Err(Error::new(
-                &"No ending bracket.",
+                &"Expected round right bracket.",
                 ErrorKind::SyntaxError,
                 None
             ))
         };
         if !left_bracket.cancels_out(right_bracket) {
             return Err(Error::new(
-                &"Incompatible brackets",
+                &"Incompatible brackets.",
                 ErrorKind::SyntaxError,
                 None
             ));
         }
+        println!("[{}] right bracket validated", function_path!());
         Ok(Some(expression))
     }
 
