@@ -1,5 +1,10 @@
 //! Sub-crate for macros I will be using in this repo.
 
+
+#[cfg(test)]
+mod tests;
+
+
 /// Implement a default version of [`std::fmt::Display`] for a type if that
 /// type already implements [`std::fmt::Debug`].
 /// 
@@ -102,6 +107,7 @@ macro_rules! function_name {
     }};
 }
 
+/// Unwrap an [`Option`] but return `Ok(None)` if the [`Option`] is [`None`].
 #[macro_export]
 macro_rules! ok_none {
     ($option: expr) => {
@@ -112,6 +118,7 @@ macro_rules! ok_none {
     };
 }
 
+/// If `$option` is [`Some`], return `Ok($option)`.
 #[macro_export]
 macro_rules! return_ok_some {
     ($option: ident) => {{
