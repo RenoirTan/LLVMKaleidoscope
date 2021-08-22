@@ -117,6 +117,7 @@ impl Parser {
     }
 
     #[inline]
+    #[allow(dead_code)]
     fn grab_token_from_tokenizer<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -135,6 +136,13 @@ impl Parser {
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> Result<&mut Self> {
+        // DO NOT REMOVE THIS IF BLOCK
+        // BECAUSE IF YOU DO THE TOKENS
+        // WILL FALL OFF THE CLIFF BEFORE
+        // THEY GET PROCESSED
+        if self.current_token.unused() {
+            return Ok(self)
+        }
         self.replace_used_token(match tokenizer.next_token(stream) {
             Ok(token) => token,
             Err(e) => return Err(Error::from_err(
@@ -266,7 +274,7 @@ impl Parser {
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        let token = ok_none!(self.get_current_token());
+        let token = ok_none!(self.peek_current_token());
         if let TokenKind::Integer = token.token_kind {
             let rust_integer = match
                 token.borrow_span().parse::<IntegerType>()
@@ -277,6 +285,7 @@ impl Parser {
                     ErrorKind::ParsingError
                 ))
             };
+            self.current_token.use_once();
             Ok(Some(Box::new(IntegerNode::new(rust_integer))))
         } else {
             Ok(None)
@@ -288,7 +297,7 @@ impl Parser {
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        let token = ok_none!(self.get_current_token());
+        let token = ok_none!(self.peek_current_token());
         println!("[{}] token: {:?}", function_path!(), token);
         if let TokenKind::Float = token.token_kind {
             let rust_float = match token.borrow_span().parse::<FloatType>() {
@@ -298,6 +307,7 @@ impl Parser {
                     ErrorKind::ParsingError
                 ))
             };
+            self.current_token.use_once();
             Ok(Some(Box::new(FloatNode::new(rust_float))))
         } else {
             Ok(None)
@@ -309,11 +319,12 @@ impl Parser {
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        let token = ok_none!(self.get_current_token());
+        let token = ok_none!(self.peek_current_token());
         if let TokenKind::Identifier = token.token_kind {
             let identifier = Box::new(
                 IdentifierNode::new(token.borrow_span().to_string())
             );
+            self.current_token.use_once();
             Ok(Some(Box::new(VariableExpressionNode::new(identifier))))
         } else {
             Ok(None)
@@ -434,12 +445,13 @@ impl Parser {
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        let token = ok_none!(self.get_current_token());
+        let token = ok_none!(self.peek_current_token());
         println!("[{}] token: {:?}", function_path!(), token);
         let left_bracket = match token.token_kind {
             TokenKind::Bracket {bracket} => bracket,
             _ => return Ok(None)
         };
+        self.current_token.use_once();
         if !matches!(left_bracket.kind, BracketKind::Round) {
             if !left_bracket.side.is_left() {
                 return Err(Error::new(
@@ -452,7 +464,6 @@ impl Parser {
             }
         }
         println!("[{}] left bracket verified", function_path!());
-        self.grab_token_from_tokenizer(ltuplemut!(stream, tokenizer))?;
         let expression = match
             self.parse_expression(ltuplemut!(stream, tokenizer))?
         {

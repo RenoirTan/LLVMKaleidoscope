@@ -51,10 +51,10 @@ fn test_parse_variable_expression() {
 
 #[test]
 fn test_round_bracket() {
-    let (mut parser, mut stream, mut tokenizer) = get_parser("( 5 200 )");
+    let (mut parser, mut stream, mut tokenizer) = get_parser("( 5.0 )");
     let expression = parser.parse_round_bracket_expression(
         ltuplemut!(&mut stream, &mut tokenizer)
     ).unwrap().unwrap();
-    let node = reify_expr_node::<IntegerNode>(expression).unwrap();
-    assert_eq!(node.get_value(), 200);
+    let node = reify_expr_node::<FloatNode>(expression).unwrap();
+    assert_eq!(node.get_value(), 5.0);
 }
