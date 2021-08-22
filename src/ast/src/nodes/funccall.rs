@@ -64,11 +64,7 @@ impl Node for FunctionCallNode {
     }
 }
 
-impl NodeType for FunctionCallNode {
-    fn node_id() -> NodeId {
-        NodeId::new(11)
-    }
-}
+impl NodeType for FunctionCallNode {}
 
 impl ExprNode for FunctionCallNode {
     fn expr_node_clone(&self) -> Box<dyn ExprNode> {

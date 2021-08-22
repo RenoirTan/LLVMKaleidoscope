@@ -55,8 +55,4 @@ impl Node for IdentifierNode {
     }
 }
 
-impl NodeType for IdentifierNode {
-    fn node_id() -> NodeId {
-        NodeId::new(2)
-    }
-}
+impl NodeType for IdentifierNode {}

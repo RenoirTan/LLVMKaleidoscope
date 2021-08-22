@@ -7,7 +7,7 @@
 
 use std::fmt;
 
-type IdInner = u32;
+type IdInner = u64;
 
 /// An ID for each node type.
 ///

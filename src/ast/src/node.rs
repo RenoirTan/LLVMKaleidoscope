@@ -1,7 +1,10 @@
 //! Module which defines traits AST nodes can implement as well as utility
 //! functions that act on these nodes.
 
-use std::{any::Any, fmt::{Debug, Display}};
+use std::{
+    any::{Any, TypeId},
+    fmt::{Debug, Display}
+};
 use kaleidoscope_lexer::token::Token;
 use crate::error::Result;
 use super::NodeId;
@@ -22,9 +25,17 @@ pub trait Node: Any + Debug + Display {
     fn node_clone(&self) -> Box<dyn Node>;
 }
 
-pub trait NodeType {
+fn typeid_to_u64<T: 'static>() -> u64 {
+    let strid = format!("{:?}", TypeId::of::<T>());
+    let strid = &strid[12..strid.len()-2];
+    strid.parse::<u64>().unwrap()
+}
+
+pub trait NodeType: Sized + 'static {
     /// Get the [`NodeId`] of a node type.
-    fn node_id() -> NodeId;
+    fn node_id() -> NodeId {
+        NodeId::new(typeid_to_u64::<Self>())
+    }
 }
 
 /// A node representing an expression.

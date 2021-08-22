@@ -40,11 +40,7 @@ impl Node for VariableExpressionNode {
     }
 }
 
-impl NodeType for VariableExpressionNode {
-    fn node_id() -> NodeId {
-        NodeId::new(15)
-    }
-}
+impl NodeType for VariableExpressionNode {}
 
 impl ExprNode for VariableExpressionNode {
     fn expr_node_clone(&self) -> Box<dyn ExprNode> {

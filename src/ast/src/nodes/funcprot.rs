@@ -50,8 +50,4 @@ impl Node for FunctionPrototypeNode {
     }
 }
 
-impl NodeType for FunctionPrototypeNode {
-    fn node_id() -> NodeId {
-        NodeId::new(12)
-    }
-}
+impl NodeType for FunctionPrototypeNode {}

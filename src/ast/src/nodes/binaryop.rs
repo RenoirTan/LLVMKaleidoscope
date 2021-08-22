@@ -67,11 +67,7 @@ impl Node for BinaryOperatorNode {
     }
 }
 
-impl NodeType for BinaryOperatorNode {
-    fn node_id() -> NodeId {
-        NodeId::new(7)
-    }
-}
+impl NodeType for BinaryOperatorNode {}
 
 impl ExprNode for BinaryOperatorNode {
     fn expr_node_clone(&self) -> Box<dyn ExprNode> {

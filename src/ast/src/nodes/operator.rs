@@ -16,8 +16,4 @@ impl Node for Operator {
     }
 }
 
-impl NodeType for Operator {
-    fn node_id() -> NodeId {
-        NodeId::new(3)
-    }
-}
+impl NodeType for Operator {}

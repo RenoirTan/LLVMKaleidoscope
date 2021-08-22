@@ -34,11 +34,7 @@ impl Node for FloatNode {
     }
 }
 
-impl NodeType for FloatNode {
-    fn node_id() -> NodeId {
-        NodeId::new(5)
-    }
-}
+impl NodeType for FloatNode {}
 
 impl ExprNode for FloatNode {
     fn expr_node_clone(&self) -> Box<dyn ExprNode> {

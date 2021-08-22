@@ -56,8 +56,4 @@ impl Node for FunctionNode {
     }
 }
 
-impl NodeType for FunctionNode {
-    fn node_id() -> NodeId {
-        NodeId::new(14)
-    }
-}
+impl NodeType for FunctionNode {}

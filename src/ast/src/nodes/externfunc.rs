@@ -40,8 +40,4 @@ impl Node for ExternFunctionNode {
     }
 }
 
-impl NodeType for ExternFunctionNode {
-    fn node_id() -> NodeId {
-        NodeId::new(16)
-    }
-}
+impl NodeType for ExternFunctionNode {}

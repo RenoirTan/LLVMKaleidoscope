@@ -64,11 +64,7 @@ impl Node for IntegerNode {
     }
 }
 
-impl NodeType for IntegerNode {
-    fn node_id() -> NodeId {
-        NodeId::new(4)
-    }
-}
+impl NodeType for IntegerNode {}
 
 impl ExprNode for IntegerNode {
     fn expr_node_clone(&self) -> Box<dyn ExprNode> {

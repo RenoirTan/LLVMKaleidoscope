@@ -60,11 +60,7 @@ impl Node for UnaryOperatorNode {
     }
 }
 
-impl NodeType for UnaryOperatorNode {
-    fn node_id() -> NodeId {
-        NodeId::new(6)
-    }
-}
+impl NodeType for UnaryOperatorNode {}
 
 impl ExprNode for UnaryOperatorNode {
     fn expr_node_clone(&self) -> Box<dyn ExprNode> {
