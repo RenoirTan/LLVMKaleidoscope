@@ -75,3 +75,22 @@ fn test_function_prototype() {
             .collect::<Vec<Box<IdentifierNode>>>()
     );
 }
+
+#[test]
+fn test_extern_function() {
+    let (mut parser, mut stream, mut tokenizer) = get_parser(
+        "extern def iconv(cd, inbuf, inbytesleft, outbuf, outbytesleft)"
+    );
+    let external = parser.parse_extern_function(
+        ltuplemut!(&mut stream, &mut tokenizer)
+    ).unwrap().unwrap();
+    let prototype = external.get_prototype();
+    assert_eq!(prototype.get_identifier().get_identifier(), "iconv");
+    assert_eq!(
+        prototype.get_parameters(),
+        ["cd", "inbuf", "inbytesleft", "outbuf", "outbytesleft"]
+            .iter()
+            .map(|s| Box::new(IdentifierNode::new(s.to_string())))
+            .collect::<Vec<Box<IdentifierNode>>>()
+    );
+}
