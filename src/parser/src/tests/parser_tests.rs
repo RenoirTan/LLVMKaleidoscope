@@ -203,8 +203,35 @@ fn test_binop_3() {
                 left_right_node.get_second()
             ).unwrap();
             assert_eq!(left_right_right.get_value(), 4);
-        let right = reify_expr_node_ref::<IntegerNode>(node.get_second()).unwrap();
+        let right = reify_expr_node_ref::<IntegerNode>(node.get_second())
+            .unwrap();
         assert_eq!(right.get_value(), 5);
+}
+
+#[test]
+fn test_binop_4() {
+    let (mut parser, mut stream, mut tokenizer) = get_parser(
+        "1 + 2 * 3 / (4 - 5)"
+    );
+    let expression = parser.parse_expression(
+        ltuplemut!(&mut stream, &mut tokenizer)
+    ).unwrap().unwrap();
+    println!("{}: {}", function_name!(), expression);
+    // Doing the checks like in the previous binop tests are going to become
+    // too bulky
+    assert_eq!(format!("{}", expression), "(+(1)(/(*(2)(3))(-(4)(5))))");
+}
+
+#[test]
+fn test_binop_5() {
+    let (mut parser, mut stream, mut tokenizer) = get_parser(
+        "(1 + 2) * 3 / (4 - 5)"
+    );
+    let expression = parser.parse_expression(
+        ltuplemut!(&mut stream, &mut tokenizer)
+    ).unwrap().unwrap();
+    println!("{}: {}", function_name!(), expression);
+    assert_eq!(format!("{}", expression), "(/(*(+(1)(2))(3))(-(4)(5)))");
 }
 
 #[test]
