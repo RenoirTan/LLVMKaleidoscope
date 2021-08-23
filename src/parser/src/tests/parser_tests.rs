@@ -162,6 +162,52 @@ fn test_binop_2() {
 }
 
 #[test]
+fn test_binop_3() {
+    let (mut parser, mut stream, mut tokenizer) = get_parser(
+        "1 + 2 * 3 / 4 - 5"
+    );
+    let expression = parser.parse_expression(
+        ltuplemut!(&mut stream, &mut tokenizer)
+    ).unwrap().unwrap();
+    println!("{}: {}", function_name!(), expression);
+
+    let node = reify_expr_node::<BinaryOperatorNode>(expression).unwrap();
+    let left_node = reify_expr_node_ref::<BinaryOperatorNode>(node.get_first())
+        .unwrap();
+    assert_eq!(*left_node.get_operator(), Operator::Plus);
+        let left_left = reify_expr_node_ref::<IntegerNode>(
+            left_node.get_first()
+        ).unwrap();
+        assert_eq!(left_left.get_value(), 1);
+        let left_right_node = reify_expr_node_ref::<BinaryOperatorNode>(
+            left_node.get_second()
+        ).unwrap();
+        assert_eq!(*left_right_node.get_operator(), Operator::Divide);
+            let left_right_left_node =
+                reify_expr_node_ref::<BinaryOperatorNode>(
+                    left_right_node.get_first()
+                ).unwrap();
+            assert_eq!(
+                *left_right_left_node.get_operator(),
+                Operator::Multiply
+            );
+                let left_right_left_left = reify_expr_node_ref::<IntegerNode>(
+                    left_right_left_node.get_first()
+                ).unwrap();
+                assert_eq!(left_right_left_left.get_value(), 2);
+                let left_right_left_right = reify_expr_node_ref::<IntegerNode>(
+                    left_right_left_node.get_second()
+                ).unwrap();
+                assert_eq!(left_right_left_right.get_value(), 3);
+            let left_right_right = reify_expr_node_ref::<IntegerNode>(
+                left_right_node.get_second()
+            ).unwrap();
+            assert_eq!(left_right_right.get_value(), 4);
+        let right = reify_expr_node_ref::<IntegerNode>(node.get_second()).unwrap();
+        assert_eq!(right.get_value(), 5);
+}
+
+#[test]
 fn test_function_prototype() {
     let (mut parser, mut stream, mut tokenizer) = get_parser("def pow(a, b)");
     let prototype = parser.parse_function_prototype(

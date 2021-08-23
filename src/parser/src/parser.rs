@@ -28,7 +28,7 @@ use kaleidoscope_lexer::{
     tokenizer::LexerTupleMut
 };
 use kaleidoscope_macro::{
-    // function_path,
+    function_path,
     ok_none,
     return_ok_some
 };
@@ -182,8 +182,8 @@ impl Parser {
     #[inline]
     fn peek_current_token(&self) -> Option<Token> {
         let token = self.current_token.peek();
-        // println!("[{}] {:?}", function_path!(), token);
-        // println!("[{}] uses: {}\n", function_path!(), self.current_token.uses);
+        println!("[{}] {:?}", function_path!(), token);
+        println!("[{}] uses: {}\n", function_path!(), self.current_token.uses);
         token
     }
 
@@ -451,30 +451,33 @@ impl Parser {
         // with equal precedence (using '+' in this example) will be treated
         // like this (+ (+ P1 P2) P3).
         loop {
-            // println!(
-            //     "[{}]{} escaped_from_inner: {}",
-            //     function_path!(),
-            //     depth,
-            //     escaped_from_inner
-            // );
+            println!(
+                "[{}]{} escaped_from_inner: {}",
+                function_path!(),
+                depth,
+                escaped_from_inner
+            );
             if *escaped_from_inner {
-                let loperator_token = match self.current_token.peek() {
+                let loperator_token = match self.peek_current_token() {
                     Some(t) => t,
                     None => return Ok(Some(lhs))
                 };
                 loperator = match loperator_token.token_kind {
-                    TokenKind::Operator {operator} => operator,
+                    TokenKind::Operator {operator} => {
+                        self.mark_used();
+                        operator
+                    },
                     _ => return Ok(Some(lhs))
                 };
             } else if !matches!(roperator, Operator::Unknown) {
                 loperator = roperator;
             }
-            // println!(
-            //     "[{}]{} loperator: {:?}\n",
-            //     function_path!(),
-            //     depth,
-            //     loperator
-            // );
+            println!(
+                "[{}]{} loperator: {:?}\n",
+                function_path!(),
+                depth,
+                loperator
+            );
             let lprecedence: BinaryOperatorPrecedence = loperator.into();
             if lprecedence < minimum_operator_precedence {
                 self.mark_unused();
@@ -510,12 +513,12 @@ impl Parser {
                 }
             };
             self.mark_used();
-            // println!(
-            //     "[{}]{} roperator: {:?}\n",
-            //     function_path!(),
-            //     depth,
-            //     roperator
-            // );
+            println!(
+                "[{}]{} roperator: {:?}\n",
+                function_path!(),
+                depth,
+                roperator
+            );
             let rprecedence =
                 BinaryOperatorPrecedence::from_operator(roperator);
             if lprecedence < rprecedence {
@@ -536,7 +539,7 @@ impl Parser {
                 lhs,
                 rhs
             ));
-            // println!("[{}]{} new lhs: {}\n", function_path!(), depth, lhs);
+            println!("[{}]{} new lhs: {}\n", function_path!(), depth, lhs);
         }
     }
 
