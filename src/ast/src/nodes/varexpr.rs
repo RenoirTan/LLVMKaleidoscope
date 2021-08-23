@@ -7,7 +7,7 @@ use super::IdentifierNode;
 
 /// An expression where it's just one variable. This is essentially like
 /// `y` in the statement `x = y` in typical "C-like" languages.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VariableExpressionNode {
     identifier: Box<IdentifierNode>
 }

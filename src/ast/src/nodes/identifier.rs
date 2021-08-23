@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 /// A struct representing a name or path that can identify an object, function
 /// or data structure like classes.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IdentifierNode {
     identifier: String
 }

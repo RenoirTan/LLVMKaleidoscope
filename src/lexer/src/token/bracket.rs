@@ -14,6 +14,48 @@ use std::{
 use serde::{Serialize, Deserialize};
 use kaleidoscope_macro::impl_display;
 
+pub mod brackets {
+    use super::{Bracket, BracketKind, BracketSide};
+
+    pub const LEFT_ROUND_BRACKET: Bracket = Bracket {
+        kind: BracketKind::Round,
+        side: BracketSide::Left
+    };
+    pub const RIGHT_ROUND_BRACKET: Bracket = Bracket {
+        kind: BracketKind::Round,
+        side: BracketSide::Right
+    };
+    pub const LEFT_SQUARE_BRACKET: Bracket = Bracket {
+        kind: BracketKind::Square,
+        side: BracketSide::Left
+    };
+    pub const RIGHT_SQUARE_BRACKET: Bracket = Bracket {
+        kind: BracketKind::Square,
+        side: BracketSide::Right
+    };
+    pub const LEFT_CURLY_BRACKET: Bracket = Bracket {
+        kind: BracketKind::Curly,
+        side: BracketSide::Left
+    };
+    pub const RIGHT_CURLY_BRACKET: Bracket = Bracket {
+        kind: BracketKind::Curly,
+        side: BracketSide::Right
+    };
+    pub const LEFT_ANGLED_BRACKET: Bracket = Bracket {
+        kind: BracketKind::Angled,
+        side: BracketSide::Left
+    };
+    pub const RIGHT_ANGLED_BRACKET: Bracket = Bracket {
+        kind: BracketKind::Angled,
+        side: BracketSide::Right
+    };
+    pub const UNKNOWN_BRACKET: Bracket = Bracket {
+        kind: BracketKind::Unknown,
+        side: BracketSide::Left
+    };
+    
+}
+
 /// The type of bracket [`Bracket`] represents.
 /// This merely classifies a bracket by its shape
 /// (i.e. whether it's round, square or curly, etc.)

@@ -21,6 +21,7 @@ use kaleidoscope_lexer::{
         BracketKind,
         FileIndex,
         Keyword,
+        LEFT_ROUND_BRACKET,
         Token,
         TokenKind
     },
@@ -179,6 +180,7 @@ impl Parser {
         token
     }
 
+    #[allow(dead_code)]
     fn find_matching_right_round_bracket<'a, 'b: 'a>(
         &mut self,
         lbracket_index: FileIndex,
@@ -561,7 +563,7 @@ impl Parser {
         self.mark_used();
         let function_identifier = match function_identifier_token.token_kind {
             TokenKind::Identifier => Box::new(IdentifierNode::new(
-                function_identifier_token.to_string()
+                function_identifier_token.borrow_span().to_string()
             )),
             _ => return Err(Error::new(
                 &format!(
@@ -613,11 +615,36 @@ impl Parser {
         loop {
             self.grab_if_used(ltuplemut!(stream, tokenizer))?;
             if let Some(parameter_token) = self.peek_current_token() {
+                // println!(
+                //     "[{}] parameter_token: {:?}\n",
+                //     function_path!(),
+                //     parameter_token
+                // );
                 self.mark_used();
                 self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-                match self.peek_current_token() {
+                let possible_comma_token = self.peek_current_token();
+                // println!(
+                //     "[{}] possible_comma_token: {:?}\n",
+                //     function_path!(),
+                //     possible_comma_token
+                // );
+                match possible_comma_token {
                     Some(comma_token) => match comma_token.token_kind {
                         TokenKind::Comma => (),
+                        TokenKind::Bracket {bracket} =>
+                            if LEFT_ROUND_BRACKET.cancels_out(bracket) {
+                                ended = true;
+                            } else {
+                                return Err(Error::new(
+                                    &format!(
+                                        "Expected a ')' instead of this {} at {}",
+                                        bracket,
+                                        comma_token.start
+                                    ),
+                                    ErrorKind::SyntaxError,
+                                    None
+                                ));
+                            },
                         _ => return Err(Error::new(
                             &format!(
                                 "Unexpected token after parameter name at {}",
@@ -627,12 +654,19 @@ impl Parser {
                             None
                         ))
                     },
-                    None => {ended = true;}
+                    None => return Err(Error::new(
+                        &format!(
+                            "Unexpected EOF for function prototype at {}",
+                            function_identifier_token.start
+                        ),
+                        ErrorKind::SyntaxError,
+                        None
+                    ))
                 }
                 self.mark_used();
                 parameters.push(match parameter_token.token_kind {
                     TokenKind::Identifier => Box::new(IdentifierNode::new(
-                        parameter_token.to_string()
+                        parameter_token.borrow_span().to_string()
                     )),
                     _ => return Err(Error::new(
                         &format!(
@@ -645,10 +679,6 @@ impl Parser {
                 });
 
                 if ended {
-                    self.find_matching_right_round_bracket(
-                        lbracket_token.start,
-                        ltuplemut!(stream, tokenizer)
-                    )?;
                     break;
                 }
             } else {

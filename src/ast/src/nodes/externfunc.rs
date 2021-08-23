@@ -3,7 +3,7 @@ use crate::prelude::*;
 use super::FunctionPrototypeNode;
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ExternFunctionNode {
     prototype: Box<FunctionPrototypeNode>
 }

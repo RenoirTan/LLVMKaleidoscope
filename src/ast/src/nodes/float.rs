@@ -3,7 +3,7 @@ use crate::prelude::*;
 
 pub type FloatType = f64;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FloatNode {
     value: FloatType
 }
@@ -17,6 +17,8 @@ impl FloatNode {
         self.value
     }
 }
+
+impl Eq for FloatNode {}
 
 impl fmt::Display for FloatNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

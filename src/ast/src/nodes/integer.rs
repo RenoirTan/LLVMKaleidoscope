@@ -9,7 +9,7 @@ pub type IntegerType = i128;
 
 /// A node representing an integer. This integer's internal representation
 /// depends on [`IntegerType`].
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IntegerNode {
     value: IntegerType
 }

@@ -6,7 +6,7 @@ use crate::prelude::*;
 use super::IdentifierNode;
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FunctionPrototypeNode {
     identifier: Box<IdentifierNode>,
     parameters: Vec<Box<IdentifierNode>>

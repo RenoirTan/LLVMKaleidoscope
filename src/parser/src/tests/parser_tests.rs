@@ -1,6 +1,7 @@
 use kaleidoscope_ast::{
     nodes::{
         FloatNode,
+        IdentifierNode,
         IntegerNode,
         VariableExpressionNode
     },
@@ -57,4 +58,20 @@ fn test_round_bracket() {
     ).unwrap().unwrap();
     let node = reify_expr_node::<FloatNode>(expression).unwrap();
     assert_eq!(node.get_value(), 5.0);
+}
+
+#[test]
+fn test_function_prototype() {
+    let (mut parser, mut stream, mut tokenizer) = get_parser("def pow(a, b)");
+    let prototype = parser.parse_function_prototype(
+        ltuplemut!(&mut stream, &mut tokenizer)
+    ).unwrap().unwrap();
+    assert_eq!(prototype.get_identifier().get_identifier(), "pow");
+    assert_eq!(
+        prototype.get_parameters(),
+        ["a", "b"]
+            .iter()
+            .map(|s| Box::new(IdentifierNode::new(s.to_string())))
+            .collect::<Vec<Box<IdentifierNode>>>()
+    );
 }
