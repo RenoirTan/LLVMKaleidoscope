@@ -30,8 +30,8 @@ impl UnaryOperatorNode {
     }
 
     /// Get the first argument in the expression.
-    pub fn get_first(&self) -> &dyn ExprNode {
-        &*self.first
+    pub fn get_first(&self) -> &Box<dyn ExprNode> {
+        &self.first
     }
 }
 

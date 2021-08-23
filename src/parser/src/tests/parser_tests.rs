@@ -1,11 +1,16 @@
 use kaleidoscope_ast::{
     nodes::{
+        BinaryOperatorNode,
         FloatNode,
         IdentifierNode,
         IntegerNode,
+        Operator,
         VariableExpressionNode
     },
-    node::reify_expr_node
+    node::{
+        reify_expr_node,
+        reify_expr_node_ref
+    }
 };
 use kaleidoscope_lexer::{
     ltuplemut,
@@ -14,8 +19,18 @@ use kaleidoscope_lexer::{
         Tokenizer
     }
 };
+use kaleidoscope_macro::function_name;
 use crate::parser::Parser;
 
+#[allow(dead_code)]
+fn print_tokenizer<'a>(tokenizer: Tokenizer, stream: FileStream<'a>) {
+    let mut iterable = tokenizer.to_iter(stream);
+    for token in &mut iterable {
+        println!("{:#?}", token);
+    }
+}
+
+#[inline]
 fn get_parser<'a>(input: &'a str) -> (Parser, FileStream<'a>, Tokenizer) {
     (Parser::new(), FileStream::from(input), Tokenizer::new())
 }
@@ -58,6 +73,92 @@ fn test_round_bracket() {
     ).unwrap().unwrap();
     let node = reify_expr_node::<FloatNode>(expression).unwrap();
     assert_eq!(node.get_value(), 5.0);
+}
+
+#[test]
+fn test_binop_0() {
+    let (mut parser, mut stream, mut tokenizer) = get_parser(
+        "1 + 2"
+    );
+    let expression = parser.parse_expression(
+        ltuplemut!(&mut stream, &mut tokenizer)
+    ).unwrap().unwrap();
+    println!("{}: {}", function_name!(), expression);
+
+    let node = reify_expr_node::<BinaryOperatorNode>(expression).unwrap();
+    assert_eq!(*node.get_operator(), Operator::Plus);
+        let left = reify_expr_node_ref::<IntegerNode>(node.get_first())
+            .unwrap();
+        assert_eq!(left.get_value(), 1);
+        let right = reify_expr_node_ref::<IntegerNode>(node.get_second())
+            .unwrap();
+        assert_eq!(right.get_value(), 2);
+}
+
+#[test]
+fn test_binop_1() {
+    let (mut parser, mut stream, mut tokenizer) = get_parser(
+        "1 + 2 * 3"
+    );
+    let expression = parser.parse_expression(
+        ltuplemut!(&mut stream, &mut tokenizer)
+    ).unwrap().unwrap();
+    println!("{}: {}", function_name!(), expression);
+
+    let node = reify_expr_node::<BinaryOperatorNode>(expression).unwrap();
+    assert_eq!(*node.get_operator(), Operator::Plus);
+        let left = reify_expr_node_ref::<IntegerNode>(node.get_first())
+            .unwrap();
+        assert_eq!(left.get_value(), 1);
+        let right_node = reify_expr_node_ref::<BinaryOperatorNode>(
+            node.get_second()
+        ).unwrap();
+        assert_eq!(*right_node.get_operator(), Operator::Multiply);
+            let right_left = reify_expr_node_ref::<IntegerNode>(
+                right_node.get_first()
+            ).unwrap();
+            assert_eq!(right_left.get_value(), 2);
+            let right_right = reify_expr_node_ref::<IntegerNode>(
+                right_node.get_second()
+            ).unwrap();
+            assert_eq!(right_right.get_value(), 3); 
+}
+
+#[test]
+fn test_binop_2() {
+    let (mut parser, mut stream, mut tokenizer) = get_parser(
+        "1 + 2 * 3 / 4"
+    );
+    let expression = parser.parse_expression(
+        ltuplemut!(&mut stream, &mut tokenizer)
+    ).unwrap().unwrap();
+    println!("{}: {}", function_name!(), expression);
+
+    let node = reify_expr_node::<BinaryOperatorNode>(expression).unwrap();
+    assert_eq!(*node.get_operator(), Operator::Plus);
+        let left = reify_expr_node_ref::<IntegerNode>(node.get_first())
+            .unwrap();
+        assert_eq!(left.get_value(), 1);
+        let right_node = reify_expr_node_ref::<BinaryOperatorNode>(
+            node.get_second()
+        ).unwrap();
+        assert_eq!(*right_node.get_operator(), Operator::Divide);
+            let right_left_node = reify_expr_node_ref::<BinaryOperatorNode>(
+                right_node.get_first()
+            ).unwrap();
+            assert_eq!(*right_left_node.get_operator(), Operator::Multiply);
+                let right_left_left = reify_expr_node_ref::<IntegerNode>(
+                    right_left_node.get_first()
+                ).unwrap();
+                assert_eq!(right_left_left.get_value(), 2);
+                let right_left_right = reify_expr_node_ref::<IntegerNode>(
+                    right_left_node.get_second()
+                ).unwrap();
+                assert_eq!(right_left_right.get_value(), 3);
+            let right_right = reify_expr_node_ref::<IntegerNode>(
+                right_node.get_second()
+            ).unwrap();
+            assert_eq!(right_right.get_value(), 4);
 }
 
 #[test]

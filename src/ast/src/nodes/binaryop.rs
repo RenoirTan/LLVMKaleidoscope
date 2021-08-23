@@ -37,13 +37,13 @@ impl BinaryOperatorNode {
     }
 
     /// Get the first argument in the expression.
-    pub fn get_first(&self) -> &dyn ExprNode {
-        &*self.first
+    pub fn get_first(&self) -> &Box<dyn ExprNode> {
+        &self.first
     }
 
     /// Get the second argument in the expression.
-    pub fn get_second(&self) -> &dyn ExprNode {
-        &*self.second
+    pub fn get_second(&self) -> &Box<dyn ExprNode> {
+        &self.second
     }
 }
 

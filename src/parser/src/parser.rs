@@ -28,7 +28,7 @@ use kaleidoscope_lexer::{
     tokenizer::LexerTupleMut
 };
 use kaleidoscope_macro::{
-    // function_path,
+    function_path,
     ok_none,
     return_ok_some
 };
@@ -63,6 +63,7 @@ impl ParserToken {
     }
 
     pub fn replace(&mut self, token: Token) -> Option<Token> {
+        // println!("[{}] new token: {:?}\n", function_path!(), token);
         let original = self.token.take();
         self.token = Some(token);
         self.uses = 0; // Do not remove this line
@@ -123,6 +124,12 @@ impl Parser {
     }
 
     #[inline]
+    pub(crate) fn mark_unused(&mut self) -> &mut Self {
+        self.current_token.set_unused();
+        self
+    }
+
+    #[inline]
     pub(crate) fn mark_used(&mut self) -> &mut Self {
         self.current_token.use_once();
         self
@@ -175,8 +182,8 @@ impl Parser {
     #[inline]
     fn peek_current_token(&self) -> Option<Token> {
         let token = self.current_token.peek();
-        // println!("[{}] {:?}", function_path!(), token);
-        // println!("[{}] uses: {}\n", function_path!(), self.current_token.uses);
+        println!("[{}] {:?}", function_path!(), token);
+        println!("[{}] uses: {}\n", function_path!(), self.current_token.uses);
         token
     }
 
@@ -253,12 +260,15 @@ impl Parser {
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         let lhs = self.parse_primary_expression(ltuplemut!(stream, tokenizer))?;
+        let mut escaped_from_inner = false;
         match lhs {
             None => Ok(None),
             Some(lhs) => self.parse_binary_operator_rhs_expression(
                 lhs,
                 Operator::Unknown,
                 BinaryOperatorPrecedence::Unknown,
+                &mut escaped_from_inner,
+                0,
                 ltuplemut!(stream, tokenizer)
             )
         }
@@ -293,9 +303,9 @@ impl Parser {
     ) -> ParseResult<dyn ExprNode> {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let token = ok_none!(self.peek_current_token());
-        // println!("[{}] token: {:?}\n", function_path!(), token);
+        println!("[{}] token: {:?}\n", function_path!(), token);
         if let TokenKind::Integer = token.token_kind {
-            // println!("[{}] integer detected\n", function_path!());
+            println!("[{}] integer detected\n", function_path!());
             let rust_integer = match
                 token.borrow_span().parse::<IntegerType>()
             {
@@ -359,6 +369,8 @@ impl Parser {
         mut lhs: Box<dyn ExprNode>,
         loperator: Operator,
         minimum_operator_precedence: BinaryOperatorPrecedence,
+        escaped_from_inner: &mut bool,
+        mut depth: usize,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
 
@@ -374,6 +386,30 @@ impl Parser {
                 rhs
             ))))
         }
+
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let mut loperator = if let Operator::Unknown = loperator {
+            let possible_loperator = match self.peek_current_token() {
+                Some(o) => o,
+                None => {
+                    *escaped_from_inner = true;
+                    return Ok(Some(lhs))
+                }
+            };
+            match possible_loperator.token_kind {
+                TokenKind::Operator {operator} => {
+                    self.mark_used();
+                    operator
+                },
+                _ => {
+                    *escaped_from_inner = true;
+                    return Ok(Some(lhs))
+                }
+            }
+        } else {
+            loperator
+        };
+        depth += 1;
 
         // I have no idea what the code below does
         // UPDATE
@@ -403,24 +439,32 @@ impl Parser {
         // with equal precedence (using '+' in this example) will be treated
         // like this (+ (+ P1 P2) P3).
         loop {
-            self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-            // Unknown as an argument is a special value. It signifies
-            let loperator = if let Operator::Unknown = loperator {
-                let possible_loperator = match self.peek_current_token() {
-                    Some(o) => o,
+            println!(
+                "[{}]{} escaped_from_inner: {}",
+                function_path!(),
+                depth,
+                escaped_from_inner
+            );
+            if *escaped_from_inner {
+                let loperator_token = match self.current_token.peek() {
+                    Some(t) => t,
                     None => return Ok(Some(lhs))
                 };
-                match possible_loperator.token_kind {
+                loperator = match loperator_token.token_kind {
                     TokenKind::Operator {operator} => operator,
                     _ => return Ok(Some(lhs))
-                }
-            } else {
+                };
+            }
+            println!(
+                "[{}]{} loperator: {:?}\n",
+                function_path!(),
+                depth,
                 loperator
-            };
-            // println!("[{}] loperator: {:?}\n", function_path!(), loperator);
-            self.mark_used();
+            );
             let lprecedence: BinaryOperatorPrecedence = loperator.into();
             if lprecedence < minimum_operator_precedence {
+                self.mark_unused();
+                *escaped_from_inner = true;
                 return Ok(Some(lhs));
             }
             let mut rhs = match
@@ -439,21 +483,35 @@ impl Parser {
             self.grab_if_used(ltuplemut!(stream, tokenizer))?;
             let possible_roperator = match self.peek_current_token() {
                 Some(token) => token,
-                None => return up(loperator, lhs, rhs)
+                None => {
+                    *escaped_from_inner = true;
+                    return up(loperator, lhs, rhs)
+                }
             };
             let roperator = match possible_roperator.token_kind {
                 TokenKind::Operator {operator} => operator,
-                _ => return up(loperator, lhs, rhs)
+                _ => {
+                    *escaped_from_inner = true;
+                    return up(loperator, lhs, rhs)
+                }
             };
             self.mark_used();
-            // println!("[{}] roperator: {:?}\n", function_path!(), roperator);
+            println!(
+                "[{}]{} roperator: {:?}\n",
+                function_path!(),
+                depth,
+                roperator
+            );
             let rprecedence =
                 BinaryOperatorPrecedence::from_operator(roperator);
             if lprecedence < rprecedence {
+                *escaped_from_inner = false;
                 rhs = ok_none!(self.parse_binary_operator_rhs_expression(
                     rhs,
                     roperator,
                     rprecedence,
+                    escaped_from_inner,
+                    depth,
                     ltuplemut!(stream, tokenizer)
                 )?);
             }
@@ -464,6 +522,7 @@ impl Parser {
                 lhs,
                 rhs
             ));
+            println!("[{}]{} new lhs: {}\n", function_path!(), depth, lhs);
         }
     }
 
