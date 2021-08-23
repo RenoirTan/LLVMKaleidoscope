@@ -51,7 +51,7 @@ fn test_parse_variable_expression() {
 
 #[test]
 fn test_round_bracket() {
-    let (mut parser, mut stream, mut tokenizer) = get_parser("( 5.0 )");
+    let (mut parser, mut stream, mut tokenizer) = get_parser("(5.0)");
     let expression = parser.parse_round_bracket_expression(
         ltuplemut!(&mut stream, &mut tokenizer)
     ).unwrap().unwrap();
