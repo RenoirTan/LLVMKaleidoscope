@@ -50,10 +50,12 @@ impl ParserToken {
         Self {token: Some(token), uses: 0}
     }
 
+    #[inline]
     pub fn unused(&self) -> bool {
         self.uses < 1 && self.token.is_some()
     }
 
+    #[inline]
     pub fn set_unused(&mut self) -> &mut Self {
         self.uses = 0;
         self
@@ -66,6 +68,7 @@ impl ParserToken {
         original
     }
 
+    #[inline]
     pub fn replace_used(&mut self, token: Token) -> Option<Token> {
         if self.unused() {
             None
@@ -78,14 +81,15 @@ impl ParserToken {
         self.token.clone()
     }
 
+    #[inline]
     pub fn use_once(&mut self) -> &mut Self {
         self.uses += 1;
         self
     }
 
     pub fn utilize(&mut self) -> Option<Token> {
-        self.uses += 1;
-        self.peek()
+        self.use_once()
+            .peek()
     }
 }
 
@@ -118,7 +122,7 @@ impl Parser {
     }
 
     #[inline]
-    pub fn mark_used(&mut self) -> &mut Self {
+    pub(crate) fn mark_used(&mut self) -> &mut Self {
         self.current_token.use_once();
         self
     }
