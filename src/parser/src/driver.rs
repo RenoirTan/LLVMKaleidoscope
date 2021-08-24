@@ -49,7 +49,9 @@ impl Driver {
         tokenizer: &mut Tokenizer,
         parser: &mut Parser
     ) -> Result<bool> {
-        Ok(parser.parse_function(ltuplemut!(istream, tokenizer))?.is_some())
+        let result = parser.parse_function(ltuplemut!(istream, tokenizer));
+        log::debug!("{:?}", result);
+        Ok(result?.is_some())
     }
 
     pub fn handle_extern_function(
@@ -58,9 +60,10 @@ impl Driver {
         tokenizer: &mut Tokenizer,
         parser: &mut Parser
     ) -> Result<bool> {
-        Ok(parser
-            .parse_extern_function(ltuplemut!(istream, tokenizer))?
-            .is_some())
+        let result = parser
+            .parse_extern_function(ltuplemut!(istream, tokenizer));
+        log::debug!("{:?}", result);
+        Ok(result?.is_some())
     }
 
     pub fn handle_expression(
@@ -69,9 +72,10 @@ impl Driver {
         tokenizer: &mut Tokenizer,
         parser: &mut Parser
     ) -> Result<bool> {
-        Ok(parser
-            .parse_top_level_expression(ltuplemut!(istream, tokenizer))?
-            .is_some())
+        let result = parser
+            .parse_top_level_expression(ltuplemut!(istream, tokenizer));
+        log::debug!("{:?}", result);
+        Ok(result?.is_some())
     }
 
     pub fn parse_one(
@@ -81,6 +85,7 @@ impl Driver {
         parser: &mut Parser
     ) -> Result<bool> {
         if istream.eof_reached() {
+            log::debug!("eof reached");
             return Ok(false);
         }
         if self.is_interactive() {
@@ -90,10 +95,13 @@ impl Driver {
         let mut gate = 0;
 
         if self.handle_function_definition(istream, tokenizer, parser)? {
+            log::debug!("function definition parsed");
             gate = 1;
         } else if self.handle_extern_function(istream, tokenizer, parser)? {
+            log::debug!("extern function declaration parsed");
             gate = 2;
         } else if self.handle_expression(istream, tokenizer, parser)? {
+            log::debug!("normal expression parsed");
             gate = 3;
         }
         match gate {
@@ -130,6 +138,7 @@ impl Driver {
     ) -> Result<usize> {
         let mut statements_parsed: usize = 0;
         while self.parse_one(istream, tokenizer, parser)? {
+            log::trace!("new statement parsed");
             statements_parsed += 1;
         }
         Ok(statements_parsed)
@@ -202,9 +211,14 @@ impl<'a> Interpreter<'a> {
         ) {
             Ok(proceed) => {
                 self.can_proceed = proceed;
+                log::debug!(
+                    "expression successfully parsed! continue? {}",
+                    proceed
+                );
                 true
             },
             Err(error) => {
+                log::debug!("error: {}", error);
                 self.can_proceed = proceed_even_if_error;
                 self.last_error = Some(error);
                 false

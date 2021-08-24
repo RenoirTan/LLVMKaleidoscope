@@ -30,6 +30,8 @@ impl OutputFormats {
 }
 
 fn main() {
+    kaleidoscope_logging::init(None).unwrap();
+
     let matches = App::new("LLVM Kaleidoscope Tokenizer")
         .version("0.1.0")
         .author("Renoir Tan")
