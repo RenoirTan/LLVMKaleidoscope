@@ -7,6 +7,8 @@ use std::{
 use kaleidoscope_lexer::tokenizer::FileStream;
 
 fn main() {
+    kaleidoscope_logging::init(None).unwrap();
+
     let cmd_args = env::args().collect::<Vec<String>>();
     let mut file = match cmd_args.get(1) {
         Some(path) => {
