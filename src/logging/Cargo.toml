@@ -1,0 +1,22 @@
+[package]
+name = "LLVMKaleidoscope-Logging"
+version = "0.1.0"
+authors = ["RenoirTan"]
+edition = "2018"
+description = "Logging wrapper and facilities for LLVM's Kaleidoscope tutorial but in Rust."
+license = "MIT"
+publish = false
+
+[dependencies]
+log = "~0.4"
+env_logger = "~0.9"
+LLVMKaleidoscope-Error = {path = "../error"}
+LLVMKaleidoscope-Macro = {path = "../macro"}
+
+[lib]
+name = "kaleidoscope_logging"
+test = true
+doctest = true
+bench = false
+doc = true
+crate-type = ["lib"]
