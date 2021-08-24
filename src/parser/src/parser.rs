@@ -1,3 +1,7 @@
+//! The module defining functions to parse a given Kaleidoscope input. This
+//! parser can be used to generate Abstract Syntax Trees (ASTs), from which
+//! LLVM IR code can be created.
+
 use std::ops;
 use kaleidoscope_ast::{
     node::ExprNode,
@@ -37,8 +41,13 @@ use crate::{
     precedence::BinaryOperatorPrecedence
 };
 
+/// The return type of most parser functions in [`Parser`].
 pub type ParseResult<T> = Result<Option<Box<T>>>;
 
+/// The token manager struct that determines when a [`Token`] should be released
+/// for the parser's use or when a new token should be read from the stream.
+/// This struct is marked private because the functionality of this struct
+/// is only useful when applied in conjunction with [`Parser`]'s methods.
 #[derive(Clone, Debug, Default)]
 struct ParserToken {
     pub token: Option<Token>,
@@ -47,21 +56,35 @@ struct ParserToken {
 
 #[allow(unused)]
 impl ParserToken {
+    /// Create a new [`ParserToken`] manager.
     pub fn new(token: Token) -> Self {
         Self {token: Some(token), uses: 0}
     }
 
+    /// Check if the [`Token`] stored inside has been used at least once or
+    /// not, if there is a token inside at all. The reason I added the second
+    /// condition is because the manager object only knows that the token
+    /// should be replaced when a fresh token is required; if there is no 
+    /// token in the manager, then a new token should be supplied so that
+    /// when the [`Parser`] requests a new token, that token can be used.
     #[inline]
     pub fn unused(&self) -> bool {
         self.uses < 1 && self.token.is_some()
     }
 
+    /// Mark the token inside as unused. However, [`ParserToken::unused`] will
+    /// still return true if the token inside the struct does not exist.
     #[inline]
     pub fn set_unused(&mut self) -> &mut Self {
         self.uses = 0;
         self
     }
 
+    /// Replace the token in the [`ParserToken`] manager with a new token,
+    /// resetting the use count back to 0, returning the previously-held
+    /// token.
+    // 
+    /// See also: [`ParserToken::replace_used`].
     pub fn replace(&mut self, token: Token) -> Option<Token> {
         // println!("[{}] new token: {:?}\n", function_path!(), token);
         let original = self.token.take();
@@ -70,6 +93,12 @@ impl ParserToken {
         original
     }
 
+    /// Replace the token in the [`ParserToken`] manager with a new token,
+    /// resetting the use count back to 0. However, if the old token hasn't
+    /// been used before, the old token gets discarded, returning [`None`]
+    /// in the process.
+    /// 
+    /// See also: [`ParserToken::replace`].
     #[inline]
     pub fn replace_used(&mut self, token: Token) -> Option<Token> {
         if self.unused() {
@@ -79,16 +108,22 @@ impl ParserToken {
         }
     }
 
+    /// Peek at the token currently inside. This method clones the token
+    /// instead of returning a reference to avoid violating rust's
+    /// (im)mutable borrowing rules.
     pub fn peek(&self) -> Option<Token> {
         self.token.clone()
     }
 
+    /// Increase the number of uses by one. This marks the token as "stale"
+    /// or used.
     #[inline]
     pub fn use_once(&mut self) -> &mut Self {
         self.uses += 1;
         self
     }
 
+    /// Clone the token in the manager and mark it as used.
     pub fn utilize(&mut self) -> Option<Token> {
         self.use_once()
             .peek()
@@ -102,39 +137,48 @@ impl ops::Deref for ParserToken {
     }
 }
 
+/// The parser struct that converts a Kaleidoscope program into an Abstract
+/// Syntax Tree.
 pub struct Parser {
     current_token: ParserToken
 }
 
 impl Parser {
+    /// Create a new parser.
     pub fn new() -> Self {
         Self {
             current_token: Default::default()
         }
     }
 
+    /// Replace the token the parser is currently reading with another one.
     pub fn next_token(&mut self, token: Token) -> Result<&mut Self> {
         self.current_token.replace(token);
         Ok(self)
     }
 
+    /// Replace the token the parser is currently reading with another one,
+    /// given that it has been used or there was no token in the first place.
     pub fn replace_used_token(&mut self, token: Token) -> Result<&mut Self> {
         self.current_token.replace_used(token);
         Ok(self)
     }
 
+    /// Mark the token in the manager as unused.
     #[inline]
     pub(crate) fn mark_unused(&mut self) -> &mut Self {
         self.current_token.set_unused();
         self
     }
 
+    /// Mark the token in the manager as used.
     #[inline]
     pub(crate) fn mark_used(&mut self) -> &mut Self {
         self.current_token.use_once();
         self
     }
 
+    /// Replace the token with a new token from the stream and tokenizer.
     #[inline]
     #[allow(dead_code)]
     fn grab_token_from_tokenizer<'a, 'b: 'a>(
@@ -150,6 +194,8 @@ impl Parser {
         })
     }
 
+    /// Pull a new token from the tokenizer and file stream if the token
+    /// stored by the parser has been used.
     #[inline]
     fn grab_if_used<'a, 'b: 'a>(
         &mut self,
@@ -171,6 +217,7 @@ impl Parser {
         })
     }
 
+    /// Get the current token being stored, marking as used in the process.
     #[inline]
     #[allow(dead_code)]
     fn get_current_token(&mut self) -> Option<Token> {
@@ -179,6 +226,7 @@ impl Parser {
         token
     }
 
+    /// Peek at the current token being stored, without marking it as used.
     #[inline]
     fn peek_current_token(&self) -> Option<Token> {
         let token = self.current_token.peek();
@@ -187,6 +235,7 @@ impl Parser {
         token
     }
 
+    /// Helper code that finds a right bracket that cancels out a left bracket.
     #[allow(dead_code)]
     fn find_matching_right_round_bracket<'a, 'b: 'a>(
         &mut self,
@@ -233,6 +282,7 @@ impl Parser {
         }
     }
 
+    /// Converts an expression into an anonymous function.
     pub fn parse_top_level_expression<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -255,6 +305,7 @@ impl Parser {
         ))))
     }
 
+    /// Parse an expression.
     pub fn parse_expression<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -274,6 +325,10 @@ impl Parser {
         }
     }
 
+    /// Parse a so-called "primary" expression. You can think of primary
+    /// expressions as simple expressions, which means that parsing it is
+    /// relatively trivial. This category includes integers, floats, variables
+    /// and other expressions wrapped around two corresponding round brackets.
     pub fn parse_primary_expression<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -297,6 +352,7 @@ impl Parser {
         Ok(None)
     }
 
+    /// Parse an integer expression.
     pub fn parse_integer_expression<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -322,6 +378,7 @@ impl Parser {
         }
     }
 
+    /// Parse a float expression.
     pub fn parse_float_expression<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -345,6 +402,7 @@ impl Parser {
         }
     }
 
+    /// Parse a variable expression.
     pub fn parse_variable_expression<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -364,17 +422,73 @@ impl Parser {
         }
     }
 
-    /* pub fn parse_binary_operator_expression<'a, 'b: 'a>(
+    /// Parse an expression wrapped inside 2 round brackets.
+    pub fn parse_round_bracket_expression<'a, 'b: 'a>(
         &mut self,
-        minimum_operator: Operator,
-        mut lhs: Box<dyn ExprNode>,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
-        loop {
-
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let token = ok_none!(self.peek_current_token());
+        // println!("[{}] token: {:?}\n", function_path!(), token);
+        let left_bracket = match token.token_kind {
+            TokenKind::Bracket {bracket} => bracket,
+            _ => return Ok(None)
+        };
+        self.mark_used();
+        if !matches!(left_bracket.kind, BracketKind::Round) {
+            if !left_bracket.side.is_left() {
+                return Err(Error::new(
+                    &"Mismatched right bracket.",
+                    ErrorKind::SyntaxError,
+                    None
+                ));
+            } else {
+                return Ok(None);
+            }
         }
-    } */
+        // println!("[{}] left bracket verified\n", function_path!());
+        let expression = match
+            self.parse_expression(ltuplemut!(stream, tokenizer))?
+        {
+            Some(x) => x,
+            None => return Err(Error::new(
+                &"Expected expression.",
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
+        // println!("[{}] inner expression parsed\n", function_path!());
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let token = match self.peek_current_token() {
+            Some(t) => t,
+            None => return Err(Error::new(
+                &"Unexpected EOF.",
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
+        self.mark_used();
+        let right_bracket = match token.token_kind {
+            TokenKind::Bracket {bracket} => bracket,
+            _ => return Err(Error::new(
+                &"Expected round right bracket.",
+                ErrorKind::SyntaxError,
+                None
+            ))
+        };
+        if !left_bracket.cancels_out(right_bracket) {
+            return Err(Error::new(
+                &"Incompatible brackets.",
+                ErrorKind::SyntaxError,
+                None
+            ));
+        }
+        // println!("[{}] right bracket validated\n", function_path!());
+        Ok(Some(expression))
+    }
 
+    /// Parse a binary operator expression. This is similar to simple math
+    /// equations like `1 + 1` or `5 * 3`.
     pub fn parse_binary_operator_rhs_expression<'a, 'b: 'a>(
         &mut self,
         mut lhs: Box<dyn ExprNode>,
@@ -543,70 +657,7 @@ impl Parser {
         }
     }
 
-    pub fn parse_round_bracket_expression<'a, 'b: 'a>(
-        &mut self,
-        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
-    ) -> ParseResult<dyn ExprNode> {
-        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        let token = ok_none!(self.peek_current_token());
-        // println!("[{}] token: {:?}\n", function_path!(), token);
-        let left_bracket = match token.token_kind {
-            TokenKind::Bracket {bracket} => bracket,
-            _ => return Ok(None)
-        };
-        self.mark_used();
-        if !matches!(left_bracket.kind, BracketKind::Round) {
-            if !left_bracket.side.is_left() {
-                return Err(Error::new(
-                    &"Mismatched right bracket.",
-                    ErrorKind::SyntaxError,
-                    None
-                ));
-            } else {
-                return Ok(None);
-            }
-        }
-        // println!("[{}] left bracket verified\n", function_path!());
-        let expression = match
-            self.parse_expression(ltuplemut!(stream, tokenizer))?
-        {
-            Some(x) => x,
-            None => return Err(Error::new(
-                &"Expected expression.",
-                ErrorKind::SyntaxError,
-                None
-            ))
-        };
-        // println!("[{}] inner expression parsed\n", function_path!());
-        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        let token = match self.peek_current_token() {
-            Some(t) => t,
-            None => return Err(Error::new(
-                &"Unexpected EOF.",
-                ErrorKind::SyntaxError,
-                None
-            ))
-        };
-        self.mark_used();
-        let right_bracket = match token.token_kind {
-            TokenKind::Bracket {bracket} => bracket,
-            _ => return Err(Error::new(
-                &"Expected round right bracket.",
-                ErrorKind::SyntaxError,
-                None
-            ))
-        };
-        if !left_bracket.cancels_out(right_bracket) {
-            return Err(Error::new(
-                &"Incompatible brackets.",
-                ErrorKind::SyntaxError,
-                None
-            ));
-        }
-        // println!("[{}] right bracket validated\n", function_path!());
-        Ok(Some(expression))
-    }
-
+    /// Parse a function prototype.
     pub fn parse_function_prototype<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -776,6 +827,7 @@ impl Parser {
         ))))
     }
 
+    /// Parse a function definition.
     pub fn parse_function<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -797,6 +849,7 @@ impl Parser {
         Ok(Some(Box::new(FunctionNode::new(prototype, body))))
     }
 
+    /// Parse an extern function declaration.
     pub fn parse_extern_function<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>

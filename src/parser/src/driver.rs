@@ -1,3 +1,6 @@
+//! The structs used to parse a complete Kaleidoscope programme or read the
+//! declarations from an interactive session.
+
 use std::iter::Iterator;
 use kaleidoscope_lexer::{
     ltuplemut,
@@ -12,9 +15,11 @@ use crate::{
 };
 
 
+/// The default prompt used in an interactive session.
 const DEFAULT_PROMPT: &'static str = "kaleidoscope::> ";
 
 
+/// The driver that brings input from a file stream to the parser.
 #[derive(Clone, Debug)]
 pub struct Driver {
     interactive: bool,
@@ -138,6 +143,7 @@ impl Default for Driver {
 }
 
 
+/// A full interpreter that can parse a programme by itself.
 pub struct Interpreter<'a> {
     driver: Driver,
     istream: FileStream<'a>,
