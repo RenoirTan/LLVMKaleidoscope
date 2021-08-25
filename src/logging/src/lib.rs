@@ -4,6 +4,7 @@
 use std::{
     convert::AsRef,
     fs::OpenOptions,
+    io::Write,
     path::Path
 };
 use log::LevelFilter;
@@ -31,7 +32,7 @@ pub fn init(output_filepath: Option<&dyn AsRef<Path>>) -> Result<()> {
 
     env_logger::builder()
         .is_test(true)
-        .format(format_record)
+        .format(|f, r| writeln!(f, "{}", format_record(r)))
         .filter_level(LevelFilter::Trace)
         .target(target)
         .try_init()
