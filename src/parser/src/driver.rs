@@ -1,7 +1,13 @@
 //! The structs used to parse a complete Kaleidoscope programme or read the
 //! declarations from an interactive session.
 
-use std::iter::Iterator;
+use std::{
+    fmt::Display,
+    io::{stdout, Write},
+    iter::Iterator,
+    thread::sleep,
+    time::Duration
+};
 use kaleidoscope_lexer::{
     ltuplemut,
     tokenizer::{
@@ -11,12 +17,26 @@ use kaleidoscope_lexer::{
 };
 use crate::{
     error::{Error, ErrorKind, Result},
-    parser::Parser
+    parser::{Parser, ParseResult}
 };
 
 
 /// The default prompt used in an interactive session.
 const DEFAULT_PROMPT: &'static str = "kaleidoscope::> ";
+
+
+pub(crate) fn parser_output_to_str<T>(result: &ParseResult<T>) -> String
+where
+    T: Display + ?Sized
+{
+    match result {
+        Ok(o) => match o {
+            Some(output) => format!("OK {}", output),
+            None => format!("NONE")
+        },
+        Err(e) => format!("{:?}", e)
+    }
+}
 
 
 /// The driver that brings input from a file stream to the parser.
@@ -50,7 +70,7 @@ impl Driver {
         parser: &mut Parser
     ) -> Result<bool> {
         let result = parser.parse_function(ltuplemut!(istream, tokenizer));
-        log::debug!("{:?}", result);
+        log::debug!("{:?}", parser_output_to_str(&result));
         Ok(result?.is_some())
     }
 
@@ -62,7 +82,7 @@ impl Driver {
     ) -> Result<bool> {
         let result = parser
             .parse_extern_function(ltuplemut!(istream, tokenizer));
-        log::debug!("{:?}", result);
+        log::debug!("{:?}", parser_output_to_str(&result));
         Ok(result?.is_some())
     }
 
@@ -74,7 +94,7 @@ impl Driver {
     ) -> Result<bool> {
         let result = parser
             .parse_top_level_expression(ltuplemut!(istream, tokenizer));
-        log::debug!("{:?}", result);
+        log::debug!("{:?}", parser_output_to_str(&result));
         Ok(result?.is_some())
     }
 
@@ -88,8 +108,15 @@ impl Driver {
             log::debug!("eof reached");
             return Ok(false);
         }
+        if let Some(token) = parser.peek_current_token() {
+            if token.is_terminating() {
+                parser.mark_used();
+            }
+        }
         if self.is_interactive() {
-            println!("{}", self.prompt);
+            print!("{}", self.prompt);
+            stdout().flush()
+                .map_err(|e| Error::from_err(Box::new(e), ErrorKind::Other))?;
         }
 
         let mut gate = 0;
@@ -104,6 +131,7 @@ impl Driver {
             log::debug!("normal expression parsed");
             gate = 3;
         }
+        sleep(Duration::from_millis(1000));
         match gate {
             0 => Err(Error::new(
                 &"No matching handle found!",
@@ -171,7 +199,7 @@ impl<'a> Interpreter<'a> {
             istream,
             tokenizer: Tokenizer::new(),
             parser: Parser::new(),
-            proceed_even_if_error: true,
+            proceed_even_if_error: false,
             can_proceed: true,
             last_error: None
         }

@@ -73,6 +73,13 @@ impl Token {
         matches!(self.token_kind, TokenKind::Eof)
     }
 
+    /// Check whether this token kind represents a sentinel value that tells
+    /// the parser to halt and return whatever it has processed. Such tokens
+    /// include semicolons and EOFs.
+    pub fn is_terminating(&self) -> bool {
+        self.token_kind.is_terminating()
+    }
+
     /// Check if the span in the token is empty or not.
     pub fn is_empty(&self) -> bool {
         self.span.is_empty()

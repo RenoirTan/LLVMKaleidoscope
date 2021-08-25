@@ -14,7 +14,7 @@ pub fn format_record(
         formatter,
         "{} : {} : {} - {}",
         record.level(),
-        record.target(),
+        record.module_path().unwrap_or("<module>"),
         record.line().unwrap_or(0),
         record.args()
     )

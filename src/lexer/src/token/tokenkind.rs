@@ -37,6 +37,15 @@ pub enum TokenKind {
     Semicolon
 }
 
+impl TokenKind {
+    /// Check whether this token kind represents a sentinel value that tells
+    /// the parser to halt and return whatever it has processed. Such tokens
+    /// include semicolons and EOFs.
+    pub fn is_terminating(&self) -> bool {
+        matches!(*self, TokenKind::Semicolon | TokenKind::Eof)
+    }
+}
+
 impl Default for TokenKind {
     fn default() -> Self {
         TokenKind::Unknown

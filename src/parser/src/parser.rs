@@ -228,7 +228,7 @@ impl Parser {
 
     /// Peek at the current token being stored, without marking it as used.
     #[inline]
-    fn peek_current_token(&self) -> Option<Token> {
+    pub fn peek_current_token(&self) -> Option<Token> {
         let token = self.current_token.peek();
         // println!("[{}] {:?}", function_path!(), token);
         // println!("[{}] uses: {}\n", function_path!(), self.current_token.uses);
@@ -286,9 +286,9 @@ impl Parser {
     pub fn parse_top_level_expression<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
-    ) -> ParseResult<FunctionNode> {
-        // println!("[{}] Entering\n", function_path!()); 
-        let expression = match
+    ) -> ParseResult<dyn ExprNode> {
+        self.parse_expression(ltuplemut!(stream, tokenizer))
+        /* let expression = match
             self.parse_expression(ltuplemut!(stream, tokenizer))?
         {
             Some(ex) => ex,
@@ -298,11 +298,10 @@ impl Parser {
             Box::new(IdentifierNode::new(String::from(""))),
             Vec::new()
         );
-        // println!("[{}] Parsed\n", function_path!());
         Ok(Some(Box::new(FunctionNode::new(
             Box::new(prototype),
             expression
-        ))))
+        )))) */
     }
 
     /// Parse an expression.
@@ -311,6 +310,7 @@ impl Parser {
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
         let lhs = self.parse_primary_expression(ltuplemut!(stream, tokenizer))?;
+        log::trace!("primary expression parsed");
         let mut escaped_from_inner = false;
         match lhs {
             None => Ok(None),
@@ -492,7 +492,7 @@ impl Parser {
     pub fn parse_binary_operator_rhs_expression<'a, 'b: 'a>(
         &mut self,
         mut lhs: Box<dyn ExprNode>,
-        loperator: Operator,
+        mut loperator: Operator,
         minimum_operator_precedence: BinaryOperatorPrecedence,
         escaped_from_inner: &mut bool,
         depth: usize,
@@ -513,7 +513,7 @@ impl Parser {
         }
 
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        let mut loperator = if let Operator::Unknown = loperator {
+        if let Operator::Unknown = loperator {
             let possible_loperator = match self.peek_current_token() {
                 Some(o) => o,
                 None => {
@@ -524,18 +524,15 @@ impl Parser {
             match possible_loperator.token_kind {
                 TokenKind::Operator {operator} => {
                     self.mark_used();
-                    operator
+                    loperator = operator;
                 },
                 _ => {
                     *escaped_from_inner = true;
                     return Ok(Some(lhs))
                 }
             }
-        } else {
-            loperator
-        };
+        }
         let mut roperator = Operator::Unknown;
-        // depth += 1;
 
         // I have no idea what the code below does
         // UPDATE
