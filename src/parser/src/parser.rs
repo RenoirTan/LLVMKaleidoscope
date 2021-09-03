@@ -312,7 +312,7 @@ impl Parser {
         let lhs = self.parse_primary_expression(ltuplemut!(stream, tokenizer))?;
         log::trace!("primary expression parsed");
         let mut escaped_from_inner = false;
-        match lhs {
+        let expression = match lhs {
             None => Ok(None),
             Some(lhs) => self.parse_binary_operator_rhs_expression(
                 lhs,
@@ -322,6 +322,21 @@ impl Parser {
                 0,
                 ltuplemut!(stream, tokenizer)
             )
+        }?;
+        match self.peek_current_token() {
+            Some(token) => if token.is_terminating() {
+                Ok(expression)
+            } else {
+                Err(Error::new(
+                    &format!(
+                        "Expressions must be terminated by a semicolon at {}.",
+                        token.start
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                ))
+            },
+            None => Ok(expression)
         }
     }
 
