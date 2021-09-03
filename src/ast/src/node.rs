@@ -44,19 +44,10 @@ pub trait ExprNode: Node {
 }
 
 /// Convert an [`ExprNode`] to [`Node`].
-/// 
-/// DO NOT USE FOR NOW.
 #[inline]
-#[warn(unstable_features)]
+// #[warn(unstable_features)]
 pub fn upcast_expr_node(node: Box<dyn ExprNode>) -> Box<dyn Node> {
-    use crate::nodes::IntegerNode as Arbitrary;
-    unsafe {
-        // Indirect pointer casting through a concrete pointer
-        // Unfortunately this workaround causes the final vtable to point to
-        // IntegerNode's methods.
-        let pointer = Box::into_raw(node) as *mut Arbitrary as *mut dyn Node;
-        Box::from_raw(pointer)
-    }
+    node.node_clone()
 }
 
 /// Convert a node as a trait object and convert it into a concrete node with

@@ -32,7 +32,7 @@ pub fn init(output_filepath: Option<&dyn AsRef<Path>>) -> Result<()> {
     env_logger::builder()
         .is_test(true)
         .format(format_record)
-        .filter_level(LevelFilter::Trace)
+        .filter_level(LevelFilter::Warn)
         .target(target)
         .try_init()
         .map_err(|e| Error::from_err(Box::new(e), ErrorKind::LoggerError))

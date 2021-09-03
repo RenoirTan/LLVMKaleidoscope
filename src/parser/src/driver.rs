@@ -8,6 +8,17 @@ use std::{
     thread::sleep,
     time::Duration
 };
+use kaleidoscope_ast::{
+    node::{
+        ExprNode,
+        Node,
+        upcast_expr_node
+    },
+    nodes::{
+        ExternFunctionNode,
+        FunctionNode
+    }
+};
 use kaleidoscope_lexer::{
     ltuplemut,
     tokenizer::{
@@ -43,14 +54,15 @@ where
 #[derive(Clone, Debug)]
 pub struct Driver {
     interactive: bool,
-    prompt: String
+    prompt: String,
+    verbosity: u32
 }
 
 
 impl Driver {
     #[inline]
-    pub fn new(interactive: bool, prompt: String) -> Self {
-        Self {interactive, prompt}
+    pub fn new(interactive: bool, prompt: String, verbosity: u32) -> Self {
+        Self {interactive, prompt, verbosity}
     }
 
     #[inline]
@@ -63,15 +75,20 @@ impl Driver {
         &self.prompt[..]
     }
 
+    #[inline]
+    pub fn verbosity(&self) -> u32 {
+        self.verbosity
+    }
+
     pub fn handle_function_definition(
         &self,
         istream: &mut FileStream,
         tokenizer: &mut Tokenizer,
         parser: &mut Parser
-    ) -> Result<bool> {
+    ) -> ParseResult<FunctionNode> {
         let result = parser.parse_function(ltuplemut!(istream, tokenizer));
         log::debug!("{:?}", parser_output_to_str(&result));
-        Ok(result?.is_some())
+        result
     }
 
     pub fn handle_extern_function(
@@ -79,11 +96,11 @@ impl Driver {
         istream: &mut FileStream,
         tokenizer: &mut Tokenizer,
         parser: &mut Parser
-    ) -> Result<bool> {
+    ) -> ParseResult<ExternFunctionNode> {
         let result = parser
             .parse_extern_function(ltuplemut!(istream, tokenizer));
         log::debug!("{:?}", parser_output_to_str(&result));
-        Ok(result?.is_some())
+        result
     }
 
     pub fn handle_expression(
@@ -91,11 +108,11 @@ impl Driver {
         istream: &mut FileStream,
         tokenizer: &mut Tokenizer,
         parser: &mut Parser
-    ) -> Result<bool> {
+    ) -> ParseResult<dyn ExprNode> {
         let result = parser
             .parse_top_level_expression(ltuplemut!(istream, tokenizer));
         log::debug!("{:?}", parser_output_to_str(&result));
-        Ok(result?.is_some())
+        result
     }
 
     pub fn parse_one(
@@ -103,10 +120,10 @@ impl Driver {
         istream: &mut FileStream,
         tokenizer: &mut Tokenizer,
         parser: &mut Parser
-    ) -> Result<bool> {
+    ) -> ParseResult<dyn Node> {
         if istream.eof_reached() {
             log::debug!("eof reached");
-            return Ok(false);
+            return Ok(None);
         }
         if let Some(token) = parser.peek_current_token() {
             if token.is_terminating() {
@@ -119,43 +136,36 @@ impl Driver {
                 .map_err(|e| Error::from_err(Box::new(e), ErrorKind::Other))?;
         }
 
-        let mut gate = 0;
-
-        if self.handle_function_definition(istream, tokenizer, parser)? {
-            log::debug!("function definition parsed");
-            gate = 1;
-        } else if self.handle_extern_function(istream, tokenizer, parser)? {
-            log::debug!("extern function declaration parsed");
-            gate = 2;
-        } else if self.handle_expression(istream, tokenizer, parser)? {
-            log::debug!("normal expression parsed");
-            gate = 3;
-        }
         sleep(Duration::from_millis(1000));
-        match gate {
-            0 => Err(Error::new(
-                &"No matching handle found!",
-                ErrorKind::ParsingError,
-                None
-            )),
-            1 => {
-                println!("Parsed function definition!");
-                Ok(true)
-            },
-            2 => {
-                println!("Parsed extern function!");
-                Ok(true)
-            },
-            3 => {
-                println!("Parsed expression!");
-                Ok(true)
-            },
-            _ => Err(Error::new(
-                &"Driver reached an invalid gate!",
-                ErrorKind::ParsingError,
-                None
-            ))
+
+        macro_rules! do_node {
+            ($action: expr) => {{
+                if self.verbosity() >= 1 {
+                    $action;
+                }
+            }}
         }
+        
+        if let Some(node) =
+            self.handle_extern_function(istream, tokenizer, parser)?
+        {
+            do_node!(println!("External Function:\n{}", node));
+            Ok(Some(node))
+        } else if let Some(node) =
+            self.handle_function_definition(istream, tokenizer, parser)?
+        {
+            do_node!(println!("Function Definition:\n{}", node.get_prototype()));
+            Ok(Some(node))
+        } else if let Some(node) =
+            self.handle_expression(istream, tokenizer, parser)?
+        {
+            do_node!(println!("Expression:\n{}", node));
+            Ok(Some(upcast_expr_node(node)))
+        } else {
+            do_node!(println!("no handler found"));
+            Ok(None)
+        }
+
     }
 
     pub fn main_loop(
@@ -165,9 +175,18 @@ impl Driver {
         parser: &mut Parser
     ) -> Result<usize> {
         let mut statements_parsed: usize = 0;
-        while self.parse_one(istream, tokenizer, parser)? {
-            log::trace!("new statement parsed");
-            statements_parsed += 1;
+        'main: loop {
+            let result = self.parse_one(istream, tokenizer, parser);
+            if let Err(error) = result {
+                log::error!("{}", error);
+                return Err(error);
+            } else if let Ok(node) = result {
+                if node.is_some() {
+                    statements_parsed += 1;
+                } else {
+                    break 'main;
+                }
+            }
         }
         Ok(statements_parsed)
     }
@@ -175,7 +194,7 @@ impl Driver {
 
 impl Default for Driver {
     fn default() -> Self {
-        Self::new(true, DEFAULT_PROMPT.to_string())
+        Self::new(true, DEFAULT_PROMPT.to_string(), 1)
     }
 }
 
@@ -193,9 +212,17 @@ pub struct Interpreter<'a> {
 
 
 impl<'a> Interpreter<'a> {
-    pub fn new(interactive: bool, istream: FileStream<'a>) -> Self {
+    pub fn new(
+        interactive: bool,
+        istream: FileStream<'a>,
+        verbosity: u32
+    ) -> Self {
         Self {
-            driver: Driver::new(interactive, DEFAULT_PROMPT.to_string()),
+            driver: Driver::new(
+                interactive,
+                DEFAULT_PROMPT.to_string(),
+                verbosity
+            ),
             istream,
             tokenizer: Tokenizer::new(),
             parser: Parser::new(),
@@ -237,16 +264,16 @@ impl<'a> Interpreter<'a> {
             &mut self.tokenizer,
             &mut self.parser
         ) {
-            Ok(proceed) => {
-                self.can_proceed = proceed;
-                log::debug!(
+            Ok(node) => {
+                self.can_proceed = node.is_some();
+                log::trace!(
                     "expression successfully parsed! continue? {}",
-                    proceed
+                    self.can_proceed
                 );
                 true
             },
             Err(error) => {
-                log::debug!("error: {}", error);
+                log::error!("error: {}", error);
                 self.can_proceed = proceed_even_if_error;
                 self.last_error = Some(error);
                 false
@@ -266,7 +293,7 @@ impl<'a> Interpreter<'a> {
 
 impl<'a> Default for Interpreter<'a> {
     fn default() -> Self {
-        Self::new(true, FileStream::default())
+        Self::new(true, FileStream::default(), 1)
     }
 }
 
