@@ -29,8 +29,8 @@ mod tests;
 /// ```
 #[macro_export]
 macro_rules! impl_display {
-    ($r#type: ident) => {
-        impl std::fmt::Display for $r#type {
+    ($datatype: ident) => {
+        impl std::fmt::Display for $datatype {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 write!(f, "{:?}", self)
             }
