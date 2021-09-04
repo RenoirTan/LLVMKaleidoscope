@@ -15,6 +15,7 @@ toml = "~0.5"
 log = "~0.4"
 env_logger = "~0.9"
 LLVMKaleidoscope-Ast = {path = "src/ast"}
+LLVMKaleidoscope-Codegen = {path = "src/codegen"}
 LLVMKaleidoscope-Error = {path = "src/error"}
 LLVMKaleidoscope-Lexer = {path = "src/lexer"}
 LLVMKaleidoscope-Logging = {path = "src/logging"}
