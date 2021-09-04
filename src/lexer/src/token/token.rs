@@ -128,7 +128,7 @@ impl Token {
             self.token_kind = TokenKind::Semicolon;
         } else {
             return Err(Error::new(
-                &format!("Invalid char {:?} at {}", unit, index),
+                format!("Invalid char {:?} at {}", unit, index),
                 ErrorKind::InvalidChar,
                 None
             ));
@@ -154,7 +154,7 @@ impl Token {
             | TokenKind::Dot
             | TokenKind::Semicolon => Ok(true),
             _ => Err(Error::new(
-                &format!(
+                format!(
                     "Uncaught TokenKind {} at {}",
                     self.token_kind,
                     index
@@ -240,7 +240,7 @@ impl Token {
     fn resolve_float(&mut self, index: FileIndex) -> Result<bool> {
         match self.span.as_bytes().last() {
             None => Err(Error::new(
-                &format!(
+                format!(
                     "Lexer detected a float in an empty span at index {}",
                     index
                 ),
@@ -249,7 +249,7 @@ impl Token {
             )),
             Some(unit) => if *unit == '.' as u8 {
                 Err(Error::new(
-                    &format!(
+                    format!(
                         "Float cannot end with floating point at index {}",
                         index
                     ),
@@ -265,7 +265,7 @@ impl Token {
     fn resolve_operator(&mut self, index: FileIndex) -> Result<bool> {
         match Operator::from_string(self.borrow_span()) {
             Operator::Unknown => Err(Error::new(
-                &format!(
+                format!(
                     "Could not guess operator from span '{}' at index {}",
                     self.borrow_span(),
                     index
@@ -284,7 +284,7 @@ impl Token {
         let bracket = Bracket::from_string(self.borrow_span());
         match bracket.kind {
             BracketKind::Unknown => Err(Error::new(
-                &format!(
+                format!(
                     "Invalid bracket from span '{}' at index {}",
                     self.borrow_span(),
                     index
@@ -305,7 +305,7 @@ impl Token {
         self.end = index;
         match self.token_kind {
             TokenKind::Unknown => Err(Error::new(
-                &format!(
+                format!(
                     "Could not guess TokenKind from span '{}' at index {}",
                     self.span,
                     index

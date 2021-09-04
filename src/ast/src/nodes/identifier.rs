@@ -37,7 +37,7 @@ impl FromToken for IdentifierNode {
             })
         } else {
             Err(Error::new(
-                &format!("Wrong token type passed..."),
+                format!("Wrong token type passed..."),
                 ErrorKind::WrongTokenKind,
                 None
             ))

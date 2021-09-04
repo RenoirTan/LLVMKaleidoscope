@@ -309,7 +309,7 @@ impl<'a> Iterator for Interpreter<'a> {
                 let error = self
                     .take_last_error()
                     .unwrap_or_else(|| Error::new(
-                        &"Unknown error",
+                        "Unknown error".to_string(),
                         ErrorKind::Other,
                         None
                     ));

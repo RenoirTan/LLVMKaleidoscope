@@ -33,12 +33,12 @@ pub struct Error<EK: ErrorKind> {
 impl<EK: ErrorKind> Error<EK> {
     /// A new error.
     pub fn new(
-        description: &dyn AsRef<str>,
+        description: String,
         errorkind: EK,
         source: Option<Box<dyn error::Error>>
     ) -> Self {
         Self {
-            description: description.as_ref().to_string(),
+            description,
             errorkind,
             source
         }
@@ -93,7 +93,7 @@ impl<EK: ErrorKind> Error<EK> {
 
 impl<EK: ErrorKind> Clone for Error<EK> {
     fn clone(&self) -> Self {
-        Self::new(&self.description, self.errorkind.clone(), None)
+        Self::new(self.description.clone(), self.errorkind.clone(), None)
     }
 }
 

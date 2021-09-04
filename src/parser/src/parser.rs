@@ -245,7 +245,7 @@ impl Parser {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         match self.peek_current_token() {
             None => Err(Error::new(
-                &format!(
+                format!(
                     "No matching right round bracket found for '(' at {}",
                     lbracket_index
                 ),
@@ -261,7 +261,7 @@ impl Parser {
                     Ok(token.clone())
                 } else {
                     Err(Error::new(
-                        &format!(
+                        format!(
                             "Unmatched bracket {} at {}",
                             bracket,
                             token.start
@@ -271,7 +271,7 @@ impl Parser {
                     ))
                 }
                 _ => Err(Error::new(
-                    &format!(
+                    format!(
                         "Expected right round bracket at {}",
                         token.start
                     ),
@@ -328,7 +328,7 @@ impl Parser {
                 Ok(expression)
             } else {
                 Err(Error::new(
-                    &format!(
+                    format!(
                         "Expressions must be terminated by a semicolon at {}.",
                         token.start
                     ),
@@ -453,7 +453,7 @@ impl Parser {
         if !matches!(left_bracket.kind, BracketKind::Round) {
             if !left_bracket.side.is_left() {
                 return Err(Error::new(
-                    &"Mismatched right bracket.",
+                    "Mismatched right bracket.".to_string(),
                     ErrorKind::SyntaxError,
                     None
                 ));
@@ -467,7 +467,7 @@ impl Parser {
         {
             Some(x) => x,
             None => return Err(Error::new(
-                &"Expected expression.",
+                "Expected expression.".to_string(),
                 ErrorKind::SyntaxError,
                 None
             ))
@@ -477,7 +477,7 @@ impl Parser {
         let token = match self.peek_current_token() {
             Some(t) => t,
             None => return Err(Error::new(
-                &"Unexpected EOF.",
+                "Unexpected EOF.".to_string(),
                 ErrorKind::SyntaxError,
                 None
             ))
@@ -486,14 +486,14 @@ impl Parser {
         let right_bracket = match token.token_kind {
             TokenKind::Bracket {bracket} => bracket,
             _ => return Err(Error::new(
-                &"Expected round right bracket.",
+                "Expected round right bracket.".to_string(),
                 ErrorKind::SyntaxError,
                 None
             ))
         };
         if !left_bracket.cancels_out(right_bracket) {
             return Err(Error::new(
-                &"Incompatible brackets.",
+                "Incompatible brackets.".to_string(),
                 ErrorKind::SyntaxError,
                 None
             ));
@@ -615,7 +615,7 @@ impl Parser {
             {
                 Some(rhs) => rhs,
                 None => return Err(Error::new(
-                    &format!(
+                    format!(
                         "No right-hand side expression after {}",
                         loperator
                     ),
@@ -691,7 +691,7 @@ impl Parser {
         let function_identifier_token = match self.peek_current_token() {
             Some(t) => t,
             None => return Err(Error::new(
-                &format!(
+                format!(
                     "Expected function prototype after 'def' at {}",
                     def_token.start
                 ),
@@ -705,7 +705,7 @@ impl Parser {
                 function_identifier_token.borrow_span().to_string()
             )),
             _ => return Err(Error::new(
-                &format!(
+                format!(
                     "Expected valid identifier (name) of function prototype at {}",
                     function_identifier_token.start
                 ),
@@ -723,7 +723,7 @@ impl Parser {
         let lbracket_token = match self.peek_current_token() {
             Some(t) => t,
             None => return Err(Error::new(
-                &format!(
+                format!(
                     "Expected parameter list after function name at {}",
                     function_identifier_token.start
                 ),
@@ -738,7 +738,7 @@ impl Parser {
                 matches!(bracket.kind, BracketKind::Round)
             ) => (),
             _ => return Err(Error::new(
-                &format!(
+                format!(
                     "Expected '(' to delimit the beginning of the parameter list at {}",
                     function_identifier_token.start
                 ),
@@ -775,7 +775,7 @@ impl Parser {
                                 ended = true;
                             } else {
                                 return Err(Error::new(
-                                    &format!(
+                                    format!(
                                         "Expected a ')' instead of this {} at {}",
                                         bracket,
                                         comma_token.start
@@ -785,7 +785,7 @@ impl Parser {
                                 ));
                             },
                         _ => return Err(Error::new(
-                            &format!(
+                            format!(
                                 "Unexpected token after parameter name at {}",
                                 comma_token.start
                             ),
@@ -794,7 +794,7 @@ impl Parser {
                         ))
                     },
                     None => return Err(Error::new(
-                        &format!(
+                        format!(
                             "Unexpected EOF for function prototype at {}",
                             function_identifier_token.start
                         ),
@@ -808,7 +808,7 @@ impl Parser {
                         parameter_token.borrow_span().to_string()
                     )),
                     _ => return Err(Error::new(
-                        &format!(
+                        format!(
                             "Expected identifier at {}",
                             parameter_token.start,
                         ),
@@ -822,7 +822,7 @@ impl Parser {
                 }
             } else {
                 return Err(Error::new(
-                    &format!(
+                    format!(
                         "Unexpected EOF for function prototype at {}",
                         stream.get_index()
                     ),
@@ -850,7 +850,7 @@ impl Parser {
         let body = match self.parse_expression(ltuplemut!(stream, tokenizer))? {
             Some(expression) => expression,
             None => return Err(Error::new(
-                &format!(
+                format!(
                     "Expected function body for function prototype at {}",
                     stream.get_index()
                 ),
@@ -887,7 +887,7 @@ impl Parser {
         {
             Some(p) => p,
             None => return Err(Error::new(
-                &format!(
+                format!(
                     "No function prototype for extern keyword at {}",
                     extern_token.start
                 ),
