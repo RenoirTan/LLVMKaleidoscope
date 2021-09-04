@@ -23,7 +23,7 @@ pub fn init(output_filepath: Option<&dyn AsRef<Path>>) -> Result<()> {
             .write(true)
             .create(true)
             .open(path)
-            .map_err(|e| Error::from_err(Box::new(e), ErrorKind::Other))?;
+            .map_err(Error::factory(ErrorKind::Other))?;
         Target::Pipe(Box::new(file))
     } else {
         Target::Stderr
@@ -35,5 +35,5 @@ pub fn init(output_filepath: Option<&dyn AsRef<Path>>) -> Result<()> {
         .filter_level(LevelFilter::Warn)
         .target(target)
         .try_init()
-        .map_err(|e| Error::from_err(Box::new(e), ErrorKind::LoggerError))
+        .map_err(Error::factory(ErrorKind::LoggerError))
 }

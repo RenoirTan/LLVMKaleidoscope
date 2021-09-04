@@ -52,6 +52,43 @@ impl<EK: ErrorKind> Error<EK> {
             source: Some(err)
         }
     }
+
+    /// Create a function which converts a source error to an error of type
+    /// `Error<EK>`. You must supply a predetermined [`ErrorKind`] to map the
+    /// source error to. You can use this function in
+    /// [`std::result::Result::map_err`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use std::io::{stdout, Write};
+    /// use kaleidoscope_error::Error;
+    /// use kaleidoscope_macro::impl_display;
+    /// 
+    /// #[derive(Copy, Clone, Debug, Eq, PartialEq)]
+    /// enum ErrorKind {
+    ///     FlushingError,
+    ///     Other   
+    /// }
+    /// impl_display!(ErrorKind);
+    ///
+    /// print!("No new line after this");
+    /// let _ = stdout().flush().map_err(Error::factory(ErrorKind::FlushingError));
+    /// ```
+    pub fn factory<E>(error_kind: EK) -> impl Fn(E) -> Self
+    where
+        E: error::Error + Sized + 'static
+    {
+        move |e| Self::from_err(Box::new(e), error_kind.clone())
+    }
+
+    /// Convert a source error wrapped in a [`Box`] to an error of type
+    /// `Error<EK>`. See [`Error::factory`] for implementation details.
+    pub fn boxed_factory(
+        error_kind: EK
+    ) -> impl Fn(Box<dyn error::Error + 'static>) -> Self {
+        move |e| Self::from_err(e, error_kind.clone())
+    }
 }
 
 impl<EK: ErrorKind> Clone for Error<EK> {
