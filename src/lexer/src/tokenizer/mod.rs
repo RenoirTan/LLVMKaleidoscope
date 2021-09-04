@@ -4,12 +4,12 @@
 
 mod filestream;
 mod lexerser;
+mod lexertuple;
 mod tokenizer;
 mod tokiter;
-mod lexertuple;
 
 pub use filestream::FileStream;
 pub use lexerser::LexerSerializer;
+pub use lexertuple::{LexerTupleMut, LexerTupleRef};
 pub use tokenizer::Tokenizer;
 pub use tokiter::TokenIterator;
-pub use lexertuple::{LexerTupleRef, LexerTupleMut};

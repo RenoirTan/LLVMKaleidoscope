@@ -13,39 +13,38 @@ type IdInner = u64;
 ///
 /// The current map for each type:
 /// 0: ???,
-/// 
+///
 /// 1: ???,
-/// 
+///
 /// 2: Identifier,
-/// 
+///
 /// 3: Bare Operator,
-/// 
+///
 /// 4: Integer,
-/// 
+///
 /// 5: Float,
-/// 
+///
 /// 6: Unary Operator,
-/// 
+///
 /// 7: Binary Operator,
-/// 
+///
 /// 8: Ternary Operator,
-/// 
+///
 /// 9: Quaternary Operator,
-/// 
+///
 /// 10: Quinary Operator,
-/// 
+///
 /// 11: Function Call,
-/// 
+///
 /// 12: Function Prototype,
-/// 
+///
 /// 13: Statement Body,
-/// 
+///
 /// 14: Function Definition,
-/// 
+///
 /// 15: Variable Expression
 ///
 /// 16: Extern Function
-/// 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct NodeId {
     numeric: IdInner
@@ -54,7 +53,7 @@ pub struct NodeId {
 impl NodeId {
     /// Create a new [`NodeId`] from a numeric ID.
     pub fn new(id: IdInner) -> Self {
-        Self {numeric: id}
+        Self { numeric: id }
     }
 
     /// Get the raw numeric ID.

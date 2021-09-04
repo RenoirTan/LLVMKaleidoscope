@@ -2,11 +2,11 @@ use std::{
     convert::AsRef,
     io::{prelude::*, stdin, stdout}
 };
+
 use kaleidoscope_parser::driver::Interpreter;
 
 
-const WELCOME_MESSAGE: &'static str =
-r#"Welcome to the Kaleidoscope REPL!
+const WELCOME_MESSAGE: &'static str = r#"Welcome to the Kaleidoscope REPL!
 Press enter to show the prompt.
 To exit, type in a semicolon (';') without an expression before it."#;
 

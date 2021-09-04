@@ -1,23 +1,21 @@
 //! A module defining a [`FunctionNode`].
 
 use std::fmt;
-use crate::prelude::*;
+
 use super::FunctionPrototypeNode;
+use crate::prelude::*;
 
 
 #[derive(Debug)]
 pub struct FunctionNode {
     prototype: Box<FunctionPrototypeNode>,
-    body: Box<dyn ExprNode>
+    body:      Box<dyn ExprNode>
 }
 
 impl FunctionNode {
     /// Create a new [`FunctionNode`] object.
-    pub fn new(
-        prototype: Box<FunctionPrototypeNode>,
-        body: Box<dyn ExprNode>
-    ) -> Self {
-        Self {prototype, body}
+    pub fn new(prototype: Box<FunctionPrototypeNode>, body: Box<dyn ExprNode>) -> Self {
+        Self { prototype, body }
     }
 
     /// Get the prototype in the function definition.
@@ -33,10 +31,7 @@ impl FunctionNode {
 
 impl Clone for FunctionNode {
     fn clone(&self) -> Self {
-        Self::new(
-            self.prototype.clone(),
-            self.body.expr_node_clone()
-        )
+        Self::new(self.prototype.clone(), self.body.expr_node_clone())
     }
 }
 

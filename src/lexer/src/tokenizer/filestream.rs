@@ -1,19 +1,20 @@
 //! A special structure which iterates over the characters in a file. It has
 //! special functions to ensure smooth traversal through a file or any
 //! sequence that can be iterated over.
-//! 
+//!
 //! See [`FileStream`].
 
-use crate::{
-    error::{Error, ErrorKind, Result},
-    token::FileIndex,
-};
 use std::{
     convert::TryFrom,
     fs::OpenOptions,
     io::{stdin, BufRead, BufReader, Lines, Read},
     iter::{Enumerate, Iterator},
-    path::Path,
+    path::Path
+};
+
+use crate::{
+    error::{Error, ErrorKind, Result},
+    token::FileIndex
 };
 
 type BufferIterator<'a> = Enumerate<Lines<BufReader<Box<dyn Read + 'a>>>>;
@@ -21,17 +22,17 @@ type BufferIterator<'a> = Enumerate<Lines<BufReader<Box<dyn Read + 'a>>>>;
 /// A file stream which returns a unicode codepoint one at a time.
 /// This is in contrast to a normal [`std::fs::File`] which can only read
 /// bytes to an array.
-/// 
+///
 /// An object of this struct also stores the index of the current character.
 /// See [`FileIndex`] for implementation details. This index stores the
 /// current line and character column, and can be retrieved by calling
 /// [`FileStream::get_index`].
 pub struct FileStream<'a> {
-    buffer: BufferIterator<'a>,
-    line: Vec<char>,
-    cursor: usize,
-    index: FileIndex,
-    error: Option<Error>,
+    buffer:      BufferIterator<'a>,
+    line:        Vec<char>,
+    cursor:      usize,
+    index:       FileIndex,
+    error:       Option<Error>,
     eof_reached: bool
 }
 
@@ -45,7 +46,7 @@ impl<'a> FileStream<'a> {
             line: Vec::new(),
             index: Default::default(),
             error: None,
-            eof_reached: false,
+            eof_reached: false
         };
         this.init();
         this
@@ -106,11 +107,9 @@ impl<'a> FileStream<'a> {
                     self.eof_reached = false;
                     self.index = FileIndex::new(Some(line_no), 0);
                     true
-                }
+                },
                 Err(e) => {
-                    self.error = Some(
-                        Error::from_err(Box::new(e), ErrorKind::FileIOError)
-                    );
+                    self.error = Some(Error::from_err(Box::new(e), ErrorKind::FileIOError));
                     self.eof_reached = false;
                     false
                 }
@@ -150,14 +149,9 @@ impl<'a> FileStream<'a> {
 
     /// Create a new [`FileStream`] from a path.
     pub fn from_path(path: &Path) -> Result<Self> {
-        let file: Box<dyn Read> = match OpenOptions::new()
-            .read(true)
-            .open(path)
-        {
+        let file: Box<dyn Read> = match OpenOptions::new().read(true).open(path) {
             Ok(f) => Box::new(f),
-            Err(e) => return Err(
-                Error::from_err(Box::new(e), ErrorKind::FileIOError)
-            ),
+            Err(e) => return Err(Error::from_err(Box::new(e), ErrorKind::FileIOError))
         };
         let buffer = BufReader::new(file).lines().enumerate();
         Ok(Self::new(buffer))

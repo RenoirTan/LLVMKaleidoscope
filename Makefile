@@ -1,7 +1,7 @@
 CARGO=cargo
 ARGS=--workspace --color=always
 
-.PHONY: help clean all ascii_art dfull rfull doc dbuild rbuild test
+.PHONY: help clean all ascii_art dfull rfull doc dbuild rbuild test fmt
 
 help: ascii_art
 	@echo "Helper Makefile"
@@ -53,6 +53,9 @@ rbuild:
 
 test:
 	$(CARGO) test $(ARGS) --no-fail-fast
+
+fmt:
+	$(CARGO) +nightly fmt
 
 clean:
 	$(CARGO) clean

@@ -1,14 +1,11 @@
 //! A struct that reads a file and creates tokens from them.
-//! 
+//!
 //! See [`Tokenizer`].
 
 use std::iter::Iterator;
-use super::{FileStream, TokenIterator, LexerTupleRef, LexerTupleMut};
-use crate::{
-    error::Result,
-    token::Token,
-    utils
-};
+
+use super::{FileStream, LexerTupleMut, LexerTupleRef, TokenIterator};
+use crate::{error::Result, token::Token, utils};
 
 /// The tokeniser which iterates over the characters in a file stream and
 /// yields a stream of tokens.
@@ -34,10 +31,7 @@ impl Tokenizer {
     }
 
     /// Package this tokeniser with a filestream.
-    pub fn to_tuple_ref<'a, 'b: 'a>(
-        &'a self,
-        stream: &'a FileStream<'b>
-    ) -> LexerTupleRef<'a, 'b> {
+    pub fn to_tuple_ref<'a, 'b: 'a>(&'a self, stream: &'a FileStream<'b>) -> LexerTupleRef<'a, 'b> {
         LexerTupleRef(stream, self)
     }
 
@@ -89,18 +83,16 @@ impl Tokenizer {
             }
             self.last_unit = match stream.next() {
                 Some(u) => Some(u),
-                None => {
-                    match stream.get_err() {
-                        None => {
-                            if token.is_empty() && stream.eof_reached() {
-                                token = Token::new_eof(index);
-                            } else {
-                                token.resolve(index)?;
-                            }
-                            break 'stream;
-                        },
-                        Some(e) => return Err(e)
-                    }
+                None => match stream.get_err() {
+                    None => {
+                        if token.is_empty() && stream.eof_reached() {
+                            token = Token::new_eof(index);
+                        } else {
+                            token.resolve(index)?;
+                        }
+                        break 'stream;
+                    },
+                    Some(e) => return Err(e)
                 }
             };
         }

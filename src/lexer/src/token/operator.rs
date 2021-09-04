@@ -1,11 +1,12 @@
 //! A token representing an operator.
-//! 
+//!
 //! An operator is a symbol that acts like a function but has a different
 //! syntax. Due to its significance, operators are given a special
 //! representation in code.
 
 use std::fmt;
-use serde::{Serialize, Deserialize};
+
+use serde::{Deserialize, Serialize};
 
 /// A token representing an operator.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -29,7 +30,7 @@ pub enum Operator {
     /// <=
     LessThanEqual,
     /// >=
-    GreaterThanEqual,
+    GreaterThanEqual
 }
 
 impl fmt::Display for Operator {
@@ -46,7 +47,7 @@ impl Operator {
     ///
     /// ```
     /// use kaleidoscope_lexer::token::Operator;
-    /// 
+    ///
     /// let plus = Operator::from_string("+");
     /// assert_eq!(plus, Operator::Plus);
     ///

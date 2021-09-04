@@ -1,9 +1,11 @@
 //! A module for [`FunctionPrototypeNode`].
 
 use std::fmt;
+
 use kaleidoscope_macro::iterator_to_str;
-use crate::prelude::*;
+
 use super::IdentifierNode;
+use crate::prelude::*;
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,11 +24,11 @@ impl fmt::Display for FunctionPrototypeNode {
 
 impl FunctionPrototypeNode {
     /// Create a new [`FunctionPrototypeNode`] object.
-    pub fn new(
-        identifier: Box<IdentifierNode>,
-        parameters: Vec<Box<IdentifierNode>>
-    ) -> Self {
-        FunctionPrototypeNode {identifier, parameters}
+    pub fn new(identifier: Box<IdentifierNode>, parameters: Vec<Box<IdentifierNode>>) -> Self {
+        FunctionPrototypeNode {
+            identifier,
+            parameters
+        }
     }
 
     /// Get the identifier in the prototype.

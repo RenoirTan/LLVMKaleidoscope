@@ -2,8 +2,8 @@
 
 pub mod error;
 pub mod node;
-pub mod nodes;
 mod nodeid;
+pub mod nodes;
 
 #[cfg(test)]
 mod tests;
@@ -13,15 +13,17 @@ pub use nodeid::NodeId;
 /// Module which re-exports some of the most commonly used items in this
 /// member.
 pub mod prelude {
-    pub use crate::node::{
-        Node,
-        NodeType,
-        ExprNode,
-        FromToken,
-        reify_node,
-        reify_expr_node,
-        upcast_expr_node
+    pub use crate::{
+        error::{Error, ErrorKind, Result},
+        node::{
+            reify_expr_node,
+            reify_node,
+            upcast_expr_node,
+            ExprNode,
+            FromToken,
+            Node,
+            NodeType
+        },
+        nodeid::NodeId
     };
-    pub use crate::nodeid::NodeId;
-    pub use crate::error::{Error, ErrorKind, Result};
 }

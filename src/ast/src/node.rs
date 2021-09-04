@@ -5,9 +5,11 @@ use std::{
     any::{Any, TypeId},
     fmt::{Debug, Display}
 };
+
 use kaleidoscope_lexer::token::Token;
-use crate::error::Result;
+
 use super::NodeId;
+use crate::error::Result;
 
 /// A node that implements this trait can convert one token to an instance
 /// of itself (e.g. numbers).
@@ -27,7 +29,7 @@ pub trait Node: Any + Debug + Display {
 
 fn typeid_to_u64<T: 'static>() -> u64 {
     let strid = format!("{:?}", TypeId::of::<T>());
-    let strid = &strid[12..strid.len()-2];
+    let strid = &strid[12..strid.len() - 2];
     strid.parse::<u64>().unwrap()
 }
 
@@ -57,10 +59,10 @@ pub fn upcast_expr_node(node: Box<dyn ExprNode>) -> Box<dyn Node> {
 ///
 /// ```
 /// use kaleidoscope_ast::{
-///     nodes::IntegerNode,
-///     node::{Node, reify_node}
+///     node::{reify_node, Node},
+///     nodes::IntegerNode
 /// };
-/// 
+///
 /// let unknown: Box<dyn Node> = Box::new(IntegerNode::new(10));
 /// let resolved: Box<IntegerNode> = reify_node(unknown).unwrap();
 /// assert_eq!(resolved.get_value(), 10);
@@ -69,10 +71,12 @@ pub fn reify_node<N>(node: Box<dyn Node>) -> Option<Box<N>>
 where
     N: Node + NodeType
 {
-    if node.node_id_of_val() == N::node_id() { unsafe {
-        let pointer = Box::into_raw(node) as *mut N;
-        Some(Box::from_raw(pointer))
-    }} else {
+    if node.node_id_of_val() == N::node_id() {
+        unsafe {
+            let pointer = Box::into_raw(node) as *mut N;
+            Some(Box::from_raw(pointer))
+        }
+    } else {
         None
     }
 }
@@ -84,10 +88,10 @@ where
 ///
 /// ```
 /// use kaleidoscope_ast::{
-///     nodes::IntegerNode,
-///     node::{ExprNode, reify_expr_node}
+///     node::{reify_expr_node, ExprNode},
+///     nodes::IntegerNode
 /// };
-/// 
+///
 /// let unknown: Box<dyn ExprNode> = Box::new(IntegerNode::new(10));
 /// let resolved: Box<IntegerNode> = reify_expr_node(unknown).unwrap();
 /// assert_eq!(resolved.get_value(), 10);
@@ -96,10 +100,12 @@ pub fn reify_expr_node<N>(node: Box<dyn ExprNode>) -> Option<Box<N>>
 where
     N: ExprNode + NodeType
 {
-    if node.node_id_of_val() == N::node_id() { unsafe {
-        let pointer = Box::into_raw(node) as *mut N;
-        Some(Box::from_raw(pointer))
-    }} else {
+    if node.node_id_of_val() == N::node_id() {
+        unsafe {
+            let pointer = Box::into_raw(node) as *mut N;
+            Some(Box::from_raw(pointer))
+        }
+    } else {
         None
     }
 }
@@ -111,10 +117,10 @@ where
 ///
 /// ```
 /// use kaleidoscope_ast::{
-///     nodes::IntegerNode,
-///     node::{Node, reify_node_ref}
+///     node::{reify_node_ref, Node},
+///     nodes::IntegerNode
 /// };
-/// 
+///
 /// let unknown: Box<dyn Node> = Box::new(IntegerNode::new(34));
 /// let resolved: &IntegerNode = reify_node_ref(&unknown).unwrap();
 /// assert_eq!(resolved.get_value(), 34);
@@ -123,10 +129,12 @@ pub fn reify_node_ref<N>(node: &Box<dyn Node>) -> Option<&N>
 where
     N: Node + NodeType
 {
-    if node.node_id_of_val() == N::node_id() { unsafe {
-        let reference = &*(&**node as *const dyn Node as *const N);
-        Some(reference)
-    }} else {
+    if node.node_id_of_val() == N::node_id() {
+        unsafe {
+            let reference = &*(&**node as *const dyn Node as *const N);
+            Some(reference)
+        }
+    } else {
         None
     }
 }
@@ -138,10 +146,10 @@ where
 ///
 /// ```
 /// use kaleidoscope_ast::{
-///     nodes::IntegerNode,
-///     node::{ExprNode, reify_expr_node_ref}
+///     node::{reify_expr_node_ref, ExprNode},
+///     nodes::IntegerNode
 /// };
-/// 
+///
 /// let unknown: Box<dyn ExprNode> = Box::new(IntegerNode::new(34));
 /// let resolved: &IntegerNode = reify_expr_node_ref(&unknown).unwrap();
 /// assert_eq!(resolved.get_value(), 34);
@@ -150,10 +158,12 @@ pub fn reify_expr_node_ref<N>(node: &Box<dyn ExprNode>) -> Option<&N>
 where
     N: ExprNode + NodeType
 {
-    if node.node_id_of_val() == N::node_id() { unsafe {
-        let reference = &*(&**node as *const dyn ExprNode as *const N);
-        Some(reference)
-    }} else {
+    if node.node_id_of_val() == N::node_id() {
+        unsafe {
+            let reference = &*(&**node as *const dyn ExprNode as *const N);
+            Some(reference)
+        }
+    } else {
         None
     }
 }
@@ -164,10 +174,12 @@ pub fn reify_node_mut<N>(node: &mut Box<dyn Node>) -> Option<&mut N>
 where
     N: Node + NodeType
 {
-    if node.node_id_of_val() == N::node_id() { unsafe {
-        let reference = &mut *(&mut **node as *mut dyn Node as *mut N);
-        Some(reference)
-    }} else {
+    if node.node_id_of_val() == N::node_id() {
+        unsafe {
+            let reference = &mut *(&mut **node as *mut dyn Node as *mut N);
+            Some(reference)
+        }
+    } else {
         None
     }
 }
@@ -178,10 +190,12 @@ pub fn reify_expr_node_mut<N>(node: &mut Box<dyn ExprNode>) -> Option<&mut N>
 where
     N: ExprNode + NodeType
 {
-    if node.node_id_of_val() == N::node_id() { unsafe {
-        let reference = &mut *(&mut **node as *mut dyn ExprNode as *mut N);
-        Some(reference)
-    }} else {
+    if node.node_id_of_val() == N::node_id() {
+        unsafe {
+            let reference = &mut *(&mut **node as *mut dyn ExprNode as *mut N);
+            Some(reference)
+        }
+    } else {
         None
     }
 }

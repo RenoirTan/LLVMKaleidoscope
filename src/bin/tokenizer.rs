@@ -1,15 +1,7 @@
-use std::{
-    convert::TryFrom,
-    path::PathBuf,
-    process::exit
-};
+use std::{convert::TryFrom, path::PathBuf, process::exit};
+
 use clap::{App, Arg};
-use kaleidoscope_lexer::tokenizer::{
-    FileStream,
-    Tokenizer,
-    TokenIterator,
-    LexerSerializer
-};
+use kaleidoscope_lexer::tokenizer::{FileStream, LexerSerializer, TokenIterator, Tokenizer};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum OutputFormats {
@@ -70,9 +62,8 @@ fn main() {
                 .default_value("debug")
         )
         .get_matches();
-    let output_format = OutputFormats::from_string(
-        matches.value_of("output_format").unwrap()
-    ).expect("Invalid output format.");
+    let output_format = OutputFormats::from_string(matches.value_of("output_format").unwrap())
+        .expect("Invalid output format.");
     let file = match matches.value_of("input_file") {
         Some(path) => FileStream::try_from(&*PathBuf::from(path)).unwrap(),
         None => FileStream::default()
@@ -80,7 +71,7 @@ fn main() {
     let tokenizer = Tokenizer::new();
     let mut token_iterator = TokenIterator::new(file, tokenizer);
     match output_format {
-        OutputFormats::Debug => {
+        OutputFormats::Debug =>
             while !token_iterator.eof_reached() {
                 match token_iterator.next_token() {
                     Ok(token) => println!("{:?}", token),
@@ -89,8 +80,7 @@ fn main() {
                         exit(1);
                     }
                 }
-            }
-        },
+            },
         OutputFormats::Json => {
             let itok = LexerSerializer::new(token_iterator);
             println!("{}", serde_json::to_string_pretty(&itok).unwrap());

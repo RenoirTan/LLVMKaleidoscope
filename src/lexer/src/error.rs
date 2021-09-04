@@ -25,7 +25,7 @@ pub enum ErrorKind {
     /// due to a uncaught edge case or a workaround has not been found yet).
     LexerFatal,
     /// For miscellaneous errors too obscure to have its own category.
-    Other,
+    Other
 }
 
 impl_display!(ErrorKind);

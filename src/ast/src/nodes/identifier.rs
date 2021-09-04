@@ -1,7 +1,9 @@
 //! A module defining a node that represents an identifier.
 
 use std::fmt;
+
 use kaleidoscope_lexer::token::{Token, TokenKind};
+
 use crate::prelude::*;
 
 /// A struct representing a name or path that can identify an object, function
@@ -14,7 +16,7 @@ pub struct IdentifierNode {
 impl IdentifierNode {
     /// Create a new [`IdentifierNode`] object.
     pub fn new(identifier: String) -> Self {
-        IdentifierNode {identifier}
+        IdentifierNode { identifier }
     }
 
     /// Get the name as a string.

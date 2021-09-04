@@ -4,15 +4,12 @@
 //! balanced out properly.
 
 use std::{
-    cmp::{
-        Ord,
-        Ordering,
-        PartialOrd
-    },
+    cmp::{Ord, Ordering, PartialOrd},
     fmt
 };
-use serde::{Serialize, Deserialize};
+
 use kaleidoscope_macro::impl_display;
+use serde::{Deserialize, Serialize};
 
 pub mod brackets {
     use super::{Bracket, BracketKind, BracketSide};
@@ -53,7 +50,6 @@ pub mod brackets {
         kind: BracketKind::Unknown,
         side: BracketSide::Left
     };
-    
 }
 
 /// The type of bracket [`Bracket`] represents.
@@ -84,24 +80,24 @@ impl BracketKind {
     }
 
     /// Convert the string representation of a bracket to a [`BracketKind`].
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// An example showing a valid bracket being converted to a [`BracketKind`].
-    /// 
+    ///
     /// ```
     /// use kaleidoscope_lexer::token::BracketKind;
-    /// 
+    ///
     /// let bracket_kind = BracketKind::from_string("[");
     /// assert!(matches!(bracket_kind, BracketKind::Square));
     /// ```
-    /// 
+    ///
     /// If a string that does not represent a bracket is passed to this
     /// function, [`BracketKind::Unknown`] is returned.
-    /// 
+    ///
     /// ```
     /// use kaleidoscope_lexer::token::BracketKind;
-    /// 
+    ///
     /// let bracket_kind = BracketKind::from_string("invalid");
     /// assert!(matches!(bracket_kind, BracketKind::Unknown));
     /// ```
@@ -119,15 +115,15 @@ impl BracketKind {
     /// string slices. This array has a predetermined length of 2, with
     /// the first element representing the left side of that type of bracket
     /// while the second one is the right side.
-    /// 
+    ///
     /// The string representation for [`BracketKind::Unknown`] is "??" for both
     /// sides.
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```compile_fail
     /// use kaleidoscope_lexer::token::BracketKind;
-    /// 
+    ///
     /// assert_eq!(BracketKind::Curly.get_repr(), ["{", "}"]);
     /// ```
     pub(crate) fn get_repr(self) -> [&'static str; 2] {
@@ -145,7 +141,7 @@ impl BracketKind {
 /// Brackets which are classified as "Left" include "(", "[" and "{", etc, with
 /// their corresponding counterparts (")", "]", "}" respectively) are counted
 /// as "Right"-side brackets.
-/// 
+///
 /// In order to compare brackets by their side, this enum can be converted
 /// to an integer value, with [`BracketSide::Left`]'s value being 0 and
 /// [`BracketSide::Right`]'s being 1. This is useful when you want to make
@@ -159,7 +155,7 @@ pub enum BracketSide {
 
 impl BracketSide {
     /// Convert an integer to a [`BracketSide`].
-    /// 
+    ///
     /// 0 is Left and
     /// 1 is Right.
     pub fn from_int(code: i32) -> Option<Self> {
@@ -184,24 +180,21 @@ impl BracketSide {
     /// bracket in a sequence is 0 (i.e. left) and the second bracket in the
     /// sequence is 1 (i.e. right), then you can be certain that both brackets
     /// are in the correct order.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use kaleidoscope_lexer::token::BracketSide;
-    /// 
-    /// fn is_in_correct_order(
-    ///     first: BracketSide,
-    ///     second: BracketSide
-    /// ) -> bool {
+    ///
+    /// fn is_in_correct_order(first: BracketSide, second: BracketSide) -> bool {
     ///     first.as_int() < second.as_int()
     /// }
-    /// 
+    ///
     /// assert!(is_in_correct_order(
     ///     BracketSide::from_string("[").unwrap(),
     ///     BracketSide::from_string("]").unwrap()
     /// ));
-    /// 
+    ///
     /// assert!(!is_in_correct_order(
     ///     BracketSide::from_string("}").unwrap(),
     ///     BracketSide::from_string("{").unwrap()
@@ -274,7 +267,7 @@ impl Bracket {
     pub fn from_codes(kind: i32, side: i32) -> Self {
         let kind = BracketKind::from_int(kind);
         let side = BracketSide::from_int(side).unwrap_or_default();
-        Self {kind, side}
+        Self { kind, side }
     }
 
     /// Create a [`Bracket`] from a string of a bracket.
@@ -298,11 +291,11 @@ impl Bracket {
     pub fn from_string(string: &str) -> Self {
         let kind = BracketKind::from_string(string);
         let side = BracketSide::from_string(string).unwrap_or_default();
-        Self {kind, side}
+        Self { kind, side }
     }
 
     /// Return the bracket as a string representaton of itself.
-    /// 
+    ///
     /// # Example
     ///
     /// ```
@@ -315,7 +308,8 @@ impl Bracket {
         // Can be unwrapped safely as BracketSide::as_int
         // only returns 0 or 1.
         // BracketKind::get_repr returns an array of length 2.
-        *self.kind
+        *self
+            .kind
             .get_repr()
             .get(self.side.as_int() as usize)
             .unwrap()
@@ -327,15 +321,15 @@ impl Bracket {
 
     /// Check if the string representation of a bracket matches a bracket
     /// represented internally using a [`Bracket`] object.
-    /// 
+    ///
     /// If both `self` and the other bracket are unknown, this method will
     /// still return false for safety (like NaN !== NaN in JavaScript).
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use kaleidoscope_lexer::token::{Bracket, BracketKind, BracketSide};
-    /// 
+    ///
     /// let left_round = Bracket {
     ///     kind: BracketKind::Round,
     ///     side: BracketSide::Left
@@ -344,10 +338,10 @@ impl Bracket {
     ///     kind: BracketKind::Unknown,
     ///     side: BracketSide::Left
     /// };
-    /// 
+    ///
     /// assert!(left_round.is_str("("));
     /// assert!(!left_round.is_str("]"));
-    /// 
+    ///
     /// // Although both `unknown` and "???" are both not brackets,
     /// // `false` is still returned.
     /// assert!(!unknown.is_str("???"));
@@ -362,18 +356,18 @@ impl Bracket {
     }
 
     /// Checks if 2 brackets are of the same type.
-    /// 
+    ///
     /// In addition, the first bracket must be the left bracket and the
     /// second (or `other`) bracket must be the right bracket in order for
     /// both brackets to cancel out.
     /// Otherwise this method will return false, marking both brackets as
     /// incompatible with each other.
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use kaleidoscope_lexer::token::{Bracket, BracketKind, BracketSide};
-    /// 
+    ///
     /// let round_left = Bracket {
     ///     kind: BracketKind::Round,
     ///     side: BracketSide::Left
@@ -383,7 +377,7 @@ impl Bracket {
     ///     side: BracketSide::Right
     /// };
     /// assert!(round_left.cancels_out(round_right));
-    /// 
+    ///
     /// let square_left = Bracket {
     ///     kind: BracketKind::Square,
     ///     side: BracketSide::Left

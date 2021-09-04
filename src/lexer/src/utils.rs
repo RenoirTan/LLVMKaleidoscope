@@ -12,32 +12,36 @@
 //!
 //! ```
 //! use kaleidoscope_lexer::utils;
-//! 
+//!
 //! fn validate_identifier(string: &str) -> (bool, Option<usize>) {
 //!     if string.len() == 0 {
 //!         (false, None)
 //!     } else {
 //!         let units: Vec<char> = string.chars().collect();
 //!         if !utils::is_identifier_start(units[0]) {
-//!             return (false, Some(0))
+//!             return (false, Some(0));
 //!         }
 //!         for (index, unit) in units[1..].iter().enumerate() {
 //!             if !utils::is_identifier(*unit) {
-//!                 return (false, Some(index+1))
+//!                 return (false, Some(index + 1));
 //!             }
 //!         }
 //!         (true, None)
 //!     }
 //! }
-//! 
+//!
 //! let (ok, index) = validate_identifier("citizen_839293927392738");
-//! assert!(ok); assert!(index.is_none());
+//! assert!(ok);
+//! assert!(index.is_none());
 //! let (ok, index) = validate_identifier("7huhfe");
-//! assert!(!ok); assert!(matches!(index, Some(0)));
+//! assert!(!ok);
+//! assert!(matches!(index, Some(0)));
 //! let (ok, index) = validate_identifier("");
-//! assert!(!ok); assert!(index.is_none());
+//! assert!(!ok);
+//! assert!(index.is_none());
 //! let (ok, index) = validate_identifier("hmm???");
-//! assert!(!ok); assert!(matches!(index, Some(3)));
+//! assert!(!ok);
+//! assert!(matches!(index, Some(3)));
 //! ```
 //!
 //! This is not the only application of the functions defined in this module.
@@ -59,7 +63,8 @@ pub fn is_whitespace(unit: char) -> bool {
     unit.is_whitespace()
 }
 
-/// True if `unit` is a character that can act as the first character of a name/identifier.
+/// True if `unit` is a character that can act as the first character of a
+/// name/identifier.
 pub fn is_identifier_start(unit: char) -> bool {
     unit.is_ascii_alphabetic() || unit == '_'
 }
@@ -85,7 +90,7 @@ pub fn is_fullstop(unit: char) -> bool {
 }
 
 /// True if `unit` is a character used in one of the operator symbols.
-/// 
+///
 /// For now this is restricted to the following characters:
 /// 1. +
 /// 2. -

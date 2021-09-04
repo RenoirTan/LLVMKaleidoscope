@@ -1,4 +1,5 @@
 use std::fmt;
+
 use crate::prelude::*;
 
 pub type FloatType = f64;
@@ -10,7 +11,7 @@ pub struct FloatNode {
 
 impl FloatNode {
     pub fn new(value: FloatType) -> Self {
-        Self {value}
+        Self { value }
     }
 
     pub fn get_value(&self) -> FloatType {

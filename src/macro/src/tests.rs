@@ -8,7 +8,7 @@ fn test_impl_display() {
         pub field2: String
     }
     impl_display!(Thing);
-    
+
     let thing = Thing {
         field1: 16,
         field2: String::from("hmm")
@@ -19,9 +19,10 @@ fn test_impl_display() {
 #[test]
 fn test_hash_map() {
     use std::collections::HashMap;
+
     use crate::hash_map;
 
-    let dict: HashMap<&'static str, i32> = hash_map!{
+    let dict: HashMap<&'static str, i32> = hash_map! {
         "item" => 1,
         "thing" => 2
     };
@@ -49,14 +50,11 @@ fn test_function_name() {
 
 #[test]
 fn test_ok_none() {
-    use std::{
-        convert::Infallible,
-        option::Option,
-        result::Result
-    };
+    use std::{convert::Infallible, option::Option, result::Result};
+
     use crate::ok_none;
 
-    fn converter<T>(thing: Option<T>) -> Result<Option<T>, Infallible>  {
+    fn converter<T>(thing: Option<T>) -> Result<Option<T>, Infallible> {
         Ok(Some(ok_none!(thing)))
     }
 
@@ -69,8 +67,5 @@ fn test_iterator_to_str() {
     use crate::iterator_to_str;
 
     let iterable = 0..5;
-    assert_eq!(
-        iterator_to_str!(iterable, " < "),
-        "0 < 1 < 2 < 3 < 4"
-    );
+    assert_eq!(iterator_to_str!(iterable, " < "), "0 < 1 < 2 < 3 < 4");
 }

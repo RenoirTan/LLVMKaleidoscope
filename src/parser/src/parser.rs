@@ -3,6 +3,7 @@
 //! LLVM IR code can be created.
 
 use std::ops;
+
 use kaleidoscope_ast::{
     node::ExprNode,
     nodes::{
@@ -21,21 +22,11 @@ use kaleidoscope_ast::{
 };
 use kaleidoscope_lexer::{
     ltuplemut,
-    token::{
-        BracketKind,
-        FileIndex,
-        Keyword,
-        LEFT_ROUND_BRACKET,
-        Token,
-        TokenKind
-    },
+    token::{BracketKind, FileIndex, Keyword, Token, TokenKind, LEFT_ROUND_BRACKET},
     tokenizer::LexerTupleMut
 };
-use kaleidoscope_macro::{
-    // function_path,
-    ok_none,
-    return_ok_some
-};
+use kaleidoscope_macro::{ok_none, return_ok_some};
+
 use crate::{
     error::{Error, ErrorKind, Result},
     precedence::BinaryOperatorPrecedence
@@ -51,20 +42,23 @@ pub type ParseResult<T> = Result<Option<Box<T>>>;
 #[derive(Clone, Debug, Default)]
 struct ParserToken {
     pub token: Option<Token>,
-    pub uses: usize
+    pub uses:  usize
 }
 
 #[allow(unused)]
 impl ParserToken {
     /// Create a new [`ParserToken`] manager.
     pub fn new(token: Token) -> Self {
-        Self {token: Some(token), uses: 0}
+        Self {
+            token: Some(token),
+            uses:  0
+        }
     }
 
     /// Check if the [`Token`] stored inside has been used at least once or
     /// not, if there is a token inside at all. The reason I added the second
     /// condition is because the manager object only knows that the token
-    /// should be replaced when a fresh token is required; if there is no 
+    /// should be replaced when a fresh token is required; if there is no
     /// token in the manager, then a new token should be supplied so that
     /// when the [`Parser`] requests a new token, that token can be used.
     #[inline]
@@ -83,7 +77,7 @@ impl ParserToken {
     /// Replace the token in the [`ParserToken`] manager with a new token,
     /// resetting the use count back to 0, returning the previously-held
     /// token.
-    // 
+    //
     /// See also: [`ParserToken::replace_used`].
     pub fn replace(&mut self, token: Token) -> Option<Token> {
         // println!("[{}] new token: {:?}\n", function_path!(), token);
@@ -97,7 +91,7 @@ impl ParserToken {
     /// resetting the use count back to 0. However, if the old token hasn't
     /// been used before, the old token gets discarded, returning [`None`]
     /// in the process.
-    /// 
+    ///
     /// See also: [`ParserToken::replace`].
     #[inline]
     pub fn replace_used(&mut self, token: Token) -> Option<Token> {
@@ -125,8 +119,7 @@ impl ParserToken {
 
     /// Clone the token in the manager and mark it as used.
     pub fn utilize(&mut self) -> Option<Token> {
-        self.use_once()
-            .peek()
+        self.use_once().peek()
     }
 }
 
@@ -187,10 +180,7 @@ impl Parser {
     ) -> Result<&mut Self> {
         self.next_token(match tokenizer.next_token(stream) {
             Ok(token) => token,
-            Err(e) => return Err(Error::from_err(
-                Box::new(e),
-                ErrorKind::LexerError
-            ))
+            Err(e) => return Err(Error::from_err(Box::new(e), ErrorKind::LexerError))
         })
     }
 
@@ -206,14 +196,11 @@ impl Parser {
         // WILL FALL OFF THE CLIFF BEFORE
         // THEY GET PROCESSED
         if self.current_token.unused() {
-            return Ok(self)
+            return Ok(self);
         }
         self.replace_used_token(match tokenizer.next_token(stream) {
             Ok(token) => token,
-            Err(e) => return Err(Error::from_err(
-                Box::new(e),
-                ErrorKind::LexerError
-            ))
+            Err(e) => return Err(Error::from_err(Box::new(e), ErrorKind::LexerError))
         })
     }
 
@@ -253,28 +240,19 @@ impl Parser {
                 None
             )),
             Some(token) => match token.token_kind {
-                TokenKind::Bracket {bracket} => if
-                    bracket.side.is_right() &&
-                    matches!(bracket.kind, BracketKind::Round)
-                {
-                    self.mark_used();
-                    Ok(token.clone())
-                } else {
-                    Err(Error::new(
-                        format!(
-                            "Unmatched bracket {} at {}",
-                            bracket,
-                            token.start
-                        ),
-                        ErrorKind::SyntaxError,
-                        None
-                    ))
-                }
+                TokenKind::Bracket { bracket } =>
+                    if bracket.side.is_right() && matches!(bracket.kind, BracketKind::Round) {
+                        self.mark_used();
+                        Ok(token.clone())
+                    } else {
+                        Err(Error::new(
+                            format!("Unmatched bracket {} at {}", bracket, token.start),
+                            ErrorKind::SyntaxError,
+                            None
+                        ))
+                    },
                 _ => Err(Error::new(
-                    format!(
-                        "Expected right round bracket at {}",
-                        token.start
-                    ),
+                    format!("Expected right round bracket at {}", token.start),
                     ErrorKind::SyntaxError,
                     None
                 ))
@@ -324,18 +302,19 @@ impl Parser {
             )
         }?;
         match self.peek_current_token() {
-            Some(token) => if token.is_terminating() {
-                Ok(expression)
-            } else {
-                Err(Error::new(
-                    format!(
-                        "Expressions must be terminated by a semicolon at {}.",
-                        token.start
-                    ),
-                    ErrorKind::SyntaxError,
-                    None
-                ))
-            },
+            Some(token) =>
+                if token.is_terminating() {
+                    Ok(expression)
+                } else {
+                    Err(Error::new(
+                        format!(
+                            "Expressions must be terminated by a semicolon at {}.",
+                            token.start
+                        ),
+                        ErrorKind::SyntaxError,
+                        None
+                    ))
+                },
             None => Ok(expression)
         }
     }
@@ -348,21 +327,13 @@ impl Parser {
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
-        let integer = self.parse_integer_expression(
-            ltuplemut!(stream, tokenizer)
-        )?;
+        let integer = self.parse_integer_expression(ltuplemut!(stream, tokenizer))?;
         return_ok_some!(integer);
-        let float = self.parse_float_expression(
-            ltuplemut!(stream, tokenizer)
-        )?;
+        let float = self.parse_float_expression(ltuplemut!(stream, tokenizer))?;
         return_ok_some!(float);
-        let rbexpr = self.parse_round_bracket_expression(
-            ltuplemut!(stream, tokenizer)
-        )?;
+        let rbexpr = self.parse_round_bracket_expression(ltuplemut!(stream, tokenizer))?;
         return_ok_some!(rbexpr);
-        let variable = self.parse_variable_expression(
-            ltuplemut!(stream, tokenizer)
-        )?;
+        let variable = self.parse_variable_expression(ltuplemut!(stream, tokenizer))?;
         return_ok_some!(variable);
         Ok(None)
     }
@@ -377,14 +348,9 @@ impl Parser {
         // println!("[{}] token: {:?}\n", function_path!(), token);
         if let TokenKind::Integer = token.token_kind {
             // println!("[{}] integer detected\n", function_path!());
-            let rust_integer = match
-                token.borrow_span().parse::<IntegerType>()
-            {
+            let rust_integer = match token.borrow_span().parse::<IntegerType>() {
                 Ok(i) => i,
-                Err(e) => return Err(Error::from_err(
-                    Box::new(e),
-                    ErrorKind::ParsingError
-                ))
+                Err(e) => return Err(Error::from_err(Box::new(e), ErrorKind::ParsingError))
             };
             self.mark_used();
             Ok(Some(Box::new(IntegerNode::new(rust_integer))))
@@ -405,10 +371,7 @@ impl Parser {
             // println!("[{}] float detected\n", function_path!());
             let rust_float = match token.borrow_span().parse::<FloatType>() {
                 Ok(f) => f,
-                Err(e) => return Err(Error::from_err(
-                    Box::new(e),
-                    ErrorKind::ParsingError
-                ))
+                Err(e) => return Err(Error::from_err(Box::new(e), ErrorKind::ParsingError))
             };
             self.mark_used();
             Ok(Some(Box::new(FloatNode::new(rust_float))))
@@ -427,9 +390,7 @@ impl Parser {
         // println!("[{}] token: {:?}\n", function_path!(), token);
         if let TokenKind::Identifier = token.token_kind {
             // println!("[{}] identifier detected\n", function_path!());
-            let identifier = Box::new(
-                IdentifierNode::new(token.borrow_span().to_string())
-            );
+            let identifier = Box::new(IdentifierNode::new(token.borrow_span().to_string()));
             self.mark_used();
             Ok(Some(Box::new(VariableExpressionNode::new(identifier))))
         } else {
@@ -446,7 +407,7 @@ impl Parser {
         let token = ok_none!(self.peek_current_token());
         // println!("[{}] token: {:?}\n", function_path!(), token);
         let left_bracket = match token.token_kind {
-            TokenKind::Bracket {bracket} => bracket,
+            TokenKind::Bracket { bracket } => bracket,
             _ => return Ok(None)
         };
         self.mark_used();
@@ -462,34 +423,35 @@ impl Parser {
             }
         }
         // println!("[{}] left bracket verified\n", function_path!());
-        let expression = match
-            self.parse_expression(ltuplemut!(stream, tokenizer))?
-        {
+        let expression = match self.parse_expression(ltuplemut!(stream, tokenizer))? {
             Some(x) => x,
-            None => return Err(Error::new(
-                "Expected expression.".to_string(),
-                ErrorKind::SyntaxError,
-                None
-            ))
+            None =>
+                return Err(Error::new(
+                    "Expected expression.".to_string(),
+                    ErrorKind::SyntaxError,
+                    None
+                )),
         };
         // println!("[{}] inner expression parsed\n", function_path!());
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let token = match self.peek_current_token() {
             Some(t) => t,
-            None => return Err(Error::new(
-                "Unexpected EOF.".to_string(),
-                ErrorKind::SyntaxError,
-                None
-            ))
+            None =>
+                return Err(Error::new(
+                    "Unexpected EOF.".to_string(),
+                    ErrorKind::SyntaxError,
+                    None
+                )),
         };
         self.mark_used();
         let right_bracket = match token.token_kind {
-            TokenKind::Bracket {bracket} => bracket,
-            _ => return Err(Error::new(
-                "Expected round right bracket.".to_string(),
-                ErrorKind::SyntaxError,
-                None
-            ))
+            TokenKind::Bracket { bracket } => bracket,
+            _ =>
+                return Err(Error::new(
+                    "Expected round right bracket.".to_string(),
+                    ErrorKind::SyntaxError,
+                    None
+                )),
         };
         if !left_bracket.cancels_out(right_bracket) {
             return Err(Error::new(
@@ -513,7 +475,6 @@ impl Parser {
         depth: usize,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<dyn ExprNode> {
-
         #[inline]
         fn up(
             operator: Operator,
@@ -533,17 +494,17 @@ impl Parser {
                 Some(o) => o,
                 None => {
                     *escaped_from_inner = true;
-                    return Ok(Some(lhs))
+                    return Ok(Some(lhs));
                 }
             };
             match possible_loperator.token_kind {
-                TokenKind::Operator {operator} => {
+                TokenKind::Operator { operator } => {
                     self.mark_used();
                     loperator = operator;
                 },
                 _ => {
                     *escaped_from_inner = true;
-                    return Ok(Some(lhs))
+                    return Ok(Some(lhs));
                 }
             }
         }
@@ -589,7 +550,7 @@ impl Parser {
                     None => return Ok(Some(lhs))
                 };
                 loperator = match loperator_token.token_kind {
-                    TokenKind::Operator {operator} => {
+                    TokenKind::Operator { operator } => {
                         self.mark_used();
                         operator
                     },
@@ -610,32 +571,28 @@ impl Parser {
                 *escaped_from_inner = true;
                 return Ok(Some(lhs));
             }
-            let mut rhs = match
-                self.parse_primary_expression(ltuplemut!(stream, tokenizer))?
-            {
+            let mut rhs = match self.parse_primary_expression(ltuplemut!(stream, tokenizer))? {
                 Some(rhs) => rhs,
-                None => return Err(Error::new(
-                    format!(
-                        "No right-hand side expression after {}",
-                        loperator
-                    ),
-                    ErrorKind::SyntaxError,
-                    None
-                ))
+                None =>
+                    return Err(Error::new(
+                        format!("No right-hand side expression after {}", loperator),
+                        ErrorKind::SyntaxError,
+                        None
+                    )),
             };
             self.grab_if_used(ltuplemut!(stream, tokenizer))?;
             let possible_roperator = match self.peek_current_token() {
                 Some(token) => token,
                 None => {
                     *escaped_from_inner = true;
-                    return up(loperator, lhs, rhs)
+                    return up(loperator, lhs, rhs);
                 }
             };
             roperator = match possible_roperator.token_kind {
-                TokenKind::Operator {operator} => operator,
+                TokenKind::Operator { operator } => operator,
                 _ => {
                     *escaped_from_inner = true;
-                    return up(loperator, lhs, rhs)
+                    return up(loperator, lhs, rhs);
                 }
             };
             self.mark_used();
@@ -645,8 +602,7 @@ impl Parser {
             //     depth,
             //     roperator
             // );
-            let rprecedence =
-                BinaryOperatorPrecedence::from_operator(roperator);
+            let rprecedence = BinaryOperatorPrecedence::from_operator(roperator);
             if lprecedence < rprecedence {
                 *escaped_from_inner = false;
                 rhs = ok_none!(self.parse_binary_operator_rhs_expression(
@@ -654,17 +610,13 @@ impl Parser {
                     roperator,
                     rprecedence,
                     escaped_from_inner,
-                    depth+1,
+                    depth + 1,
                     ltuplemut!(stream, tokenizer)
                 )?);
             }
             // Collect all expressions to the left-hand side.
             // For a right-hand language, rhs is replaced instead.
-            lhs = Box::new(BinaryOperatorNode::new(
-                Box::new(loperator),
-                lhs,
-                rhs
-            ));
+            lhs = Box::new(BinaryOperatorNode::new(Box::new(loperator), lhs, rhs));
             // println!("[{}]{} new lhs: {}\n", function_path!(), depth, lhs);
         }
     }
@@ -678,7 +630,7 @@ impl Parser {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let def_token = ok_none!(self.peek_current_token());
         match def_token.token_kind {
-            TokenKind::Keyword {keyword} => match keyword {
+            TokenKind::Keyword { keyword } => match keyword {
                 Keyword::Def => (),
                 _ => return Ok(None)
             },
@@ -690,28 +642,30 @@ impl Parser {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let function_identifier_token = match self.peek_current_token() {
             Some(t) => t,
-            None => return Err(Error::new(
-                format!(
-                    "Expected function prototype after 'def' at {}",
-                    def_token.start
-                ),
-                ErrorKind::SyntaxError,
-                None
-            ))
+            None =>
+                return Err(Error::new(
+                    format!(
+                        "Expected function prototype after 'def' at {}",
+                        def_token.start
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                )),
         };
         self.mark_used();
         let function_identifier = match function_identifier_token.token_kind {
             TokenKind::Identifier => Box::new(IdentifierNode::new(
                 function_identifier_token.borrow_span().to_string()
             )),
-            _ => return Err(Error::new(
-                format!(
-                    "Expected valid identifier (name) of function prototype at {}",
-                    function_identifier_token.start
-                ),
-                ErrorKind::SyntaxError,
-                None
-            ))
+            _ =>
+                return Err(Error::new(
+                    format!(
+                        "Expected valid identifier (name) of function prototype at {}",
+                        function_identifier_token.start
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                )),
         };
         // println!(
         //     "[{}] identifier name: {}\n",
@@ -722,29 +676,30 @@ impl Parser {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let lbracket_token = match self.peek_current_token() {
             Some(t) => t,
-            None => return Err(Error::new(
-                format!(
-                    "Expected parameter list after function name at {}",
-                    function_identifier_token.start
-                ),
-                ErrorKind::SyntaxError,
-                None
-            ))
+            None =>
+                return Err(Error::new(
+                    format!(
+                        "Expected parameter list after function name at {}",
+                        function_identifier_token.start
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                )),
         };
         self.mark_used();
         match lbracket_token.token_kind {
-            TokenKind::Bracket {bracket} if (
-                bracket.side.is_left() &&
-                matches!(bracket.kind, BracketKind::Round)
-            ) => (),
-            _ => return Err(Error::new(
-                format!(
-                    "Expected '(' to delimit the beginning of the parameter list at {}",
-                    function_identifier_token.start
-                ),
-                ErrorKind::SyntaxError,
-                None
-            ))
+            TokenKind::Bracket { bracket }
+                if (bracket.side.is_left() && matches!(bracket.kind, BracketKind::Round)) =>
+                (),
+            _ =>
+                return Err(Error::new(
+                    format!(
+                        "Expected '(' to delimit the beginning of the parameter list at {}",
+                        function_identifier_token.start
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                )),
         };
         // println!("[{}] left bracket found\n", function_path!());
 
@@ -770,51 +725,50 @@ impl Parser {
                 match possible_comma_token {
                     Some(comma_token) => match comma_token.token_kind {
                         TokenKind::Comma => (),
-                        TokenKind::Bracket {bracket} =>
+                        TokenKind::Bracket { bracket } =>
                             if LEFT_ROUND_BRACKET.cancels_out(bracket) {
                                 ended = true;
                             } else {
                                 return Err(Error::new(
                                     format!(
                                         "Expected a ')' instead of this {} at {}",
-                                        bracket,
-                                        comma_token.start
+                                        bracket, comma_token.start
                                     ),
                                     ErrorKind::SyntaxError,
                                     None
                                 ));
                             },
-                        _ => return Err(Error::new(
+                        _ =>
+                            return Err(Error::new(
+                                format!(
+                                    "Unexpected token after parameter name at {}",
+                                    comma_token.start
+                                ),
+                                ErrorKind::SyntaxError,
+                                None
+                            )),
+                    },
+                    None =>
+                        return Err(Error::new(
                             format!(
-                                "Unexpected token after parameter name at {}",
-                                comma_token.start
+                                "Unexpected EOF for function prototype at {}",
+                                function_identifier_token.start
                             ),
                             ErrorKind::SyntaxError,
                             None
-                        ))
-                    },
-                    None => return Err(Error::new(
-                        format!(
-                            "Unexpected EOF for function prototype at {}",
-                            function_identifier_token.start
-                        ),
-                        ErrorKind::SyntaxError,
-                        None
-                    ))
+                        )),
                 }
                 self.mark_used();
                 parameters.push(match parameter_token.token_kind {
                     TokenKind::Identifier => Box::new(IdentifierNode::new(
                         parameter_token.borrow_span().to_string()
                     )),
-                    _ => return Err(Error::new(
-                        format!(
-                            "Expected identifier at {}",
-                            parameter_token.start,
-                        ),
-                        ErrorKind::SyntaxError,
-                        None
-                    ))
+                    _ =>
+                        return Err(Error::new(
+                            format!("Expected identifier at {}", parameter_token.start,),
+                            ErrorKind::SyntaxError,
+                            None
+                        )),
                 });
 
                 if ended {
@@ -844,19 +798,18 @@ impl Parser {
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
     ) -> ParseResult<FunctionNode> {
-        let prototype = ok_none!(
-            self.parse_function_prototype(ltuplemut!(stream, tokenizer))?
-        );
+        let prototype = ok_none!(self.parse_function_prototype(ltuplemut!(stream, tokenizer))?);
         let body = match self.parse_expression(ltuplemut!(stream, tokenizer))? {
             Some(expression) => expression,
-            None => return Err(Error::new(
-                format!(
-                    "Expected function body for function prototype at {}",
-                    stream.get_index()
-                ),
-                ErrorKind::SyntaxError,
-                None
-            ))
+            None =>
+                return Err(Error::new(
+                    format!(
+                        "Expected function body for function prototype at {}",
+                        stream.get_index()
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                )),
         };
         Ok(Some(Box::new(FunctionNode::new(prototype, body))))
     }
@@ -870,8 +823,7 @@ impl Parser {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let extern_token = ok_none!(self.peek_current_token());
         match extern_token.token_kind {
-            TokenKind::Keyword {keyword}
-                if matches!(keyword, Keyword::Extern) => (),
+            TokenKind::Keyword { keyword } if matches!(keyword, Keyword::Extern) => (),
             _ => {
                 if self.current_token.uses > 0 {
                     self.current_token.uses -= 1;
@@ -882,18 +834,17 @@ impl Parser {
         self.mark_used();
         // println!("[{}] extern keyword found\n", function_path!());
 
-        let prototype = match
-            self.parse_function_prototype(ltuplemut!(stream, tokenizer))?
-        {
+        let prototype = match self.parse_function_prototype(ltuplemut!(stream, tokenizer))? {
             Some(p) => p,
-            None => return Err(Error::new(
-                format!(
-                    "No function prototype for extern keyword at {}",
-                    extern_token.start
-                ),
-                ErrorKind::SyntaxError,
-                None
-            ))
+            None =>
+                return Err(Error::new(
+                    format!(
+                        "No function prototype for extern keyword at {}",
+                        extern_token.start
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                )),
         };
         // println!("[{}] Parsed\n", function_path!());
         Ok(Some(Box::new(ExternFunctionNode::new(prototype))))

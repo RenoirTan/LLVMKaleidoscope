@@ -2,14 +2,12 @@
 
 
 use std::io::{Result, Write};
+
 use env_logger::fmt::Formatter;
 use log::Record;
 
 
-pub fn format_record(
-    formatter: &mut Formatter,
-    record: &Record<'_>
-) -> Result<()> {
+pub fn format_record(formatter: &mut Formatter, record: &Record<'_>) -> Result<()> {
     writeln!(
         formatter,
         "{} : {} : {} - {}",

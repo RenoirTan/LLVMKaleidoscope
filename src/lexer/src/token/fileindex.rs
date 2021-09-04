@@ -1,11 +1,12 @@
 //! A representation of the location of a character in a file. This can aid
 //! in identifying the source of a syntax error or which part of the code
 //! caused or encountered an error at compile time or runtime.
-//! 
+//!
 //! See [`FileIndex`] for more implementation details.
 
 use std::ops::{Add, AddAssign, Sub, SubAssign};
-use serde::{Serialize, Deserialize};
+
+use serde::{Deserialize, Serialize};
 
 /// Represents the location of a character
 /// (i.e. displayed glyphs, diacritics are counted as separate symbols)
@@ -27,8 +28,8 @@ use serde::{Serialize, Deserialize};
 #[allow(rustdoc::private_intra_doc_links)]
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct FileIndex {
-    line: Option<usize>,
-    column: usize,
+    line:   Option<usize>,
+    column: usize
 }
 
 impl FileIndex {
@@ -73,17 +74,17 @@ impl FileIndex {
     ///
     /// ```
     /// use kaleidoscope_lexer::token::FileIndex;
-    /// 
+    ///
     /// let fi_1 = FileIndex::new(None, 5); // 5 characters have passed
-    /// // OwO what's this? A new line?
-    /// // This newline sequence is 2 characters long.
+    ///                                     // OwO what's this? A new line?
+    ///                                     // This newline sequence is 2 characters long.
     /// let fi_2 = fi_1.newline("\r\n".chars().count());
     /// assert!(fi_2.get_column() == 7);
     /// ```
     pub fn newline(&self, newline_length: usize) -> Self {
         let (line, column) = match self.line {
             Some(l) => (Some(l + 1), 0),
-            None => (None, self.column + newline_length),
+            None => (None, self.column + newline_length)
         };
         Self { line, column }
     }
@@ -103,8 +104,8 @@ impl std::fmt::Display for FileIndex {
 impl Default for FileIndex {
     fn default() -> Self {
         Self {
-            line: None,
-            column: 0,
+            line:   None,
+            column: 0
         }
     }
 }
@@ -113,8 +114,8 @@ impl Add<usize> for FileIndex {
     type Output = Self;
     fn add(self, rhs: usize) -> Self::Output {
         Self {
-            line: self.get_line(),
-            column: self.get_column() + rhs,
+            line:   self.get_line(),
+            column: self.get_column() + rhs
         }
     }
 }
@@ -129,8 +130,8 @@ impl Sub<usize> for FileIndex {
     type Output = Self;
     fn sub(self, rhs: usize) -> Self::Output {
         Self {
-            line: self.get_line(),
-            column: self.get_column() - rhs,
+            line:   self.get_line(),
+            column: self.get_column() - rhs
         }
     }
 }

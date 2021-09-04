@@ -2,16 +2,14 @@
 //! stream and spit out tokens in a for loop.
 
 use std::iter::Iterator;
-use crate::{
-    error::Result,
-    token::Token
-};
-use super::{FileStream, Tokenizer, LexerTupleRef, LexerTupleMut};
+
+use super::{FileStream, LexerTupleMut, LexerTupleRef, Tokenizer};
+use crate::{error::Result, token::Token};
 
 /// A structure that takes a [`FileStream`] and reads the characters to produce
 /// one token for each iteration in a for loop.
 pub struct TokenIterator<'a> {
-    stream: FileStream<'a>,
+    stream:    FileStream<'a>,
     tokenizer: Tokenizer,
     eof_count: usize
 }
@@ -19,7 +17,11 @@ pub struct TokenIterator<'a> {
 impl<'a> TokenIterator<'a> {
     /// Create a new [`TokenIterator`].
     pub fn new(stream: FileStream<'a>, tokenizer: Tokenizer) -> Self {
-        Self {stream, tokenizer, eof_count: 0}
+        Self {
+            stream,
+            tokenizer,
+            eof_count: 0
+        }
     }
 
     /// Check if this iterator can produce more tokens.

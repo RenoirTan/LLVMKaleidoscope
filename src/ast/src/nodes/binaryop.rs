@@ -1,8 +1,9 @@
 //! A module defining a [`BinaryOperatorNode`].
 
 use std::fmt;
-use crate::prelude::*;
+
 use super::Operator;
+use crate::prelude::*;
 
 /// An AST representing an operator with 2 expressions by its side.
 /// For example, "1 + 2" is an expression with a binary operator, with
@@ -11,8 +12,8 @@ use super::Operator;
 #[derive(Debug)]
 pub struct BinaryOperatorNode {
     operator: Box<Operator>,
-    first: Box<dyn ExprNode>,
-    second: Box<dyn ExprNode>
+    first:    Box<dyn ExprNode>,
+    second:   Box<dyn ExprNode>
 }
 
 impl fmt::Display for BinaryOperatorNode {
@@ -28,7 +29,11 @@ impl BinaryOperatorNode {
         first: Box<dyn ExprNode>,
         second: Box<dyn ExprNode>
     ) -> Self {
-        Self {operator, first, second}
+        Self {
+            operator,
+            first,
+            second
+        }
     }
 
     /// Get the operator in the expression.
