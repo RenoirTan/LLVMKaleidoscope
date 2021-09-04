@@ -69,6 +69,20 @@ impl Token {
         self.token_kind.is_terminating()
     }
 
+    /// Check whether this token is allowed to occur at the end of an
+    /// expression.
+    pub fn denotes_end_of_expression(&self) -> bool {
+        match self.token_kind {
+            TokenKind::Eof
+            | TokenKind::Dot
+            | TokenKind::Comma
+            | TokenKind::Semicolon
+            | TokenKind::Operator {..} => true,
+            TokenKind::Bracket {bracket} => bracket.side.is_right(),
+            _ => false
+        }
+    }
+
     /// Check if the span in the token is empty or not.
     pub fn is_empty(&self) -> bool {
         self.span.is_empty()

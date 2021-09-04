@@ -303,7 +303,7 @@ impl Parser {
         }?;
         match self.peek_current_token() {
             Some(token) =>
-                if token.is_terminating() {
+                if token.denotes_end_of_expression() {
                     Ok(expression)
                 } else {
                     Err(Error::new(
