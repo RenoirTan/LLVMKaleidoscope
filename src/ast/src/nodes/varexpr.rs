@@ -1,8 +1,9 @@
 //! A module defining a [`VariableExpressionNode`].
 
 use std::fmt;
-use crate::prelude::*;
+
 use super::IdentifierNode;
+use crate::prelude::*;
 
 
 /// An expression where it's just one variable. This is essentially like
@@ -21,7 +22,7 @@ impl fmt::Display for VariableExpressionNode {
 impl VariableExpressionNode {
     /// Create a new [`VariableExpressionNode`] object.
     pub fn new(identifier: Box<IdentifierNode>) -> Self {
-        Self {identifier}
+        Self { identifier }
     }
 
     /// Get the identifier.

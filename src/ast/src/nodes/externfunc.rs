@@ -1,6 +1,7 @@
 use std::fmt;
-use crate::prelude::*;
+
 use super::FunctionPrototypeNode;
+use crate::prelude::*;
 
 
 #[derive(Debug, PartialEq, Eq)]
@@ -10,7 +11,7 @@ pub struct ExternFunctionNode {
 
 impl ExternFunctionNode {
     pub fn new(prototype: Box<FunctionPrototypeNode>) -> ExternFunctionNode {
-        ExternFunctionNode {prototype}
+        ExternFunctionNode { prototype }
     }
 
     pub fn get_prototype(&self) -> &FunctionPrototypeNode {

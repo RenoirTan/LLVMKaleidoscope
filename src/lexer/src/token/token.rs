@@ -1,20 +1,14 @@
 //! A token in a file or stream. This is the most basic unit in a file above
 //! a character and includes integers, floats, names and operators.
-//! 
+//!
 //! See [`Token`] for more comprehensive information.
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+
+use super::{Bracket, BracketKind, FileIndex, Keyword, Operator, TokenKind};
 use crate::{
     error::{Error, ErrorKind, Result},
     utils
-};
-use super::{
-    FileIndex,
-    TokenKind,
-    Keyword,
-    Operator,
-    Bracket,
-    BracketKind
 };
 
 /// A token in a Kaleidoscope file.
@@ -26,9 +20,9 @@ use super::{
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Token {
     pub token_kind: TokenKind,
-    pub span: String,
-    pub start: FileIndex,
-    pub end: FileIndex,
+    pub span:       String,
+    pub start:      FileIndex,
+    pub end:        FileIndex
 }
 
 use kaleidoscope_macro::impl_display;
@@ -36,17 +30,12 @@ impl_display!(Token);
 
 impl Token {
     /// Generate a new token from known values.
-    pub fn new(
-        token_kind: TokenKind,
-        span: String,
-        start: FileIndex,
-        end: FileIndex
-    ) -> Self {
+    pub fn new(token_kind: TokenKind, span: String, start: FileIndex, end: FileIndex) -> Self {
         Self {
             token_kind,
             span,
             start,
-            end,
+            end
         }
     }
 
@@ -54,9 +43,9 @@ impl Token {
     pub fn new_eof(index: FileIndex) -> Self {
         Self {
             token_kind: TokenKind::Eof,
-            span: String::new(),
-            start: index,
-            end: index,
+            span:       String::new(),
+            start:      index,
+            end:        index
         }
     }
 
@@ -65,7 +54,7 @@ impl Token {
     /// # Example
     ///
     /// ```
-    /// use kaleidoscope_lexer::token::{Token, FileIndex};
+    /// use kaleidoscope_lexer::token::{FileIndex, Token};
     ///
     /// assert!(Token::new_eof(FileIndex::new(None, 0)).is_eof());
     /// ```
@@ -87,7 +76,7 @@ impl Token {
 
     /// Add a character into the token.
     /// This method returns a boolean value if no error occurs.
-    /// 
+    ///
     /// If `true` is returned, this means that `unit` is a character that
     /// this token cannot accept, so this token is complete.
     /// If `false` is returned, it means that `unit` has been added to the
@@ -100,11 +89,7 @@ impl Token {
         }
     }
 
-    fn add_unit_when_empty(
-        &mut self,
-        unit: char,
-        index: FileIndex
-    ) -> Result<bool> {
+    fn add_unit_when_empty(&mut self, unit: char, index: FileIndex) -> Result<bool> {
         self.start = index;
         if utils::is_whitespace(unit) {
             return Ok(false);
@@ -116,10 +101,10 @@ impl Token {
             self.token_kind = TokenKind::Integer;
         } else if utils::is_opchar(unit) {
             let operator = Operator::from_string(self.borrow_span());
-            self.token_kind = TokenKind::Operator {operator};
+            self.token_kind = TokenKind::Operator { operator };
         } else if utils::is_bracket(unit) {
             let bracket = Bracket::from_string(self.borrow_span());
-            self.token_kind = TokenKind::Bracket {bracket};
+            self.token_kind = TokenKind::Bracket { bracket };
         } else if utils::is_comma(unit) {
             self.token_kind = TokenKind::Comma;
         } else if utils::is_dot(unit) {
@@ -136,11 +121,7 @@ impl Token {
         Ok(false)
     }
 
-    fn add_unit_when_not_empty(
-        &mut self,
-        unit: char,
-        index: FileIndex
-    ) -> Result<bool> {
+    fn add_unit_when_not_empty(&mut self, unit: char, index: FileIndex) -> Result<bool> {
         if utils::is_whitespace(unit) {
             return self.resolve(index);
         }
@@ -148,28 +129,18 @@ impl Token {
             TokenKind::Identifier => self.add_unit_if_identifier(unit, index),
             TokenKind::Integer => self.add_unit_if_integer(unit, index),
             TokenKind::Float => self.add_unit_if_float(unit, index),
-            TokenKind::Operator {..} => self.add_unit_if_operator(unit, index),
-            TokenKind::Bracket {..} => self.add_unit_if_bracket(unit, index),
-            TokenKind::Comma
-            | TokenKind::Dot
-            | TokenKind::Semicolon => Ok(true),
+            TokenKind::Operator { .. } => self.add_unit_if_operator(unit, index),
+            TokenKind::Bracket { .. } => self.add_unit_if_bracket(unit, index),
+            TokenKind::Comma | TokenKind::Dot | TokenKind::Semicolon => Ok(true),
             _ => Err(Error::new(
-                format!(
-                    "Uncaught TokenKind {} at {}",
-                    self.token_kind,
-                    index
-                ),
+                format!("Uncaught TokenKind {} at {}", self.token_kind, index),
                 ErrorKind::LexerFatal,
                 None
             ))
         }
     }
 
-    fn add_unit_if_identifier(
-        &mut self,
-        unit: char,
-        index: FileIndex
-    ) -> Result<bool> {
+    fn add_unit_if_identifier(&mut self, unit: char, index: FileIndex) -> Result<bool> {
         if utils::is_identifier(unit) {
             self.span.push(unit);
             Ok(false)
@@ -178,11 +149,7 @@ impl Token {
         }
     }
 
-    fn add_unit_if_integer(
-        &mut self,
-        unit: char,
-        _index: FileIndex
-    ) -> Result<bool> {
+    fn add_unit_if_integer(&mut self, unit: char, _index: FileIndex) -> Result<bool> {
         if utils::is_decimal_digit(unit) {
             self.span.push(unit);
             Ok(false)
@@ -195,11 +162,7 @@ impl Token {
         }
     }
 
-    fn add_unit_if_float(
-        &mut self,
-        unit: char,
-        _index: FileIndex
-    ) -> Result<bool> {
+    fn add_unit_if_float(&mut self, unit: char, _index: FileIndex) -> Result<bool> {
         if utils::is_decimal_digit(unit) {
             self.span.push(unit);
             Ok(false)
@@ -208,11 +171,7 @@ impl Token {
         }
     }
 
-    fn add_unit_if_operator(
-        &mut self,
-        unit: char,
-        _index: FileIndex
-    ) -> Result<bool> {
+    fn add_unit_if_operator(&mut self, unit: char, _index: FileIndex) -> Result<bool> {
         if utils::is_opchar(unit) {
             self.span.push(unit);
             Ok(false)
@@ -221,18 +180,14 @@ impl Token {
         }
     }
 
-    fn add_unit_if_bracket(
-        &mut self,
-        _unit: char,
-        _index: FileIndex
-    ) -> Result<bool> {
+    fn add_unit_if_bracket(&mut self, _unit: char, _index: FileIndex) -> Result<bool> {
         // All brackets are currently only length 1
         Ok(true)
     }
 
     fn resolve_identifier(&mut self, _index: FileIndex) -> Result<bool> {
         if let Some(keyword) = Keyword::from_string(self.borrow_span()) {
-            self.token_kind = TokenKind::Keyword {keyword};
+            self.token_kind = TokenKind::Keyword { keyword };
         }
         Ok(true)
     }
@@ -240,25 +195,20 @@ impl Token {
     fn resolve_float(&mut self, index: FileIndex) -> Result<bool> {
         match self.span.as_bytes().last() {
             None => Err(Error::new(
-                format!(
-                    "Lexer detected a float in an empty span at index {}",
-                    index
-                ),
+                format!("Lexer detected a float in an empty span at index {}", index),
                 ErrorKind::LexerFatal,
                 None
             )),
-            Some(unit) => if *unit == '.' as u8 {
-                Err(Error::new(
-                    format!(
-                        "Float cannot end with floating point at index {}",
-                        index
-                    ),
-                    ErrorKind::BadChar,
-                    None
-                ))
-            } else {
-                Ok(true)
-            }
+            Some(unit) =>
+                if *unit == '.' as u8 {
+                    Err(Error::new(
+                        format!("Float cannot end with floating point at index {}", index),
+                        ErrorKind::BadChar,
+                        None
+                    ))
+                } else {
+                    Ok(true)
+                },
         }
     }
 
@@ -274,7 +224,7 @@ impl Token {
                 None
             )),
             operator => {
-                self.token_kind = TokenKind::Operator {operator};
+                self.token_kind = TokenKind::Operator { operator };
                 Ok(true)
             }
         }
@@ -293,7 +243,7 @@ impl Token {
                 None
             )),
             _ => {
-                self.token_kind = TokenKind::Bracket {bracket};
+                self.token_kind = TokenKind::Bracket { bracket };
                 Ok(true)
             }
         }
@@ -307,16 +257,15 @@ impl Token {
             TokenKind::Unknown => Err(Error::new(
                 format!(
                     "Could not guess TokenKind from span '{}' at index {}",
-                    self.span,
-                    index
+                    self.span, index
                 ),
                 ErrorKind::InvalidToken,
                 None
             )),
             TokenKind::Identifier => self.resolve_identifier(index),
             TokenKind::Float => self.resolve_float(index),
-            TokenKind::Operator {..} => self.resolve_operator(index),
-            TokenKind::Bracket {..} => self.resolve_bracket(index),
+            TokenKind::Operator { .. } => self.resolve_operator(index),
+            TokenKind::Bracket { .. } => self.resolve_bracket(index),
             _ => Ok(true)
         }
     }
@@ -331,9 +280,9 @@ impl Default for Token {
     fn default() -> Self {
         Self {
             token_kind: TokenKind::Unknown,
-            span: String::new(),
-            start: Default::default(),
-            end: Default::default(),
+            span:       String::new(),
+            start:      Default::default(),
+            end:        Default::default()
         }
     }
 }

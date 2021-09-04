@@ -9,7 +9,12 @@ mod operator;
 mod token;
 mod tokenkind;
 
-pub use bracket::{BracketKind, BracketSide, Bracket, brackets::{self, *}};
+pub use bracket::{
+    brackets::{self, *},
+    Bracket,
+    BracketKind,
+    BracketSide
+};
 pub use fileindex::FileIndex;
 pub use keyword::Keyword;
 pub use operator::Operator;

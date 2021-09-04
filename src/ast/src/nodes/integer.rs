@@ -1,7 +1,9 @@
 //! A module defining a node representing an integer.
 
 use std::{fmt, str::FromStr};
+
 use kaleidoscope_lexer::token::{Token, TokenKind};
+
 use crate::prelude::*;
 
 /// The internal representation of an integer,
@@ -17,7 +19,7 @@ pub struct IntegerNode {
 impl IntegerNode {
     /// Create a new [`IntegerNode`] object.
     pub fn new(value: IntegerType) -> Self {
-        Self {value}
+        Self { value }
     }
 
     /// Get the value of this node as the raw value.
@@ -38,12 +40,9 @@ impl FromToken for IntegerNode {
             let span = token.borrow_span();
             let value: IntegerType = match FromStr::from_str(span) {
                 Ok(v) => v,
-                Err(e) => return Err(Error::from_err(
-                    Box::new(e),
-                    ErrorKind::TypeCasting
-                ))
+                Err(e) => return Err(Error::from_err(Box::new(e), ErrorKind::TypeCasting))
             };
-            Ok(Self {value})
+            Ok(Self { value })
         } else {
             Err(Error::new(
                 format!("Wrong token type passed..."),

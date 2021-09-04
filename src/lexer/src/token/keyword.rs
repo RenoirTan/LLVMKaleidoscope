@@ -1,11 +1,12 @@
 //! A enum representing a keyword. A key reason why I chose to define a special
 //! enum because manually checking if the span in a token is what I was
 //! looking for matches a keyword.
-//! 
+//!
 //! See [`Keyword`].
 
 use std::fmt;
-use serde::{Serialize, Deserialize};
+
+use serde::{Deserialize, Serialize};
 
 /// An enumerator of possible keywords that can be encountered in Kaleidoscope.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -19,28 +20,25 @@ pub enum Keyword {
     /// `else` keyword. Control flow.
     Else,
     /// `then` keyword. Control flow.
-    Then,
+    Then
 }
 
 impl Keyword {
     /// Convert a string to a variant of the [`Keyword`] enum.
-    /// 
+    ///
     /// If the string is not a valid keyword, [`None`] is returned.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use kaleidoscope_lexer::token::Keyword;
-    /// 
+    ///
     /// assert!(matches!(
     ///     Keyword::from_string("extern"),
     ///     Some(Keyword::Extern)
     /// ));
-    /// 
-    /// assert!(matches!(
-    ///     Keyword::from_string("not a keyword"),
-    ///     None
-    /// ));
+    ///
+    /// assert!(matches!(Keyword::from_string("not a keyword"), None));
     /// ```
     pub fn from_string(string: &str) -> Option<Self> {
         Some(match string {

@@ -2,11 +2,13 @@
 //! a Kaleidoscope programme into a JSON file.
 
 use std::cell::RefCell;
-use serde::{Serialize, Serializer, ser::SerializeSeq};
-use super::{TokenIterator};
+
+use serde::{ser::SerializeSeq, Serialize, Serializer};
+
+use super::TokenIterator;
 
 /// Serialises a [`TokenIterator`] into a list of tokens.
-/// 
+///
 /// Can be used to store tokens into a different format for later use.
 pub struct LexerSerializer<'a> {
     token_iter: RefCell<TokenIterator<'a>>
@@ -15,7 +17,9 @@ pub struct LexerSerializer<'a> {
 impl<'a> LexerSerializer<'a> {
     /// Create a new tokeniser serialiser.
     pub fn new(token_iter: TokenIterator<'a>) -> Self {
-        Self {token_iter: RefCell::new(token_iter)}
+        Self {
+            token_iter: RefCell::new(token_iter)
+        }
     }
 }
 

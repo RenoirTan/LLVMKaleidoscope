@@ -1,9 +1,11 @@
 //! A module that defines a node representing a function call.
 
 use std::fmt;
+
 use kaleidoscope_macro::iterator_to_str;
-use crate::prelude::*;
+
 use super::IdentifierNode;
+use crate::prelude::*;
 
 /// A node representing a function call.
 /// This struct stores the name of the function
@@ -11,7 +13,7 @@ use super::IdentifierNode;
 #[derive(Debug)]
 pub struct FunctionCallNode {
     identifier: Box<IdentifierNode>,
-    arguments: Vec<Box<dyn ExprNode>>
+    arguments:  Vec<Box<dyn ExprNode>>
 }
 
 impl fmt::Display for FunctionCallNode {
@@ -23,11 +25,11 @@ impl fmt::Display for FunctionCallNode {
 
 impl FunctionCallNode {
     /// Create a new instance of a [`FunctionCallNode`].
-    pub fn new(
-        identifier: Box<IdentifierNode>,
-        arguments: Vec<Box<dyn ExprNode>>
-    ) -> Self {
-        Self {identifier, arguments}
+    pub fn new(identifier: Box<IdentifierNode>, arguments: Vec<Box<dyn ExprNode>>) -> Self {
+        Self {
+            identifier,
+            arguments
+        }
     }
 
     /// Get the name of the function.
@@ -43,14 +45,8 @@ impl FunctionCallNode {
 
 impl Clone for FunctionCallNode {
     fn clone(&self) -> Self {
-        let arguments = self.arguments
-            .iter()
-            .map(|a| a.expr_node_clone())
-            .collect();
-        Self::new(
-            self.identifier.clone(),
-            arguments
-        )
+        let arguments = self.arguments.iter().map(|a| a.expr_node_clone()).collect();
+        Self::new(self.identifier.clone(), arguments)
     }
 }
 

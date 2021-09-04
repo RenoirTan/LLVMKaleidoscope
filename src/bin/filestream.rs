@@ -1,9 +1,10 @@
 use std::{
     convert::TryFrom,
     env,
-    io::{Write, stdout},
+    io::{stdout, Write},
     path::PathBuf
 };
+
 use kaleidoscope_lexer::tokenizer::FileStream;
 
 fn main() {

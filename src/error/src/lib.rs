@@ -2,13 +2,13 @@
 
 use std::{
     error,
-    fmt::{Debug, Display, self}
+    fmt::{self, Debug, Display}
 };
 
 /// The traits every ErrorKind enum must satisfy.
 /// If your enum implements all of the following traits,
 /// then [`ErrorKind`] gets automatically implemented.
-/// 
+///
 /// 1. [`Clone`],
 /// 2. [`Debug`],
 /// 3. [`Display`],
@@ -26,17 +26,13 @@ impl<T: Clone + Debug + Display + Eq> ErrorKind for T {}
 #[derive(Debug)]
 pub struct Error<EK: ErrorKind> {
     description: String,
-    errorkind: EK,
-    source: Option<Box<dyn error::Error + 'static>>
+    errorkind:   EK,
+    source:      Option<Box<dyn error::Error + 'static>>
 }
 
 impl<EK: ErrorKind> Error<EK> {
     /// A new error.
-    pub fn new(
-        description: String,
-        errorkind: EK,
-        source: Option<Box<dyn error::Error>>
-    ) -> Self {
+    pub fn new(description: String, errorkind: EK, source: Option<Box<dyn error::Error>>) -> Self {
         Self {
             description,
             errorkind,
@@ -62,18 +58,21 @@ impl<EK: ErrorKind> Error<EK> {
     ///
     /// ```
     /// use std::io::{stdout, Write};
+    ///
     /// use kaleidoscope_error::Error;
     /// use kaleidoscope_macro::impl_display;
-    /// 
+    ///
     /// #[derive(Copy, Clone, Debug, Eq, PartialEq)]
     /// enum ErrorKind {
     ///     FlushingError,
-    ///     Other   
+    ///     Other
     /// }
     /// impl_display!(ErrorKind);
     ///
     /// print!("No new line after this");
-    /// let _ = stdout().flush().map_err(Error::factory(ErrorKind::FlushingError));
+    /// let _ = stdout()
+    ///     .flush()
+    ///     .map_err(Error::factory(ErrorKind::FlushingError));
     /// ```
     pub fn factory<E>(error_kind: EK) -> impl Fn(E) -> Self
     where
@@ -84,9 +83,7 @@ impl<EK: ErrorKind> Error<EK> {
 
     /// Convert a source error wrapped in a [`Box`] to an error of type
     /// `Error<EK>`. See [`Error::factory`] for implementation details.
-    pub fn boxed_factory(
-        error_kind: EK
-    ) -> impl Fn(Box<dyn error::Error + 'static>) -> Self {
+    pub fn boxed_factory(error_kind: EK) -> impl Fn(Box<dyn error::Error + 'static>) -> Self {
         move |e| Self::from_err(e, error_kind.clone())
     }
 }

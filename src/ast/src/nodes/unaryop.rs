@@ -1,13 +1,14 @@
 //! A module defining a [`UnaryOperatorNode`].
 
 use std::fmt;
-use crate::prelude::*;
+
 use super::Operator;
+use crate::prelude::*;
 
 /// An AST representing an operator which takes 1 argument.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ```text
 /// !true // Boolean Not: false
 /// ~50 // Bitwise Not: 205 (8-bit unsigned integer)
@@ -15,13 +16,13 @@ use super::Operator;
 #[derive(Debug)]
 pub struct UnaryOperatorNode {
     operator: Box<Operator>,
-    first: Box<dyn ExprNode>
+    first:    Box<dyn ExprNode>
 }
 
 impl UnaryOperatorNode {
     /// Create a new [`UnaryOperatorNode`] object.
     pub fn new(operator: Box<Operator>, first: Box<dyn ExprNode>) -> Self {
-        Self {operator, first}
+        Self { operator, first }
     }
 
     /// Get the operator in the expression.
@@ -43,10 +44,7 @@ impl fmt::Display for UnaryOperatorNode {
 
 impl Clone for UnaryOperatorNode {
     fn clone(&self) -> Self {
-        Self::new(
-            self.operator.clone(),
-            self.first.expr_node_clone()
-        )
+        Self::new(self.operator.clone(), self.first.expr_node_clone())
     }
 }
 

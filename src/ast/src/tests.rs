@@ -1,7 +1,4 @@
-use crate::{
-    prelude::*,
-    nodes::*
-};
+use crate::{nodes::*, prelude::*};
 
 
 macro_rules! node_types_to_id {
@@ -34,7 +31,7 @@ fn test_ensure_all_nodes_have_unique_ids() {
         VariableExpressionNode
     ];
     for (lindex, lhs) in nodes.iter().enumerate() {
-        for rhs in &nodes[lindex+1..] {
+        for rhs in &nodes[lindex + 1..] {
             if lhs == rhs {
                 panic!("Similar node ids! {}", lhs);
             }
@@ -53,12 +50,10 @@ fn test_upcast_expr_node() {
 
 #[test]
 fn test_reify_node() {
-    let unknown: Box<dyn Node> = Box::new(
-        IdentifierNode::new(String::from("name"))
-    );
+    let unknown: Box<dyn Node> = Box::new(IdentifierNode::new(String::from("name")));
     let concrete: Box<IdentifierNode> = reify_node(unknown).unwrap();
     assert_eq!(concrete.get_identifier(), "name");
-    
+
     let unknown: Box<dyn Node> = Box::new(Operator::Plus);
     assert!(reify_node::<IdentifierNode>(unknown).is_none());
 }

@@ -8,7 +8,7 @@ use kaleidoscope_macro::impl_display;
 pub enum ErrorKind {
     WrongTokenKind,
     TypeCasting,
-    Other,
+    Other
 }
 
 impl_display!(ErrorKind);

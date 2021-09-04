@@ -1,13 +1,11 @@
 //! A sub-crate for handling the logging needs of this crate.
 
 
-use std::{
-    convert::AsRef,
-    fs::OpenOptions,
-    path::Path
-};
-use log::LevelFilter;
+use std::{convert::AsRef, fs::OpenOptions, path::Path};
+
 use env_logger::Target;
+use log::LevelFilter;
+
 use crate::{
     error::{Error, ErrorKind, Result},
     helpers::format_record
