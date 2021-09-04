@@ -77,8 +77,8 @@ impl Token {
             | TokenKind::Dot
             | TokenKind::Comma
             | TokenKind::Semicolon
-            | TokenKind::Operator {..} => true,
-            TokenKind::Bracket {bracket} => bracket.side.is_right(),
+            | TokenKind::Operator { .. } => true,
+            TokenKind::Bracket { bracket } => bracket.side.is_right(),
             _ => false
         }
     }
