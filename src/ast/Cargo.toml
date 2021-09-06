@@ -12,6 +12,11 @@ LLVMKaleidoscope-Error = {path = "../error"}
 LLVMKaleidoscope-Lexer = {path = "../lexer"}
 LLVMKaleidoscope-Macro = {path = "../macro"}
 
+[dependencies.inkwell]
+git = "https://github.com/TheDan64/inkwell"
+branch = "master"
+features = ["llvm12-0"]
+
 [lib]
 name = "kaleidoscope_ast"
 test = true

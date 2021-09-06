@@ -16,6 +16,11 @@ LLVMKaleidoscope-Logging = {path = "../logging"}
 LLVMKaleidoscope-Macro = {path = "../macro"}
 LLVMKaleidoscope-Parser = {path = "../parser"}
 
+[dependencies.inkwell]
+git = "https://github.com/TheDan64/inkwell"
+branch = "master"
+features = ["llvm12-0"]
+
 [lib]
 name = "kaleidoscope_codegen"
 test = true
