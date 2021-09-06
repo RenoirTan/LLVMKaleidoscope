@@ -14,6 +14,7 @@ help: ascii_art
 	@echo " - rbuild: Build library with the release profile."
 	@echo " - doc: Generate the documentation for this library."
 	@echo " - test: Run unit tests and doctests."
+	@echo " - fmt: Format code to follow the configuration in /rustfmt.toml"
 	@echo " - dfull: Build library with debug profile, generate docs and test."
 	@echo " - rfull: Build library with release profile, generate docs and test."
 	@echo " - all: Build library in debug and release mode, as well as the documentation and running tests."
