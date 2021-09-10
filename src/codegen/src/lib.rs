@@ -2,6 +2,7 @@
 //! A separate crate is necessary to allow for code reuse.
 
 pub mod codegen;
+pub mod error;
 pub mod int;
 pub mod traits;
 

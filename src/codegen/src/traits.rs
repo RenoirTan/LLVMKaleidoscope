@@ -1,9 +1,12 @@
-use inkwell::values::AnyValue;
+use inkwell::values::BasicValue;
 
-use crate::codegen::CodeGen;
+use crate::{codegen::CodeGen, error::Result};
 
 /// A node that implements this trait can be converted into LLVM IR.
 pub trait IRRepresentable {
     /// Create the LLVM IR for this node.
-    fn generate_representation<'ctx>(&self, code_gen: &CodeGen<'ctx>) -> Box<dyn AnyValue<'ctx>>;
+    fn generate_representation<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> Result<Box<dyn BasicValue<'ctx> + 'ctx>>;
 }

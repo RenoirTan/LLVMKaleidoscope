@@ -2,6 +2,8 @@
 
 use std::{fmt, str::FromStr};
 
+use inkwell::values::BasicValue;
+use kaleidoscope_codegen::{error::Result as CodegenResult, CodeGen, IRRepresentable};
 use kaleidoscope_lexer::token::{Token, TokenKind};
 
 use crate::prelude::*;
@@ -50,6 +52,15 @@ impl FromToken for IntegerNode {
                 None
             ))
         }
+    }
+}
+
+impl IRRepresentable for IntegerNode {
+    fn generate_representation<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> CodegenResult<Box<dyn BasicValue<'ctx> + 'ctx>> {
+        Ok(Box::new(code_gen.make_i128(self.get_value())))
     }
 }
 

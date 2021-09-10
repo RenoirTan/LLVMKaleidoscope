@@ -2,6 +2,9 @@
 
 use std::fmt;
 
+use inkwell::values::BasicValue;
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentable};
+
 use super::Operator;
 use crate::prelude::*;
 
@@ -55,6 +58,19 @@ impl Node for UnaryOperatorNode {
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl IRRepresentable for UnaryOperatorNode {
+    fn generate_representation<'ctx>(
+        &self,
+        _code_gen: &CodeGen<'ctx>
+    ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
+        Err(cgerror::Error::new(
+            format!("Unknown unary operator: {}", self.get_operator()),
+            cgerror::ErrorKind::UnknownOperationError,
+            None
+        ))
     }
 }
 

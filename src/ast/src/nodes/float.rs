@@ -1,5 +1,8 @@
 use std::fmt;
 
+use inkwell::values::BasicValue;
+use kaleidoscope_codegen::{error::Result as CodegenResult, CodeGen, IRRepresentable};
+
 use crate::prelude::*;
 
 pub type FloatType = f64;
@@ -24,6 +27,15 @@ impl Eq for FloatNode {}
 impl fmt::Display for FloatNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({})", self.value)
+    }
+}
+
+impl IRRepresentable for FloatNode {
+    fn generate_representation<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> CodegenResult<Box<dyn BasicValue<'ctx> + 'ctx>> {
+        Ok(Box::new(code_gen.make_f64(self.get_value())))
     }
 }
 

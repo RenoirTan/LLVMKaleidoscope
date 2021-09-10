@@ -2,6 +2,9 @@
 
 use std::fmt;
 
+use either::Either;
+use inkwell::values::{BasicValue, BasicValueEnum};
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentable};
 use kaleidoscope_macro::iterator_to_str;
 
 use super::IdentifierNode;
@@ -47,6 +50,43 @@ impl Clone for FunctionCallNode {
     fn clone(&self) -> Self {
         let arguments = self.arguments.iter().map(|a| a.expr_node_clone()).collect();
         Self::new(self.identifier.clone(), arguments)
+    }
+}
+
+impl IRRepresentable for FunctionCallNode {
+    fn generate_representation<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
+        let name = self.get_identifier().get_identifier();
+        let function = match code_gen.get_module().get_function(name) {
+            Some(function) => function,
+            None =>
+                return Err(cgerror::Error::new(
+                    format!("Could not find function with name '{}'", name),
+                    cgerror::ErrorKind::UndefinedNameError,
+                    None
+                )),
+        };
+        let mut args: Vec<BasicValueEnum> = Vec::with_capacity(self.get_arguments().len());
+        for arg in self.get_arguments() {
+            args.push(arg.generate_representation(code_gen)?.as_basic_value_enum());
+        }
+        Ok(Box::new(
+            match code_gen
+                .get_builder()
+                .build_call(function, &*args, "call_tmp")
+                .try_as_basic_value()
+            {
+                Either::Left(basic) => basic,
+                Either::Right(_instruction) =>
+                    return Err(cgerror::Error::new(
+                        format!("Function converted to instruction value"),
+                        cgerror::ErrorKind::NotBasicValueError,
+                        None
+                    )),
+            }
+        ))
     }
 }
 
