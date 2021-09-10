@@ -9,12 +9,9 @@ publish = false
 
 [dependencies]
 log = "~0.4"
-LLVMKaleidoscope-Ast = {path = "../ast"}
 LLVMKaleidoscope-Error = {path = "../error"}
-LLVMKaleidoscope-Lexer = {path = "../lexer"}
 LLVMKaleidoscope-Logging = {path = "../logging"}
 LLVMKaleidoscope-Macro = {path = "../macro"}
-LLVMKaleidoscope-Parser = {path = "../parser"}
 
 [dependencies.inkwell]
 git = "https://github.com/TheDan64/inkwell"
