@@ -674,7 +674,7 @@ impl Parser {
         // );
 
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-        let lbracket_token = match self.peek_current_token() {
+        let lbracket_token = match self.get_current_token() {
             Some(t) => t,
             None =>
                 return Err(Error::new(
@@ -686,7 +686,6 @@ impl Parser {
                     None
                 )),
         };
-        self.mark_used();
         match lbracket_token.token_kind {
             TokenKind::Bracket { bracket }
                 if (bracket.side.is_left() && matches!(bracket.kind, BracketKind::Round)) =>
@@ -704,75 +703,65 @@ impl Parser {
         // println!("[{}] left bracket found\n", function_path!());
 
         let mut parameters: Vec<Box<IdentifierNode>> = Vec::new();
-        let mut ended = false;
 
         loop {
             self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-            if let Some(parameter_token) = self.peek_current_token() {
-                // println!(
-                //     "[{}] parameter_token: {:?}\n",
-                //     function_path!(),
-                //     parameter_token
-                // );
-                self.mark_used();
-                self.grab_if_used(ltuplemut!(stream, tokenizer))?;
-                let possible_comma_token = self.peek_current_token();
-                // println!(
-                //     "[{}] possible_comma_token: {:?}\n",
-                //     function_path!(),
-                //     possible_comma_token
-                // );
-                match possible_comma_token {
-                    Some(comma_token) => match comma_token.token_kind {
-                        TokenKind::Comma => (),
-                        TokenKind::Bracket { bracket } =>
-                            if LEFT_ROUND_BRACKET.cancels_out(bracket) {
-                                ended = true;
-                            } else {
-                                return Err(Error::new(
-                                    format!(
-                                        "Expected a ')' instead of this {} at {}",
-                                        bracket, comma_token.start
-                                    ),
-                                    ErrorKind::SyntaxError,
-                                    None
-                                ));
-                            },
-                        _ =>
-                            return Err(Error::new(
-                                format!(
-                                    "Unexpected token after parameter name at {}",
-                                    comma_token.start
-                                ),
-                                ErrorKind::SyntaxError,
-                                None
-                            )),
+            if let Some(token_1) = self.get_current_token() {
+                match token_1.token_kind {
+                    TokenKind::Bracket { bracket } => if LEFT_ROUND_BRACKET.cancels_out(bracket) {
+                        break;
+                    } else {
+                        return Err(Error::new(
+                            format!("Unexpected bracket '{}' at {}", bracket, stream.get_index()),
+                            ErrorKind::SyntaxError,
+                            None
+                        ));
                     },
-                    None =>
+                    TokenKind::Identifier => {
+                        parameters.push(Box::new(IdentifierNode::new(token_1.borrow_span().to_string())));
+                    },
+                    t => {
                         return Err(Error::new(
-                            format!(
-                                "Unexpected EOF for function prototype at {}",
-                                function_identifier_token.start
-                            ),
+                            format!("Unexpected token '{}' at {}", t, stream.get_index()),
                             ErrorKind::SyntaxError,
                             None
-                        )),
+                        ));
+                    }
                 }
-                self.mark_used();
-                parameters.push(match parameter_token.token_kind {
-                    TokenKind::Identifier => Box::new(IdentifierNode::new(
-                        parameter_token.borrow_span().to_string()
-                    )),
-                    _ =>
+                self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+                let token_2 = match self.get_current_token() {
+                    Some(t) => t,
+                    None => return Err(Error::new(
+                        format!("Unexpected EOF for function prototype at {}", stream.get_index()),
+                        ErrorKind::SyntaxError,
+                        None
+                    ))
+                };
+                match token_2.token_kind {
+                    TokenKind::Comma => (),
+                    TokenKind::Bracket { bracket } => if LEFT_ROUND_BRACKET.cancels_out(bracket) {
+                        break;
+                    } else {
                         return Err(Error::new(
-                            format!("Expected identifier at {}", parameter_token.start,),
+                            format!("Unexpected bracket '{}' at {}", bracket, stream.get_index()),
                             ErrorKind::SyntaxError,
                             None
-                        )),
-                });
-
-                if ended {
-                    break;
+                        ));
+                    },
+                    TokenKind::Identifier => {
+                        return Err(Error::new(
+                            format!("Identifier '{}' not separated by comma at {}", token_2, stream.get_index()),
+                            ErrorKind::SyntaxError,
+                            None
+                        ));
+                    }
+                    t => {
+                        return Err(Error::new(
+                            format!("Unexpected token '{}' at {}", t, stream.get_index()),
+                            ErrorKind::SyntaxError,
+                            None
+                        ));
+                    }
                 }
             } else {
                 return Err(Error::new(
