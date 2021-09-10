@@ -3,7 +3,7 @@
 use std::fmt;
 
 use inkwell::values::{BasicValue, BasicValueEnum};
-use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentable};
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableExpression};
 
 use super::Operator;
 use crate::prelude::*;
@@ -65,7 +65,7 @@ impl Clone for BinaryOperatorNode {
     }
 }
 
-impl IRRepresentable for BinaryOperatorNode {
+impl IRRepresentableExpression for BinaryOperatorNode {
     fn generate_representation<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>

@@ -4,7 +4,7 @@ use std::fmt;
 
 use either::Either;
 use inkwell::values::{BasicValue, BasicValueEnum};
-use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentable};
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableExpression};
 use kaleidoscope_macro::iterator_to_str;
 
 use super::IdentifierNode;
@@ -53,7 +53,7 @@ impl Clone for FunctionCallNode {
     }
 }
 
-impl IRRepresentable for FunctionCallNode {
+impl IRRepresentableExpression for FunctionCallNode {
     fn generate_representation<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>

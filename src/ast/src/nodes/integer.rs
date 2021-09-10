@@ -3,7 +3,7 @@
 use std::{fmt, str::FromStr};
 
 use inkwell::values::BasicValue;
-use kaleidoscope_codegen::{error::Result as CodegenResult, CodeGen, IRRepresentable};
+use kaleidoscope_codegen::{error::Result as CodegenResult, CodeGen, IRRepresentableExpression};
 use kaleidoscope_lexer::token::{Token, TokenKind};
 
 use crate::prelude::*;
@@ -55,7 +55,7 @@ impl FromToken for IntegerNode {
     }
 }
 
-impl IRRepresentable for IntegerNode {
+impl IRRepresentableExpression for IntegerNode {
     fn generate_representation<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>

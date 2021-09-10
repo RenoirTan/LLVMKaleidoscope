@@ -6,4 +6,4 @@ pub mod error;
 pub mod int;
 pub mod traits;
 
-pub use crate::{codegen::CodeGen, traits::IRRepresentable};
+pub use crate::{codegen::CodeGen, traits::IRRepresentableExpression};

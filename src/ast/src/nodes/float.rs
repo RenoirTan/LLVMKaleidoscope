@@ -1,7 +1,7 @@
 use std::fmt;
 
 use inkwell::values::BasicValue;
-use kaleidoscope_codegen::{error::Result as CodegenResult, CodeGen, IRRepresentable};
+use kaleidoscope_codegen::{error::Result as CodegenResult, CodeGen, IRRepresentableExpression};
 
 use crate::prelude::*;
 
@@ -30,7 +30,7 @@ impl fmt::Display for FloatNode {
     }
 }
 
-impl IRRepresentable for FloatNode {
+impl IRRepresentableExpression for FloatNode {
     fn generate_representation<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>

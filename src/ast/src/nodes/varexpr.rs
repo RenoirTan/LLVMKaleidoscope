@@ -3,7 +3,7 @@
 use std::fmt;
 
 use inkwell::values::BasicValue;
-use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentable};
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableExpression};
 
 use super::IdentifierNode;
 use crate::prelude::*;
@@ -44,7 +44,7 @@ impl Node for VariableExpressionNode {
     }
 }
 
-impl IRRepresentable for VariableExpressionNode {
+impl IRRepresentableExpression for VariableExpressionNode {
     fn generate_representation<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>

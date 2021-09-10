@@ -6,7 +6,7 @@ use std::{
     fmt::{Debug, Display}
 };
 
-use kaleidoscope_codegen::IRRepresentable;
+use kaleidoscope_codegen::IRRepresentableExpression;
 use kaleidoscope_lexer::token::Token;
 
 use super::NodeId;
@@ -42,7 +42,7 @@ pub trait NodeType: Sized + 'static {
 }
 
 /// A node representing an expression.
-pub trait ExprNode: Node + IRRepresentable {
+pub trait ExprNode: Node + IRRepresentableExpression {
     fn expr_node_clone(&self) -> Box<dyn ExprNode>;
 }
 

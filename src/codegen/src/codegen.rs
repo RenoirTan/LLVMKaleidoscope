@@ -7,7 +7,7 @@ use inkwell::{
     values::{BasicValue, FloatValue, IntValue}
 };
 
-use crate::{error::Result, int::To64BEWord, traits::IRRepresentable};
+use crate::{error::Result, int::To64BEWord, traits::IRRepresentableExpression};
 
 /// A structure representing an LLVM IR generator.
 pub struct CodeGen<'ctx> {
@@ -64,7 +64,7 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
 
     pub fn make_ir_representable(
         &self,
-        node: &dyn IRRepresentable
+        node: &dyn IRRepresentableExpression
     ) -> Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
         node.generate_representation(self)
     }
