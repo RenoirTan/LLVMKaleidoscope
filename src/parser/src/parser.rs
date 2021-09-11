@@ -261,6 +261,10 @@ impl Parser {
         }
     }
 
+    /// Parse a program that contains a list of expressions. Each expression
+    /// in the list is separated by a comma token (i.e. ",") and the entire
+    /// list is flanked by a left bracket before the first expression and
+    /// its corresponding right bracket after the last expression.
     pub fn parse_comma_expression_list<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>,
@@ -307,24 +311,16 @@ impl Parser {
                 },
                 TokenKind::Bracket { bracket } =>
                     if left_bracket.cancels_out(bracket) {
-                        let expression = expression.ok_or_else(|| Error::new(
-                            format!(
-                                "No expression found before comma at {} when parsing comma-separated list",
-                                token_1.start
-                            ),
-                            ErrorKind::SyntaxError,
-                            None
-                        ))?;
-                        args.push(expression);
+                        if let Some(expression) = expression {
+                            args.push(expression);
+                        }
                         self.mark_used();
                         break;
                     } else {
                         return Err(Error::new(
                             format!(
                                 "Unexpected bracket '{}' that does not balance '{}' found at {}",
-                                bracket,
-                                left_bracket,
-                                token_1.start
+                                bracket, left_bracket, token_1.start
                             ),
                             ErrorKind::SyntaxError,
                             None
@@ -497,18 +493,10 @@ impl Parser {
             TokenKind::Bracket { bracket } => bracket,
             _ => return Ok(None)
         };
-        self.mark_used();
-        if !matches!(left_bracket.kind, BracketKind::Round) {
-            if !left_bracket.side.is_left() {
-                return Err(Error::new(
-                    "Mismatched right bracket.".to_string(),
-                    ErrorKind::SyntaxError,
-                    None
-                ));
-            } else {
-                return Ok(None);
-            }
+        if left_bracket != LEFT_ROUND_BRACKET {
+            return Ok(None);
         }
+        self.mark_used();
         // println!("[{}] left bracket verified\n", function_path!());
         let expression = match self.parse_expression(ltuplemut!(stream, tokenizer))? {
             Some(x) => x,

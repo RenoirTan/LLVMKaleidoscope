@@ -198,13 +198,16 @@ fn test_binop_5() {
 
 #[test]
 fn test_function_call() {
-    let (mut parser, mut stream, mut tokenizer) = get_parser("randint(x, 2 + max(24, a - b))");
+    let (mut parser, mut stream, mut tokenizer) = get_parser("randint(x, 2 + max(24, a - time()))");
     let expression = parser
         .parse_expression(ltuplemut!(&mut stream, &mut tokenizer))
         .unwrap()
         .unwrap();
     println!("{}: {}", function_name!(), expression);
-    assert_eq!(format!("{}", expression), "(randint((x), (+(2)(max((24), (-(a)(b)))))))");
+    assert_eq!(
+        format!("{}", expression),
+        "(randint((x), (+(2)(max((24), (-(a)(time())))))))"
+    );
 }
 
 #[test]
