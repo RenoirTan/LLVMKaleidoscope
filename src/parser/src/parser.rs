@@ -11,6 +11,7 @@ use kaleidoscope_ast::{
         ExternFunctionNode,
         FloatNode,
         FloatType,
+        FunctionCallNode,
         FunctionNode,
         FunctionPrototypeNode,
         IdentifierNode,
@@ -22,7 +23,7 @@ use kaleidoscope_ast::{
 };
 use kaleidoscope_lexer::{
     ltuplemut,
-    token::{BracketKind, FileIndex, Keyword, Token, TokenKind, LEFT_ROUND_BRACKET},
+    token::{Bracket, BracketKind, FileIndex, Keyword, Token, TokenKind, LEFT_ROUND_BRACKET},
     tokenizer::LexerTupleMut
 };
 use kaleidoscope_macro::{ok_none, return_ok_some};
@@ -260,6 +261,90 @@ impl Parser {
         }
     }
 
+    pub fn parse_comma_expression_list<'a, 'b: 'a>(
+        &mut self,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>,
+        left_bracket: Bracket
+    ) -> Result<Option<Vec<Box<dyn ExprNode>>>> {
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let lbracket_token = ok_none!(self.peek_current_token());
+        log::trace!("lbracket_token: {}", lbracket_token);
+        match lbracket_token.token_kind {
+            TokenKind::Bracket { bracket } if bracket == left_bracket => (),
+            _ => return Ok(None)
+        }
+        self.mark_used();
+
+        let mut args: Vec<Box<dyn ExprNode>> = Vec::new();
+
+        loop {
+            let expression = self.parse_expression(ltuplemut!(stream, tokenizer))?;
+
+            self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+            let token_1 = self.peek_current_token().ok_or_else(|| {
+                Error::new(
+                    format!(
+                        "Unexpected EOF when trying to parse comma expression list at {}",
+                        stream.get_index()
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                )
+            })?;
+
+            match token_1.token_kind {
+                TokenKind::Comma => {
+                    let expression = expression.ok_or_else(|| Error::new(
+                        format!(
+                            "No expression found before comma at {} when parsing comma-separated list",
+                            token_1.start
+                        ),
+                        ErrorKind::SyntaxError,
+                        None
+                    ))?;
+                    args.push(expression);
+                    self.mark_used();
+                },
+                TokenKind::Bracket { bracket } =>
+                    if left_bracket.cancels_out(bracket) {
+                        let expression = expression.ok_or_else(|| Error::new(
+                            format!(
+                                "No expression found before comma at {} when parsing comma-separated list",
+                                token_1.start
+                            ),
+                            ErrorKind::SyntaxError,
+                            None
+                        ))?;
+                        args.push(expression);
+                        self.mark_used();
+                        break;
+                    } else {
+                        return Err(Error::new(
+                            format!(
+                                "Unexpected bracket '{}' that does not balance '{}' found at {}",
+                                bracket,
+                                left_bracket,
+                                token_1.start
+                            ),
+                            ErrorKind::SyntaxError,
+                            None
+                        ));
+                    },
+                _ =>
+                    return Err(Error::new(
+                        format!(
+                            "Unknown token '{}' found after expression at {}",
+                            token_1, token_1.start
+                        ),
+                        ErrorKind::SyntaxError,
+                        None
+                    )),
+            }
+        }
+
+        Ok(Some(args))
+    }
+
     /// Converts an expression into an anonymous function.
     pub fn parse_top_level_expression<'a, 'b: 'a>(
         &mut self,
@@ -333,6 +418,8 @@ impl Parser {
         return_ok_some!(float);
         let rbexpr = self.parse_round_bracket_expression(ltuplemut!(stream, tokenizer))?;
         return_ok_some!(rbexpr);
+        let funccall = self.parse_function_call_expression(ltuplemut!(stream, tokenizer))?;
+        return_ok_some!(funccall);
         let variable = self.parse_variable_expression(ltuplemut!(stream, tokenizer))?;
         return_ok_some!(variable);
         Ok(None)
@@ -621,6 +708,46 @@ impl Parser {
         }
     }
 
+    pub fn parse_function_call_expression<'a, 'b: 'a>(
+        &mut self,
+        ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
+    ) -> ParseResult<dyn ExprNode> {
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let identifier_token = ok_none!(self.peek_current_token());
+        let identifier = match identifier_token.token_kind {
+            TokenKind::Identifier => Box::new(IdentifierNode::new(
+                identifier_token.borrow_span().to_string()
+            )),
+            _ => return Ok(None)
+        };
+        self.mark_used();
+
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        let lbracket_token = match self.peek_current_token() {
+            Some(t) => t,
+            None => return Ok(Some(Box::new(VariableExpressionNode::new(identifier))))
+        };
+        match lbracket_token.token_kind {
+            TokenKind::Bracket { bracket } if bracket == LEFT_ROUND_BRACKET => (),
+            _ => return Ok(Some(Box::new(VariableExpressionNode::new(identifier))))
+        }
+
+        let args = self
+            .parse_comma_expression_list(ltuplemut!(stream, tokenizer), Bracket::from_string("("))?
+            .ok_or_else(|| {
+                Error::new(
+                    format!(
+                        "No argument list found for function at {}",
+                        identifier_token.start
+                    ),
+                    ErrorKind::SyntaxError,
+                    None
+                )
+            })?;
+
+        Ok(Some(Box::new(FunctionCallNode::new(identifier, args))))
+    }
+
     /// Parse a function prototype.
     pub fn parse_function_prototype<'a, 'b: 'a>(
         &mut self,
@@ -708,21 +835,28 @@ impl Parser {
             self.grab_if_used(ltuplemut!(stream, tokenizer))?;
             if let Some(token_1) = self.get_current_token() {
                 match token_1.token_kind {
-                    TokenKind::Bracket { bracket } => if LEFT_ROUND_BRACKET.cancels_out(bracket) {
-                        break;
-                    } else {
-                        return Err(Error::new(
-                            format!("Unexpected bracket '{}' at {}", bracket, stream.get_index()),
-                            ErrorKind::SyntaxError,
-                            None
-                        ));
-                    },
+                    TokenKind::Bracket { bracket } =>
+                        if LEFT_ROUND_BRACKET.cancels_out(bracket) {
+                            break;
+                        } else {
+                            return Err(Error::new(
+                                format!(
+                                    "Unexpected bracket '{}' at {}",
+                                    bracket,
+                                    stream.get_index()
+                                ),
+                                ErrorKind::SyntaxError,
+                                None
+                            ));
+                        },
                     TokenKind::Identifier => {
-                        parameters.push(Box::new(IdentifierNode::new(token_1.borrow_span().to_string())));
+                        parameters.push(Box::new(IdentifierNode::new(
+                            token_1.borrow_span().to_string()
+                        )));
                     },
-                    t => {
+                    _ => {
                         return Err(Error::new(
-                            format!("Unexpected token '{}' at {}", t, stream.get_index()),
+                            format!("Unexpected token '{}' at {}", token_1, stream.get_index()),
                             ErrorKind::SyntaxError,
                             None
                         ));
@@ -731,33 +865,46 @@ impl Parser {
                 self.grab_if_used(ltuplemut!(stream, tokenizer))?;
                 let token_2 = match self.get_current_token() {
                     Some(t) => t,
-                    None => return Err(Error::new(
-                        format!("Unexpected EOF for function prototype at {}", stream.get_index()),
-                        ErrorKind::SyntaxError,
-                        None
-                    ))
+                    None =>
+                        return Err(Error::new(
+                            format!(
+                                "Unexpected EOF for function prototype at {}",
+                                stream.get_index()
+                            ),
+                            ErrorKind::SyntaxError,
+                            None
+                        )),
                 };
                 match token_2.token_kind {
                     TokenKind::Comma => (),
-                    TokenKind::Bracket { bracket } => if LEFT_ROUND_BRACKET.cancels_out(bracket) {
-                        break;
-                    } else {
+                    TokenKind::Bracket { bracket } =>
+                        if LEFT_ROUND_BRACKET.cancels_out(bracket) {
+                            break;
+                        } else {
+                            return Err(Error::new(
+                                format!(
+                                    "Unexpected bracket '{}' at {}",
+                                    bracket,
+                                    stream.get_index()
+                                ),
+                                ErrorKind::SyntaxError,
+                                None
+                            ));
+                        },
+                    TokenKind::Identifier => {
                         return Err(Error::new(
-                            format!("Unexpected bracket '{}' at {}", bracket, stream.get_index()),
+                            format!(
+                                "Identifier '{}' not separated by comma at {}",
+                                token_2,
+                                stream.get_index()
+                            ),
                             ErrorKind::SyntaxError,
                             None
                         ));
                     },
-                    TokenKind::Identifier => {
+                    _ => {
                         return Err(Error::new(
-                            format!("Identifier '{}' not separated by comma at {}", token_2, stream.get_index()),
-                            ErrorKind::SyntaxError,
-                            None
-                        ));
-                    }
-                    t => {
-                        return Err(Error::new(
-                            format!("Unexpected token '{}' at {}", t, stream.get_index()),
+                            format!("Unexpected token '{}' at {}", token_2, stream.get_index()),
                             ErrorKind::SyntaxError,
                             None
                         ));
