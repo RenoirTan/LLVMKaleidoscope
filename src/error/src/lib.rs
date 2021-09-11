@@ -31,7 +31,10 @@ pub struct Error<EK: ErrorKind> {
 }
 
 impl<EK: ErrorKind> Error<EK> {
-    /// A new error.
+    /// A new error. You can pass in a `description` describing what happened
+    /// to trigger the error, the corresponding `errorkind` which classifies
+    /// the type of error that occurred and an optional `source` error used
+    /// for backtracing.
     pub fn new(description: String, errorkind: EK, source: Option<Box<dyn error::Error>>) -> Self {
         Self {
             description,
@@ -40,7 +43,7 @@ impl<EK: ErrorKind> Error<EK> {
         }
     }
 
-    /// A new error from with another error as the source.
+    /// A new error with another error as the source.
     pub fn from_err(err: Box<dyn error::Error>, errorkind: EK) -> Self {
         Self {
             description: format!("{}", err),

@@ -14,6 +14,8 @@ pub enum ErrorKind {
 
 impl_display!(ErrorKind);
 
+/// The error type used by this parser crate.
 pub type Error = klerr::Error<ErrorKind>;
 
+/// The result type used by this parser crate.
 pub type Result<T> = klerr::Result<T, ErrorKind>;

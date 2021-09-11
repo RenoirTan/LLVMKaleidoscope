@@ -11,41 +11,52 @@ use std::{
 use kaleidoscope_macro::impl_display;
 use serde::{Deserialize, Serialize};
 
+/// All the possible bracket types that can be represented by the [`Bracket`]
+/// struct.
 pub mod brackets {
     use super::{Bracket, BracketKind, BracketSide};
 
+    /// (
     pub const LEFT_ROUND_BRACKET: Bracket = Bracket {
         kind: BracketKind::Round,
         side: BracketSide::Left
     };
+    /// )
     pub const RIGHT_ROUND_BRACKET: Bracket = Bracket {
         kind: BracketKind::Round,
         side: BracketSide::Right
     };
+    /// [
     pub const LEFT_SQUARE_BRACKET: Bracket = Bracket {
         kind: BracketKind::Square,
         side: BracketSide::Left
     };
+    /// ]
     pub const RIGHT_SQUARE_BRACKET: Bracket = Bracket {
         kind: BracketKind::Square,
         side: BracketSide::Right
     };
+    /// {
     pub const LEFT_CURLY_BRACKET: Bracket = Bracket {
         kind: BracketKind::Curly,
         side: BracketSide::Left
     };
+    /// }
     pub const RIGHT_CURLY_BRACKET: Bracket = Bracket {
         kind: BracketKind::Curly,
         side: BracketSide::Right
     };
+    /// <
     pub const LEFT_ANGLED_BRACKET: Bracket = Bracket {
         kind: BracketKind::Angled,
         side: BracketSide::Left
     };
+    /// \>
     pub const RIGHT_ANGLED_BRACKET: Bracket = Bracket {
         kind: BracketKind::Angled,
         side: BracketSide::Right
     };
+    /// ???
     pub const UNKNOWN_BRACKET: Bracket = Bracket {
         kind: BracketKind::Unknown,
         side: BracketSide::Left
@@ -315,6 +326,8 @@ impl Bracket {
             .unwrap()
     }
 
+    /// Checks if the bracket represented by this struct is invalid (i.e.
+    /// its bracket kind matches [`BracketKind::Unknown`]).
     pub fn is_invalid(&self) -> bool {
         matches!(self.kind, BracketKind::Unknown)
     }

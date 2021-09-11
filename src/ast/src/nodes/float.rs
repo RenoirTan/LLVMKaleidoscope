@@ -1,19 +1,27 @@
+//! A module defining a [`FloatNode`].
+
 use std::fmt;
 
 use crate::prelude::*;
 
+/// The type used to represent a Kaleidoscope float. This is equivalent to
+/// Rust's `f64` or C's `double`.
 pub type FloatType = f64;
 
+/// A node representing a float. The float conforms to IEEE 754's double
+/// precision binary float (equivalent to Rust's `f64`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct FloatNode {
     value: FloatType
 }
 
 impl FloatNode {
+    /// Create a new [`FloatNode`].
     pub fn new(value: FloatType) -> Self {
         Self { value }
     }
 
+    /// Get the value of the underlying float.
     pub fn get_value(&self) -> FloatType {
         self.value
     }

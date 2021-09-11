@@ -13,11 +13,11 @@ use serde::{Deserialize, Serialize};
 pub enum Operator {
     /// A separate variant for inputs that is not a valid operator
     Unknown,
-    /// +
+    /// \+
     Plus,
-    /// -
+    /// \-
     Minus,
-    /// *
+    /// \*
     Multiply,
     /// /
     Divide,
