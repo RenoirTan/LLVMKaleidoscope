@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["IdentifierNode","A struct representing a name or path that can identify an object, function or data structure like classes."]]});

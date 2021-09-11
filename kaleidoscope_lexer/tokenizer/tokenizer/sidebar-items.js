@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Tokenizer","The tokeniser which iterates over the characters in a file stream and yields a stream of tokens."]]});

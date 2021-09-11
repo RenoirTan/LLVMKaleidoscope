@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ExternFunctionNode","An AST representing a function declaration whose definition is defined externally in another library or language."]]});

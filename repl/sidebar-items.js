@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["WELCOME_MESSAGE",""]],"fn":[["main",""],["press_enter_to_continue",""]]});

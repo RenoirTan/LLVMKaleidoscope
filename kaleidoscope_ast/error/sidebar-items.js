@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ErrorKind","The kind of error encountered."]],"type":[["Error","Special error type for this [`crate`]."],["Result","Custom result type for the error type defined here."]]});

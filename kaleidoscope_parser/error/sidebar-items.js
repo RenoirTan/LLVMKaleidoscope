@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ErrorKind","The types of errors you may encounter in LLVMKaleidoscope-Parser."]],"type":[["Error","The error type used by this parser crate."],["Result","The result type used by this parser crate."]]});

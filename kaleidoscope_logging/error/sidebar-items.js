@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ErrorKind","The enum that classifies the type of error encountered by the logger."]],"type":[["Error","The error type used by this crate."],["Result","The result type used by this crate."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["BinaryOperatorPrecedence","An enumerator defining the precedence of each operator. Operators are categorised into a smaller number of actions, such as “Comparison”, “Addition”, “Multiplication” and “Exponentiation”."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["init","Initialise the logger used by LLVMKaleidoscope. This should only be called once and called at the beginning of the “main” function after parsing command line arguments."]],"mod":[["error","Module for error handling in this sub-crate."],["helpers","Helper functions used by this crate."]]});

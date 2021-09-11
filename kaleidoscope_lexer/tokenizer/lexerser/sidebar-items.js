@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["LexerSerializer","Serialises a [`TokenIterator`] into a list of tokens."]]});

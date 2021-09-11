@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BinaryOperatorNode","An AST representing an operator with 2 expressions by its side. For example, “1 + 2” is an expression with a binary operator, with ‘+’ being the operator, and ‘1’ and ‘2’ being the 2 arguments of the operator."]]});

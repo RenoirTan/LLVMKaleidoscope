@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["TokenIterator","A structure that takes a [`FileStream`] and reads the characters to produce one token for each iteration in a for loop."]]});

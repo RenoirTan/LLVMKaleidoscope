@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Keyword","An enumerator of possible keywords that can be encountered in Kaleidoscope."]]});

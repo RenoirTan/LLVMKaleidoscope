@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FloatNode","A node representing a float. The float conforms to IEEE 754’s double precision binary float (equivalent to Rust’s `f64`)."]],"type":[["FloatType","The type used to represent a Kaleidoscope float. This is equivalent to Rust’s `f64` or C’s `double`."]]});

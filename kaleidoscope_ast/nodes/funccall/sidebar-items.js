@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FunctionCallNode","A node representing a function call. This struct stores the name of the function and the list of arguments as a [`Vec`]tor."]]});

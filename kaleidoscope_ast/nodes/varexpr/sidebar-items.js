@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["VariableExpressionNode","An expression where it’s just one variable. This is essentially like `y` in the statement `x = y` in typical “C-like” languages."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FileIndex","Represents the location of a character (i.e. displayed glyphs, diacritics are counted as separate symbols) in a file or stream."]]});
