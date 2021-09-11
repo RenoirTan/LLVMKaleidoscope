@@ -5,7 +5,7 @@ use std::fmt;
 use super::FunctionPrototypeNode;
 use crate::prelude::*;
 
-
+/// A node representing a function definition.
 #[derive(Debug)]
 pub struct FunctionNode {
     prototype: Box<FunctionPrototypeNode>,

@@ -1,19 +1,25 @@
+//! A module defining an [`ExternFunctionNode`].
+
 use std::fmt;
 
 use super::FunctionPrototypeNode;
 use crate::prelude::*;
 
-
+/// An AST representing a function declaration whose definition is defined
+/// externally in another library or language.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ExternFunctionNode {
     prototype: Box<FunctionPrototypeNode>
 }
 
 impl ExternFunctionNode {
+    /// Create a new [`ExternFunctionNode`].
     pub fn new(prototype: Box<FunctionPrototypeNode>) -> ExternFunctionNode {
         ExternFunctionNode { prototype }
     }
 
+    /// Get the prototype node that contains the name and parameters of the
+    /// function.
     pub fn get_prototype(&self) -> &FunctionPrototypeNode {
         &*self.prototype
     }

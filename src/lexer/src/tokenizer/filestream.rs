@@ -17,6 +17,8 @@ use crate::{
     token::FileIndex
 };
 
+/// An iterator that outputs each line in a Kaleidoscope programme one at a
+/// time.
 type BufferIterator<'a> = Enumerate<Lines<BufReader<Box<dyn Read + 'a>>>>;
 
 /// A file stream which returns a unicode codepoint one at a time.

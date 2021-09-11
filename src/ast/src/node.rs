@@ -25,15 +25,21 @@ pub trait Node: Any + Debug + Display {
     /// of [`Node`], not the [`Node`] instance itself.
     fn node_id_of_val(&self) -> NodeId;
 
+    /// Clone this node.
     fn node_clone(&self) -> Box<dyn Node>;
 }
 
+/// Convert the [`TypeId`] of a type into its underlying [`u64`] fingerprint
+/// value.
 fn typeid_to_u64<T: 'static>() -> u64 {
     let strid = format!("{:?}", TypeId::of::<T>());
     let strid = &strid[12..strid.len() - 2];
     strid.parse::<u64>().unwrap()
 }
 
+/// Types which act as nodes in an AST of a Kaleidoscope programme.
+/// This type is separated from [`Node`] so that the Rust compiler can create
+/// trait objects from [`Node`] and [`ExprNode`].
 pub trait NodeType: Sized + 'static {
     /// Get the [`NodeId`] of a node type.
     fn node_id() -> NodeId {

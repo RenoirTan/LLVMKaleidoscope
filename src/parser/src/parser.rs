@@ -261,6 +261,10 @@ impl Parser {
         }
     }
 
+    /// Parse a program that contains a list of expressions. Each expression
+    /// in the list is separated by a comma token (i.e. ",") and the entire
+    /// list is flanked by a left bracket before the first expression and
+    /// its corresponding right bracket after the last expression.
     pub fn parse_comma_expression_list<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>,
@@ -307,15 +311,9 @@ impl Parser {
                 },
                 TokenKind::Bracket { bracket } =>
                     if left_bracket.cancels_out(bracket) {
-                        let expression = expression.ok_or_else(|| Error::new(
-                            format!(
-                                "No expression found before comma at {} when parsing comma-separated list",
-                                token_1.start
-                            ),
-                            ErrorKind::SyntaxError,
-                            None
-                        ))?;
-                        args.push(expression);
+                        if let Some(expression) = expression {
+                            args.push(expression);
+                        }
                         self.mark_used();
                         break;
                     } else {
@@ -495,18 +493,10 @@ impl Parser {
             TokenKind::Bracket { bracket } => bracket,
             _ => return Ok(None)
         };
-        self.mark_used();
-        if !matches!(left_bracket.kind, BracketKind::Round) {
-            if !left_bracket.side.is_left() {
-                return Err(Error::new(
-                    "Mismatched right bracket.".to_string(),
-                    ErrorKind::SyntaxError,
-                    None
-                ));
-            } else {
-                return Ok(None);
-            }
+        if left_bracket != LEFT_ROUND_BRACKET {
+            return Ok(None);
         }
+        self.mark_used();
         // println!("[{}] left bracket verified\n", function_path!());
         let expression = match self.parse_expression(ltuplemut!(stream, tokenizer))? {
             Some(x) => x,
@@ -706,6 +696,21 @@ impl Parser {
         }
     }
 
+    /// Parse a call to a function. Such an expression comes in two parts,
+    /// the first is the name of the function and the second are the arguments
+    /// passed to the function. In Kaleidoscope, the syntax of function calls
+    /// are similar to those found in C or any of its descendant languages.
+    ///
+    /// For example, a function call like `pow(4, 2)` would be converted into
+    /// a [`FunctionCallNode`] where the function being called is `pow` and
+    /// the arguments (in the correct order) are `4` and `2`.
+    ///
+    /// As the [`Parser`] is not allowed to reverse tokens when reading
+    /// a stream, this function has to shoulder the burden of also doing the
+    /// job of [`Parser::parse_variable_expression`]. If it encounters an
+    /// identifier which does not have a left, round bracket token ("(")
+    /// following it, it will do what [`Parser::parse_variable_expression`]
+    /// does and returns a [`VariableExpressionNode`].
     pub fn parse_function_call_expression<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -731,7 +736,7 @@ impl Parser {
         }
 
         let args = self
-            .parse_comma_expression_list(ltuplemut!(stream, tokenizer), Bracket::from_string("("))?
+            .parse_comma_expression_list(ltuplemut!(stream, tokenizer), LEFT_ROUND_BRACKET)?
             .ok_or_else(|| {
                 Error::new(
                     format!(

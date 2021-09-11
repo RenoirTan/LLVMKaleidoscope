@@ -28,6 +28,7 @@ use crate::{
 const DEFAULT_PROMPT: &'static str = "kaleidoscope::> ";
 
 
+/// Convert the output from the [`Parser`] to a String.
 pub(crate) fn parser_output_to_str<T>(result: &ParseResult<T>) -> String
 where
     T: Display + ?Sized
@@ -52,6 +53,7 @@ pub struct Driver {
 
 
 impl Driver {
+    /// Create a new driver for parsing a Kaleidoscope programme.
     #[inline]
     pub fn new(interactive: bool, prompt: String, verbosity: u32) -> Self {
         Self {
@@ -61,21 +63,27 @@ impl Driver {
         }
     }
 
+    /// Check whether the driver is an interactive REPL. This means that the
+    /// driver prompts the user for input after each expression.
     #[inline]
     pub fn is_interactive(&self) -> bool {
         self.interactive
     }
 
+    /// Get the prompt used by the driver if it is in interactive mode.
     #[inline]
     pub fn get_prompt(&self) -> &str {
         &self.prompt[..]
     }
 
+    /// Get the verbosity of the driver. The greater this number is, the driver
+    /// prints out more details.
     #[inline]
     pub fn verbosity(&self) -> u32 {
         self.verbosity
     }
 
+    /// The handler function which deals with function definitions.
     pub fn handle_function_definition(
         &self,
         istream: &mut FileStream,
@@ -87,6 +95,7 @@ impl Driver {
         result
     }
 
+    /// The handler function which deals with external function definitions.
     pub fn handle_extern_function(
         &self,
         istream: &mut FileStream,
@@ -98,6 +107,7 @@ impl Driver {
         result
     }
 
+    /// The handler function which deals with expressions.
     pub fn handle_expression(
         &self,
         istream: &mut FileStream,
@@ -109,6 +119,7 @@ impl Driver {
         result
     }
 
+    /// Parse one statement.
     pub fn parse_one(
         &self,
         istream: &mut FileStream,
@@ -156,6 +167,7 @@ impl Driver {
         }
     }
 
+    /// Parse all the statements in a program until an EOF or an error occurs.
     pub fn main_loop(
         &self,
         istream: &mut FileStream,
@@ -200,6 +212,7 @@ pub struct Interpreter<'a> {
 
 
 impl<'a> Interpreter<'a> {
+    /// Create a new interpreter.
     pub fn new(interactive: bool, istream: FileStream<'a>, verbosity: u32) -> Self {
         Self {
             driver: Driver::new(interactive, DEFAULT_PROMPT.to_string(), verbosity),
@@ -212,32 +225,44 @@ impl<'a> Interpreter<'a> {
         }
     }
 
+    /// Check if there are anymore tokens in the programme.
     pub fn is_done(&self) -> bool {
         self.istream.eof_reached()
     }
 
+    /// Get the [`FileStream`] used by the interpreter.
     pub fn relinquish_istream(self) -> FileStream<'a> {
         self.istream
     }
 
+    /// Get a reference to the last error encountered during the parsing of the current
+    /// programme.
     pub fn get_last_error(&self) -> Option<&Error> {
         self.last_error.as_ref()
     }
 
+    /// Get the last error encountered during the parsing of the current
+    /// programme, consuming it in the process.
     pub fn take_last_error(&mut self) -> Option<Error> {
         self.last_error.take()
     }
 
+    /// Set the policy of this interpreter to continue parsing the programme
+    /// even if an error was encountered.
     pub fn proceed_even_if_error(&mut self) -> &mut Self {
         self.proceed_even_if_error = true;
         self
     }
 
+    /// Set the policy of this interpreter to immediately terminate if an
+    /// was encountered.
     pub fn fail_on_error(&mut self) -> &mut Self {
         self.proceed_even_if_error = false;
         self
     }
 
+    /// Parse one statement. If the interpreter can parse more statments,
+    /// [`true`] is returned.
     pub fn parse_once(&mut self, proceed_even_if_error: bool) -> bool {
         match self
             .driver
@@ -260,6 +285,7 @@ impl<'a> Interpreter<'a> {
         }
     }
 
+    /// Parse a full Kaleidoscope programme.
     pub fn main_loop(&mut self) -> usize {
         let mut statements_parsed: usize = 0;
         while {

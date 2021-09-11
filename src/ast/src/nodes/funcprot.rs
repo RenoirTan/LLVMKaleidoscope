@@ -7,7 +7,8 @@ use kaleidoscope_macro::iterator_to_str;
 use super::IdentifierNode;
 use crate::prelude::*;
 
-
+/// A node representing a function prototype. This contains the name of the
+/// function and the parameters the function accepts.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FunctionPrototypeNode {
     identifier: Box<IdentifierNode>,

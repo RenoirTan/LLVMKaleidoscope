@@ -14,6 +14,9 @@ use crate::{
 pub mod error;
 pub mod helpers;
 
+/// Initialise the logger used by LLVMKaleidoscope. This should only be called
+/// once and called at the beginning of the "main" function after parsing
+/// command line arguments.
 pub fn init(output_filepath: Option<&dyn AsRef<Path>>) -> Result<()> {
     let target = if let Some(path) = output_filepath {
         let path = path.as_ref();

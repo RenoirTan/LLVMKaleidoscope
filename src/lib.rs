@@ -23,9 +23,11 @@
 //! be used to fit the purposes of each member library.
 //! 3. [`kaleidoscope_lexer`] - Library which can parses file/stream input
 //! into tokens.
-//! 4. [`kaleidoscope_macro`] - Assortment of macros which I use frequently in
+//! 4. [`kaleidoscope_logging`] - Library which sets up the logging facilities
+//! used by the binaries in this crate.
+//! 5. [`kaleidoscope_macro`] - Assortment of macros which I use frequently in
 //! this crate.
-//! 5. [`kaleidoscope_parser`] - The parser. This library provides definitions
+//! 6. [`kaleidoscope_parser`] - The parser. This library provides definitions
 //! to turn a series of tokens into an abstract syntax tree.
 
 pub use kaleidoscope_ast::{node::Node, nodes, NodeId};
@@ -40,4 +42,8 @@ pub use kaleidoscope_macro::{
     hash_map,
     impl_display,
     untrimmed_function_path
+};
+pub use kaleidoscope_parser::{
+    driver::{Driver, Interpreter},
+    parser::{Parser, ParseResult}
 };
