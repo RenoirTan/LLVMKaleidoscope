@@ -696,6 +696,21 @@ impl Parser {
         }
     }
 
+    /// Parse a call to a function. Such an expression comes in two parts,
+    /// the first is the name of the function and the second are the arguments
+    /// passed to the function. In Kaleidoscope, the syntax of function calls
+    /// are similar to those found in C or any of its descendant languages.
+    ///
+    /// For example, a function call like `pow(4, 2)` would be converted into
+    /// a [`FunctionCallNode`] where the function being called is `pow` and
+    /// the arguments (in the correct order) are `4` and `2`.
+    ///
+    /// As the [`Parser`] is not allowed to reverse tokens when reading
+    /// a stream, this function has to shoulder the burden of also doing the
+    /// job of [`Parser::parse_variable_expression`]. If it encounters an
+    /// identifier which does not have a left, round bracket token ("(")
+    /// following it, it will do what [`Parser::parse_variable_expression`]
+    /// does and returns a [`VariableExpressionNode`].
     pub fn parse_function_call_expression<'a, 'b: 'a>(
         &mut self,
         ltuplemut!(stream, tokenizer): LexerTupleMut<'a, 'b>
@@ -721,7 +736,7 @@ impl Parser {
         }
 
         let args = self
-            .parse_comma_expression_list(ltuplemut!(stream, tokenizer), Bracket::from_string("("))?
+            .parse_comma_expression_list(ltuplemut!(stream, tokenizer), LEFT_ROUND_BRACKET)?
             .ok_or_else(|| {
                 Error::new(
                     format!(
