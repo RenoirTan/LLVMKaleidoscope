@@ -3,11 +3,27 @@ use inkwell::{
     context::Context,
     execution_engine::ExecutionEngine,
     module::Module,
-    types::{FloatType, IntType},
-    values::{BasicValue, FloatValue, IntValue}
+    types::{FloatType, IntType, StructType},
+    values::{BasicValue, FloatValue, IntValue, StructValue}
 };
 
-use crate::{error::Result, int::To64BEWord, traits::IRRepresentableExpression};
+use crate::{
+    builtins::number::{make_number_type, NUM_TYPE_NAME},
+    error::{Error, ErrorKind, Result},
+    int::To64BEWord,
+    traits::IRRepresentableExpression
+};
+
+/// Create a new LLVM IR generator.
+pub fn create_code_gen<'ctx>(
+    context: &'ctx Context,
+    module: Module<'ctx>,
+    engine: ExecutionEngine<'ctx>
+) -> CodeGen<'ctx> {
+    let mut code_gen = CodeGen::new(context, module, engine);
+    code_gen.init();
+    code_gen
+}
 
 /// A structure representing an LLVM IR generator.
 pub struct CodeGen<'ctx> {
@@ -18,18 +34,18 @@ pub struct CodeGen<'ctx> {
 }
 
 impl<'ctx: 'val, 'val> CodeGen<'ctx> {
-    /// Create a new LLVM IR generator.
-    pub fn new(
-        context: &'ctx Context,
-        module: Module<'ctx>,
-        engine: ExecutionEngine<'ctx>
-    ) -> Self {
+    fn new(context: &'ctx Context, module: Module<'ctx>, engine: ExecutionEngine<'ctx>) -> Self {
         Self {
             context,
             module,
             builder: context.create_builder(),
             engine
         }
+    }
+
+    fn init(&mut self) -> &mut Self {
+        make_number_type(self);
+        self
     }
 
     /// Get the context.
@@ -52,6 +68,10 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
         &self.engine
     }
 
+    pub fn get_bool_type(&self) -> IntType<'val> {
+        self.get_context().bool_type()
+    }
+
     /// Get the integer type for this context.
     pub fn get_int_type(&self) -> IntType<'val> {
         self.get_context().custom_width_int_type(128)
@@ -62,6 +82,56 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
         self.get_context().f64_type()
     }
 
+    /// Get num type.
+    pub fn get_num_type(&self) -> StructType<'val> {
+        self.get_module()
+            .get_struct_type(NUM_TYPE_NAME)
+            .expect(&format!("{} type not initialised yet.", NUM_TYPE_NAME))
+    }
+
+    pub fn make_num_from_i128(&self, value: i128) -> StructValue<'val> {
+        self.make_num_from_int(self.make_i128(value)).unwrap()
+    }
+
+    pub fn make_num_from_f64(&self, value: f64) -> StructValue<'val> {
+        self.make_num_from_float(self.make_f64(value)).unwrap()
+    }
+
+    pub fn make_num_from_int(&self, value: IntValue<'val>) -> Result<StructValue<'val>> {
+        let expected_bit_width = self.get_int_type().get_bit_width();
+        let gotten_bit_width = value.get_type().get_bit_width();
+        if expected_bit_width != gotten_bit_width {
+            return Err(Error::new(
+                format!(
+                    "Expected an integer with a bit width of {}, got one with {} bits instead.",
+                    expected_bit_width, gotten_bit_width
+                ),
+                ErrorKind::TypeError,
+                None
+            ));
+        }
+        let boolean = self.make_bool(true).into();
+        let integer = value.into();
+        let float = self.make_f64(0.0).into();
+        let num_type = self.get_num_type();
+        Ok(num_type.const_named_struct(&[boolean, integer, float]))
+    }
+
+    pub fn make_num_from_float(&self, value: FloatValue<'val>) -> Result<StructValue<'val>> {
+        if value.get_type() != self.get_float_type() {
+            return Err(Error::new(
+                format!("Expected a 64-bit IEEE float."),
+                ErrorKind::TypeError,
+                None
+            ));
+        }
+        let boolean = self.make_bool(false).into();
+        let integer = self.make_i128(0).into();
+        let float = value.into();
+        let num_type = self.get_num_type();
+        Ok(num_type.const_named_struct(&[boolean, integer, float]))
+    }
+
     /// Generate a [`BasicValue`] from an expression that implements
     /// [`IRRepresentableExpression`].
     pub fn make_ir_representable_expression(
@@ -69,6 +139,15 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
         node: &dyn IRRepresentableExpression
     ) -> Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
         node.generate_representation(self)
+    }
+
+    pub fn make_bool(&self, value: bool) -> IntValue<'val> {
+        let bool_type = self.get_bool_type();
+        if value {
+            bool_type.const_all_ones()
+        } else {
+            bool_type.const_zero()
+        }
     }
 
     /// Create a u8 value from this context.

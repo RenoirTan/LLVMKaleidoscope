@@ -9,6 +9,7 @@ pub enum ErrorKind {
     ValueError,
     TypeError,
     NotBasicValueError,
+    CouldNotMakeFunctionError,
     Other
 }
 

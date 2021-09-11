@@ -22,6 +22,11 @@ LLVMKaleidoscope-Logging = {path = "src/logging"}
 LLVMKaleidoscope-Macro = {path = "src/macro"}
 LLVMKaleidoscope-Parser = {path = "src/parser"}
 
+[dependencies.inkwell]
+git = "https://github.com/TheDan64/inkwell"
+branch = "master"
+features = ["llvm12-0"]
+
 [workspace]
 members = [
     "src/ast",
@@ -55,5 +60,11 @@ doctest = false
 [[bin]]
 name = "repl"
 path = "src/bin/repl.rs"
+test = false
+doctest = false
+
+[[bin]]
+name = "kldnum"
+path = "src/bin/kldnum.rs"
 test = false
 doctest = false

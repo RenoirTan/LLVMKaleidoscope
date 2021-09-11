@@ -1,9 +1,13 @@
 //! A crate for building LLVM IR using the Inkwell LLVM wrapper.
 //! A separate crate is necessary to allow for code reuse.
 
+pub mod builtins;
 pub mod codegen;
 pub mod error;
 pub mod int;
 pub mod traits;
 
-pub use crate::{codegen::CodeGen, traits::IRRepresentableExpression};
+pub use crate::{
+    codegen::{create_code_gen, CodeGen},
+    traits::IRRepresentableExpression
+};
