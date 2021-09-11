@@ -204,7 +204,10 @@ fn test_function_call() {
         .unwrap()
         .unwrap();
     println!("{}: {}", function_name!(), expression);
-    assert_eq!(format!("{}", expression), "(randint((x), (+(2)(max((24), (-(a)(b)))))))");
+    assert_eq!(
+        format!("{}", expression),
+        "(randint((x), (+(2)(max((24), (-(a)(b)))))))"
+    );
 }
 
 #[test]

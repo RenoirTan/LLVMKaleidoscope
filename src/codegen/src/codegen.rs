@@ -62,7 +62,9 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
         self.get_context().f64_type()
     }
 
-    pub fn make_ir_representable(
+    /// Generate a [`BasicValue`] from an expression that implements
+    /// [`IRRepresentableExpression`].
+    pub fn make_ir_representable_expression(
         &self,
         node: &dyn IRRepresentableExpression
     ) -> Result<Box<dyn BasicValue<'ctx> + 'ctx>> {

@@ -322,9 +322,7 @@ impl Parser {
                         return Err(Error::new(
                             format!(
                                 "Unexpected bracket '{}' that does not balance '{}' found at {}",
-                                bracket,
-                                left_bracket,
-                                token_1.start
+                                bracket, left_bracket, token_1.start
                             ),
                             ErrorKind::SyntaxError,
                             None
