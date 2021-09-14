@@ -110,11 +110,11 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
                 None
             ));
         }
-        let boolean = self.make_bool(true).into();
         let integer = value.into();
         let float = self.make_f64(0.0).into();
+        let boolean = self.make_bool(true).into();
         let num_type = self.get_num_type();
-        Ok(num_type.const_named_struct(&[boolean, integer, float]))
+        Ok(num_type.const_named_struct(&[integer, float, boolean]))
     }
 
     pub fn make_num_from_float(&self, value: FloatValue<'val>) -> Result<StructValue<'val>> {
@@ -125,11 +125,11 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
                 None
             ));
         }
-        let boolean = self.make_bool(false).into();
         let integer = self.make_i128(0).into();
         let float = value.into();
+        let boolean = self.make_bool(false).into();
         let num_type = self.get_num_type();
-        Ok(num_type.const_named_struct(&[boolean, integer, float]))
+        Ok(num_type.const_named_struct(&[integer, float, boolean]))
     }
 
     /// Generate a [`BasicValue`] from an expression that implements

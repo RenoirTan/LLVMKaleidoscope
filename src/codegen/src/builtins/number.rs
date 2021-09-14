@@ -1,6 +1,6 @@
 use inkwell::{
     types::StructType,
-    values::{AggregateValue, StructValue}
+    values::{AggregateValue, IntValue, StructValue}
 };
 
 use crate::{
@@ -11,11 +11,11 @@ use crate::{
 pub const NUM_TYPE_NAME: &'static str = "num";
 
 pub fn make_number_type<'ctx>(code_gen: &CodeGen<'ctx>) -> StructType<'ctx> {
-    let bool_type = code_gen.get_context().bool_type().into();
     let int_type = code_gen.get_int_type().into();
     let float_type = code_gen.get_float_type().into();
+    let bool_type = code_gen.get_context().bool_type().into();
     let struct_type = code_gen.get_context().opaque_struct_type(NUM_TYPE_NAME);
-    struct_type.set_body(&[bool_type, int_type, float_type], true);
+    struct_type.set_body(&[int_type, float_type, bool_type], true);
     code_gen
         .get_module()
         .get_struct_type(NUM_TYPE_NAME)
@@ -58,5 +58,17 @@ impl<'ctx> NumValue<'ctx> {
         println!("{:?}", self.value.const_extract_value(&mut [0]));
         println!("{:?}", self.value.const_extract_value(&mut [1]));
         println!("{:?}", self.value.const_extract_value(&mut [2]));
+    }
+
+    pub fn get_int_switch(&self) -> IntValue<'ctx> {
+        self.value.const_extract_value(&mut [2]).into_int_value()
+    }
+
+    pub fn is_int(&self, code_gen: &CodeGen<'ctx>) -> bool {
+        self.get_int_switch() == code_gen.make_bool(true)
+    }
+
+    pub fn is_float(&self, code_gen: &CodeGen<'ctx>) -> bool {
+        !self.is_int(code_gen)
     }
 }

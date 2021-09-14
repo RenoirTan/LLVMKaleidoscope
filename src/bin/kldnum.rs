@@ -1,3 +1,5 @@
+use std::f64::consts::PI;
+
 use inkwell::{context::Context, OptimizationLevel};
 use kaleidoscope_codegen::{builtins::number::NumValue, create_code_gen};
 
@@ -14,4 +16,10 @@ fn main() {
     let num_1 = NumValue::new(code_gen.make_num_from_i128(12345), &code_gen).unwrap();
     println!("Created num_1: 12345");
     num_1.destructure();
+    println!("Is num_1 an int? {}", num_1.is_int(&code_gen));
+
+    let num_2 = NumValue::new(code_gen.make_num_from_f64(PI), &code_gen).unwrap();
+    println!("Created num_2: PI");
+    num_2.destructure();
+    println!("Is num_2 an int? {}", num_2.is_int(&code_gen));
 }
