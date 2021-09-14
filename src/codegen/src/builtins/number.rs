@@ -1,3 +1,8 @@
+use std::{
+    cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd},
+    ops::{Add, Div, Mul, Sub}
+};
+
 use inkwell::{
     types::StructType,
     values::{AggregateValue, BasicValueEnum, FloatValue, IntValue, StructValue},
@@ -222,5 +227,108 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
         };
         let raw = self.code_gen.make_num_from_int(integer)?;
         Self::new(raw, self.code_gen)
+    }
+
+    pub fn cast_to_same_type_as(&self, other: &Self) -> Result<Self> {
+        if other.is_int() {
+            self.to_int()
+        } else {
+            self.to_float()
+        }
+    }
+}
+
+
+macro_rules! impl_binop_for_numvalue {
+    ($trait_name: ident, $fn_name: ident, $int_op: ident, $float_op: ident) => {
+        impl<'ctx: 'cdg, 'cdg> $trait_name for &NumValue<'ctx, 'cdg> {
+            type Output = NumValue<'ctx, 'cdg>;
+
+            fn $fn_name(self, rhs: Self) -> Self::Output {
+                let raw = if self.is_int() && rhs.is_int() {
+                    let result =
+                        $int_op(self.get_raw_int_value(), rhs.get_raw_int_value()).unwrap();
+                    self.code_gen.make_num_from_int(result).unwrap()
+                } else {
+                    let left = self.to_float().unwrap();
+                    let right = rhs.to_float().unwrap();
+                    let result =
+                        $float_op(left.get_raw_float_value(), right.get_raw_float_value()).unwrap();
+                    self.code_gen.make_num_from_float(result).unwrap()
+                };
+                NumValue::new(raw, &self.code_gen).unwrap()
+            }
+        }
+    };
+}
+
+impl_binop_for_numvalue!(Add, add, add_ints, add_floats);
+impl_binop_for_numvalue!(Sub, sub, sub_ints, sub_floats);
+impl_binop_for_numvalue!(Mul, mul, mul_ints, mul_floats);
+impl_binop_for_numvalue!(Div, div, div_ints, div_floats);
+
+
+impl<'ctx: 'cdg, 'cdg> PartialEq for NumValue<'ctx, 'cdg> {
+    fn eq(&self, other: &Self) -> bool {
+        if self.is_int() && other.is_int() {
+            cmp_eq_ints(self.get_raw_int_value(), other.get_raw_int_value()).unwrap()
+                == self.code_gen.make_bool(true)
+        } else {
+            let left = self.to_float().unwrap();
+            let right = other.to_float().unwrap();
+            cmp_eq_floats(left.get_raw_float_value(), right.get_raw_float_value()).unwrap()
+                == self.code_gen.make_bool(true)
+        }
+    }
+}
+
+
+impl<'ctx: 'cdg, 'cdg> Eq for NumValue<'ctx, 'cdg> {}
+
+
+impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self.is_int() && other.is_int() {
+            if cmp_lt_ints(self.get_raw_int_value(), other.get_raw_int_value()).ok()?
+                == self.code_gen.make_bool(true)
+            {
+                Some(Ordering::Less)
+            } else if cmp_eq_ints(self.get_raw_int_value(), other.get_raw_int_value()).ok()?
+                == self.code_gen.make_bool(true)
+            {
+                Some(Ordering::Equal)
+            } else if cmp_gt_ints(self.get_raw_int_value(), other.get_raw_int_value()).ok()?
+                == self.code_gen.make_bool(true)
+            {
+                Some(Ordering::Greater)
+            } else {
+                None
+            }
+        } else {
+            let left = self.to_float().ok()?;
+            let right = other.to_float().ok()?;
+            if cmp_lt_floats(left.get_raw_float_value(), right.get_raw_float_value()).ok()?
+                == self.code_gen.make_bool(true)
+            {
+                Some(Ordering::Less)
+            } else if cmp_eq_floats(left.get_raw_float_value(), right.get_raw_float_value()).ok()?
+                == self.code_gen.make_bool(true)
+            {
+                Some(Ordering::Equal)
+            } else if cmp_gt_floats(left.get_raw_float_value(), right.get_raw_float_value()).ok()?
+                == self.code_gen.make_bool(true)
+            {
+                Some(Ordering::Greater)
+            } else {
+                None
+            }
+        }
+    }
+}
+
+
+impl<'ctx: 'cdg, 'cdg> Ord for NumValue<'ctx, 'cdg> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
     }
 }
