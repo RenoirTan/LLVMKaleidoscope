@@ -181,6 +181,15 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
         }
     }
 
+    fn make_true(&self) -> IntValue<'ctx> {
+        self.code_gen.make_bool(true)
+    }
+
+    #[allow(unused)]
+    fn make_false(&self) -> IntValue<'ctx> {
+        self.code_gen.make_bool(false)
+    }
+
     pub fn destructure(&self) -> [BasicValueEnum; 3] {
         [
             self.value.const_extract_value(&mut [0]),
@@ -194,7 +203,7 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
     }
 
     pub fn is_int(&self) -> bool {
-        self.get_int_switch() == self.code_gen.make_bool(true)
+        self.get_int_switch() == self.make_true()
     }
 
     pub fn is_float(&self) -> bool {
@@ -272,12 +281,12 @@ impl<'ctx: 'cdg, 'cdg> PartialEq for NumValue<'ctx, 'cdg> {
     fn eq(&self, other: &Self) -> bool {
         if self.is_int() && other.is_int() {
             cmp_eq_ints(self.get_raw_int_value(), other.get_raw_int_value()).unwrap()
-                == self.code_gen.make_bool(true)
+                == self.make_true()
         } else {
             let left = self.to_float().unwrap();
             let right = other.to_float().unwrap();
             cmp_eq_floats(left.get_raw_float_value(), right.get_raw_float_value()).unwrap()
-                == self.code_gen.make_bool(true)
+                == self.make_true()
         }
     }
 }
@@ -290,15 +299,15 @@ impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self.is_int() && other.is_int() {
             if cmp_lt_ints(self.get_raw_int_value(), other.get_raw_int_value()).ok()?
-                == self.code_gen.make_bool(true)
+                == self.make_true()
             {
                 Some(Ordering::Less)
             } else if cmp_eq_ints(self.get_raw_int_value(), other.get_raw_int_value()).ok()?
-                == self.code_gen.make_bool(true)
+                == self.make_true()
             {
                 Some(Ordering::Equal)
             } else if cmp_gt_ints(self.get_raw_int_value(), other.get_raw_int_value()).ok()?
-                == self.code_gen.make_bool(true)
+                == self.make_true()
             {
                 Some(Ordering::Greater)
             } else {
@@ -308,15 +317,15 @@ impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
             let left = self.to_float().ok()?;
             let right = other.to_float().ok()?;
             if cmp_lt_floats(left.get_raw_float_value(), right.get_raw_float_value()).ok()?
-                == self.code_gen.make_bool(true)
+                == self.make_true()
             {
                 Some(Ordering::Less)
             } else if cmp_eq_floats(left.get_raw_float_value(), right.get_raw_float_value()).ok()?
-                == self.code_gen.make_bool(true)
+                == self.make_true()
             {
                 Some(Ordering::Equal)
             } else if cmp_gt_floats(left.get_raw_float_value(), right.get_raw_float_value()).ok()?
-                == self.code_gen.make_bool(true)
+                == self.make_true()
             {
                 Some(Ordering::Greater)
             } else {
