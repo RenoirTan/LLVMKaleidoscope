@@ -20,4 +20,6 @@ fn main() {
     let num_2 = NumValue::new(code_gen.make_num_from_f64(PI), &code_gen).unwrap();
     println!("Created num_2: PI");
     println!("Is num_2 an int? {}", num_2.is_int());
+
+    println!("num_1.partial_cmp(&num_2): {:?}", num_1.partial_cmp(&num_2));
 }
