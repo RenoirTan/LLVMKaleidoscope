@@ -1,6 +1,6 @@
 use inkwell::{
     types::StructType,
-    values::{AggregateValue, IntValue, StructValue}
+    values::{AggregateValue, BasicValueEnum, FloatValue, IntValue, StructValue}
 };
 
 use crate::{
@@ -24,7 +24,7 @@ pub fn make_number_type<'ctx>(code_gen: &CodeGen<'ctx>) -> StructType<'ctx> {
 
 
 pub struct NumValue<'ctx: 'cdg, 'cdg> {
-    value: StructValue<'ctx>,
+    value:    StructValue<'ctx>,
     code_gen: &'cdg CodeGen<'ctx>
 }
 
@@ -56,11 +56,12 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
         }
     }
 
-    pub fn destructure(&self) {
-        println!("Destructuring number");
-        println!("{:?}", self.value.const_extract_value(&mut [0]));
-        println!("{:?}", self.value.const_extract_value(&mut [1]));
-        println!("{:?}", self.value.const_extract_value(&mut [2]));
+    pub fn destructure(&self) -> [BasicValueEnum; 3] {
+        [
+            self.value.const_extract_value(&mut [0]),
+            self.value.const_extract_value(&mut [1]),
+            self.value.const_extract_value(&mut [2])
+        ]
     }
 
     pub fn get_int_switch(&self) -> IntValue<'ctx> {
@@ -73,5 +74,13 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
 
     pub fn is_float(&self) -> bool {
         !self.is_int()
+    }
+
+    pub fn get_raw_int_value(&self) -> IntValue<'ctx> {
+        self.value.const_extract_value(&mut [0]).into_int_value()
+    }
+
+    pub fn get_raw_float_value(&self) -> FloatValue<'ctx> {
+        self.value.const_extract_value(&mut [1]).into_float_value()
     }
 }

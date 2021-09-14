@@ -235,8 +235,8 @@ impl<'a> Interpreter<'a> {
         self.istream
     }
 
-    /// Get a reference to the last error encountered during the parsing of the current
-    /// programme.
+    /// Get a reference to the last error encountered during the parsing of the
+    /// current programme.
     pub fn get_last_error(&self) -> Option<&Error> {
         self.last_error.as_ref()
     }
