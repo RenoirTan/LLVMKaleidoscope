@@ -10,6 +10,7 @@ pub enum ErrorKind {
     TypeError,
     NotBasicValueError,
     CouldNotMakeFunctionError,
+    BitWidthError,
     Other
 }
 

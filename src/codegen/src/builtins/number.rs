@@ -1,4 +1,6 @@
 use inkwell::{
+    FloatPredicate,
+    IntPredicate,
     types::StructType,
     values::{AggregateValue, BasicValueEnum, FloatValue, IntValue, StructValue}
 };
@@ -21,6 +23,112 @@ pub fn make_number_type<'ctx>(code_gen: &CodeGen<'ctx>) -> StructType<'ctx> {
         .get_struct_type(NUM_TYPE_NAME)
         .expect(&format!("{} could not be created", NUM_TYPE_NAME))
 }
+
+
+fn make_bit_width_error<'ctx>(_left: IntValue<'ctx>, _right: IntValue<'ctx>) -> Error {
+    Error::new(
+        format!("Bit widths of left and right do not match."),
+        ErrorKind::BitWidthError,
+        None
+    )
+}
+
+
+fn make_float_format_error<'ctx>(_left: FloatValue<'ctx>, _right: FloatValue<'ctx>) -> Error {
+    Error::new(
+        format!("Left and right float types do not match."),
+        ErrorKind::BitWidthError,
+        None
+    )
+}
+
+
+pub fn check_int_widths<'ctx>(left: IntValue<'ctx>, right: IntValue<'ctx>) -> bool {
+    left.get_type().get_bit_width() == right.get_type().get_bit_width()
+}
+
+
+pub fn check_float_formats<'ctx>(left: FloatValue<'ctx>, right: FloatValue<'ctx>) -> bool {
+    left.get_type() == right.get_type()
+}
+
+
+macro_rules! impl_int_math {
+    ($fn_name: ident, $method: ident) => {
+        pub fn $fn_name<'ctx>(left: inkwell::values::IntValue<'ctx>, right: inkwell::values::IntValue<'ctx>) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
+            if check_int_widths(left, right) {
+                Ok(left.$method(right))
+            } else {
+                Err(make_bit_width_error(left, right))
+            }
+        }
+    };
+}
+
+
+impl_int_math!(add_ints, const_add);
+impl_int_math!(sub_ints, const_sub);
+impl_int_math!(mul_ints, const_mul);
+impl_int_math!(div_ints, const_signed_div);
+
+
+macro_rules! impl_int_cmp {
+    ($fn_name: ident, $predicate: expr) => {
+        pub fn $fn_name<'ctx>(left: inkwell::values::IntValue<'ctx>, right: inkwell::values::IntValue<'ctx>) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
+            if check_int_widths(left, right) {
+                Ok(left.const_int_compare($predicate, right))
+            } else {
+                Err(make_bit_width_error(left, right))
+            }
+        }
+    };
+}
+
+
+impl_int_cmp!(cmp_lt_ints, IntPredicate::SLT);
+impl_int_cmp!(cmp_le_ints, IntPredicate::SLE);
+impl_int_cmp!(cmp_eq_ints, IntPredicate::EQ);
+impl_int_cmp!(cmp_ge_ints, IntPredicate::SGE);
+impl_int_cmp!(cmp_gt_ints, IntPredicate::SGT);
+
+
+macro_rules! impl_float_math {
+    ($fn_name: ident, $method: ident) => {
+        pub fn $fn_name<'ctx>(left: inkwell::values::FloatValue<'ctx>, right: inkwell::values::FloatValue<'ctx>) -> $crate::error::Result<inkwell::values::FloatValue<'ctx>> {
+            if check_float_formats(left, right) {
+                Ok(left.$method(right))
+            } else {
+                Err(make_float_format_error(left, right))
+            }
+        }
+    };
+}
+
+
+impl_float_math!(add_floats, const_add);
+impl_float_math!(sub_floats, const_sub);
+impl_float_math!(mul_floats, const_mul);
+impl_float_math!(div_floats, const_div);
+
+
+macro_rules! impl_float_cmp {
+    ($fn_name: ident, $predicate: expr) => {
+        pub fn $fn_name<'ctx>(left: inkwell::values::FloatValue<'ctx>, right: inkwell::values::FloatValue<'ctx>) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
+            if check_float_formats(left, right) {
+                Ok(left.const_compare($predicate, right))
+            } else {
+                Err(make_float_format_error(left, right))
+            }
+        }
+    };
+}
+
+
+impl_float_cmp!(cmp_lt_floats, FloatPredicate::OLT);
+impl_float_cmp!(cmp_le_floats, FloatPredicate::OLE);
+impl_float_cmp!(cmp_eq_floats, FloatPredicate::OEQ);
+impl_float_cmp!(cmp_ge_floats, FloatPredicate::OGE);
+impl_float_cmp!(cmp_gt_floats, FloatPredicate::OGT);
 
 
 pub struct NumValue<'ctx: 'cdg, 'cdg> {
