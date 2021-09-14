@@ -241,7 +241,7 @@ impl Parser {
                 None
             )),
             Some(token) => match token.token_kind {
-                TokenKind::Bracket { bracket } =>
+                TokenKind::Bracket(bracket) =>
                     if bracket.side.is_right() && matches!(bracket.kind, BracketKind::Round) {
                         self.mark_used();
                         Ok(token.clone())
@@ -274,7 +274,7 @@ impl Parser {
         let lbracket_token = ok_none!(self.peek_current_token());
         log::trace!("lbracket_token: {}", lbracket_token);
         match lbracket_token.token_kind {
-            TokenKind::Bracket { bracket } if bracket == left_bracket => (),
+            TokenKind::Bracket(bracket) if bracket == left_bracket => (),
             _ => return Ok(None)
         }
         self.mark_used();
@@ -309,7 +309,7 @@ impl Parser {
                     args.push(expression);
                     self.mark_used();
                 },
-                TokenKind::Bracket { bracket } =>
+                TokenKind::Bracket(bracket) =>
                     if left_bracket.cancels_out(bracket) {
                         if let Some(expression) = expression {
                             args.push(expression);
@@ -490,7 +490,7 @@ impl Parser {
         let token = ok_none!(self.peek_current_token());
         // println!("[{}] token: {:?}\n", function_path!(), token);
         let left_bracket = match token.token_kind {
-            TokenKind::Bracket { bracket } => bracket,
+            TokenKind::Bracket(bracket) => bracket,
             _ => return Ok(None)
         };
         if left_bracket != LEFT_ROUND_BRACKET {
@@ -520,7 +520,7 @@ impl Parser {
         };
         self.mark_used();
         let right_bracket = match token.token_kind {
-            TokenKind::Bracket { bracket } => bracket,
+            TokenKind::Bracket(bracket) => bracket,
             _ =>
                 return Err(Error::new(
                     "Expected round right bracket.".to_string(),
@@ -573,7 +573,7 @@ impl Parser {
                 }
             };
             match possible_loperator.token_kind {
-                TokenKind::Operator { operator } => {
+                TokenKind::Operator(operator) => {
                     self.mark_used();
                     loperator = operator;
                 },
@@ -625,7 +625,7 @@ impl Parser {
                     None => return Ok(Some(lhs))
                 };
                 loperator = match loperator_token.token_kind {
-                    TokenKind::Operator { operator } => {
+                    TokenKind::Operator(operator) => {
                         self.mark_used();
                         operator
                     },
@@ -664,7 +664,7 @@ impl Parser {
                 }
             };
             roperator = match possible_roperator.token_kind {
-                TokenKind::Operator { operator } => operator,
+                TokenKind::Operator(operator) => operator,
                 _ => {
                     *escaped_from_inner = true;
                     return up(loperator, lhs, rhs);
@@ -731,7 +731,7 @@ impl Parser {
             None => return Ok(Some(Box::new(VariableExpressionNode::new(identifier))))
         };
         match lbracket_token.token_kind {
-            TokenKind::Bracket { bracket } if bracket == LEFT_ROUND_BRACKET => (),
+            TokenKind::Bracket(bracket) if bracket == LEFT_ROUND_BRACKET => (),
             _ => return Ok(Some(Box::new(VariableExpressionNode::new(identifier))))
         }
 
@@ -760,7 +760,7 @@ impl Parser {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let def_token = ok_none!(self.peek_current_token());
         match def_token.token_kind {
-            TokenKind::Keyword { keyword } => match keyword {
+            TokenKind::Keyword(keyword) => match keyword {
                 Keyword::Def => (),
                 _ => return Ok(None)
             },
@@ -817,7 +817,7 @@ impl Parser {
                 )),
         };
         match lbracket_token.token_kind {
-            TokenKind::Bracket { bracket }
+            TokenKind::Bracket(bracket)
                 if (bracket.side.is_left() && matches!(bracket.kind, BracketKind::Round)) =>
                 (),
             _ =>
@@ -838,7 +838,7 @@ impl Parser {
             self.grab_if_used(ltuplemut!(stream, tokenizer))?;
             if let Some(token_1) = self.get_current_token() {
                 match token_1.token_kind {
-                    TokenKind::Bracket { bracket } =>
+                    TokenKind::Bracket(bracket) =>
                         if LEFT_ROUND_BRACKET.cancels_out(bracket) {
                             break;
                         } else {
@@ -880,7 +880,7 @@ impl Parser {
                 };
                 match token_2.token_kind {
                     TokenKind::Comma => (),
-                    TokenKind::Bracket { bracket } =>
+                    TokenKind::Bracket(bracket) =>
                         if LEFT_ROUND_BRACKET.cancels_out(bracket) {
                             break;
                         } else {
@@ -962,7 +962,7 @@ impl Parser {
         self.grab_if_used(ltuplemut!(stream, tokenizer))?;
         let extern_token = ok_none!(self.peek_current_token());
         match extern_token.token_kind {
-            TokenKind::Keyword { keyword } if matches!(keyword, Keyword::Extern) => (),
+            TokenKind::Keyword(keyword) if matches!(keyword, Keyword::Extern) => (),
             _ => {
                 if self.current_token.uses > 0 {
                     self.current_token.uses -= 1;

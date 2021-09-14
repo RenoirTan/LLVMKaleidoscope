@@ -45,5 +45,5 @@ pub use kaleidoscope_macro::{
 };
 pub use kaleidoscope_parser::{
     driver::{Driver, Interpreter},
-    parser::{Parser, ParseResult}
+    parser::{ParseResult, Parser}
 };
