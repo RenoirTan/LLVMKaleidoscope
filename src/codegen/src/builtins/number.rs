@@ -55,6 +55,8 @@ impl<'ctx> NumValue<'ctx> {
 
     pub fn destructure(&self) {
         println!("Destructuring number");
-        println!("{:?}", self.value.const_extract_value(&mut [0, 1, 2]))
+        println!("{:?}", self.value.const_extract_value(&mut [0]));
+        println!("{:?}", self.value.const_extract_value(&mut [1]));
+        println!("{:?}", self.value.const_extract_value(&mut [2]));
     }
 }
