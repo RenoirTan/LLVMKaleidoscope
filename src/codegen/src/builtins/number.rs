@@ -191,4 +191,24 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
     pub fn get_raw_float_value(&self) -> FloatValue<'ctx> {
         self.value.const_extract_value(&mut [1]).into_float_value()
     }
+
+    pub fn to_float(&self) -> Result<Self> {
+        let float = if self.is_float() {
+            self.code_gen.copy_float(self.get_raw_float_value())
+        } else {
+            self.code_gen.int_to_float(self.get_raw_int_value())
+        };
+        let raw = self.code_gen.make_num_from_float(float)?;
+        Self::new(raw, self.code_gen)
+    }
+
+    pub fn to_int(&self) -> Result<Self> {
+        let integer = if self.is_int() {
+            self.code_gen.copy_int(self.get_raw_int_value())
+        } else {
+            self.code_gen.float_to_int(self.get_raw_float_value())
+        };
+        let raw = self.code_gen.make_num_from_int(integer)?;
+        Self::new(raw, self.code_gen)
+    }
 }

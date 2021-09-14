@@ -89,6 +89,22 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
             .expect(&format!("{} type not initialised yet.", NUM_TYPE_NAME))
     }
 
+    pub fn int_to_float(&self, integer: IntValue<'val>) -> FloatValue<'val> {
+        integer.const_signed_to_float(self.get_float_type())
+    }
+
+    pub fn float_to_int(&self, float: FloatValue<'val>) -> IntValue<'val> {
+        float.const_to_signed_int(self.get_int_type())
+    }
+
+    pub fn copy_int(&self, integer: IntValue<'val>) -> IntValue<'val> {
+        integer.const_cast(self.get_int_type(), true)
+    }
+
+    pub fn copy_float(&self, float: FloatValue<'val>) -> FloatValue<'val> {
+        float.const_cast(self.get_float_type())
+    }
+
     pub fn make_num_from_i128(&self, value: i128) -> StructValue<'val> {
         self.make_num_from_int(self.make_i128(value)).unwrap()
     }
