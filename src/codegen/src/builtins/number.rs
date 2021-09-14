@@ -23,13 +23,14 @@ pub fn make_number_type<'ctx>(code_gen: &CodeGen<'ctx>) -> StructType<'ctx> {
 }
 
 
-pub struct NumValue<'ctx> {
-    value: StructValue<'ctx>
+pub struct NumValue<'ctx: 'cdg, 'cdg> {
+    value: StructValue<'ctx>,
+    code_gen: &'cdg CodeGen<'ctx>
 }
 
 
-impl<'ctx> NumValue<'ctx> {
-    pub fn new(value: StructValue<'ctx>, code_gen: &CodeGen<'ctx>) -> Result<Self> {
+impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
+    pub fn new(value: StructValue<'ctx>, code_gen: &'cdg CodeGen<'ctx>) -> Result<Self> {
         if value.get_type() != code_gen.get_num_type() {
             Err(Error::new(
                 format!("Invalid type for NumValue"),
@@ -37,19 +38,21 @@ impl<'ctx> NumValue<'ctx> {
                 None
             ))
         } else {
-            Ok(Self { value })
+            Ok(Self { value, code_gen })
         }
     }
 
-    pub fn make_i128(value: i128, code_gen: &CodeGen<'ctx>) -> Self {
+    pub fn make_i128(value: i128, code_gen: &'cdg CodeGen<'ctx>) -> Self {
         Self {
-            value: code_gen.make_num_from_i128(value)
+            value: code_gen.make_num_from_i128(value),
+            code_gen
         }
     }
 
-    pub fn make_f64(value: f64, code_gen: &CodeGen<'ctx>) -> Self {
+    pub fn make_f64(value: f64, code_gen: &'cdg CodeGen<'ctx>) -> Self {
         Self {
-            value: code_gen.make_num_from_f64(value)
+            value: code_gen.make_num_from_f64(value),
+            code_gen
         }
     }
 
@@ -64,11 +67,11 @@ impl<'ctx> NumValue<'ctx> {
         self.value.const_extract_value(&mut [2]).into_int_value()
     }
 
-    pub fn is_int(&self, code_gen: &CodeGen<'ctx>) -> bool {
-        self.get_int_switch() == code_gen.make_bool(true)
+    pub fn is_int(&self) -> bool {
+        self.get_int_switch() == self.code_gen.make_bool(true)
     }
 
-    pub fn is_float(&self, code_gen: &CodeGen<'ctx>) -> bool {
-        !self.is_int(code_gen)
+    pub fn is_float(&self) -> bool {
+        !self.is_int()
     }
 }
