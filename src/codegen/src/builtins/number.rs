@@ -1,8 +1,8 @@
 use inkwell::{
-    FloatPredicate,
-    IntPredicate,
     types::StructType,
-    values::{AggregateValue, BasicValueEnum, FloatValue, IntValue, StructValue}
+    values::{AggregateValue, BasicValueEnum, FloatValue, IntValue, StructValue},
+    FloatPredicate,
+    IntPredicate
 };
 
 use crate::{
@@ -55,7 +55,10 @@ pub fn check_float_formats<'ctx>(left: FloatValue<'ctx>, right: FloatValue<'ctx>
 
 macro_rules! impl_int_math {
     ($fn_name: ident, $method: ident) => {
-        pub fn $fn_name<'ctx>(left: inkwell::values::IntValue<'ctx>, right: inkwell::values::IntValue<'ctx>) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
+        pub fn $fn_name<'ctx>(
+            left: inkwell::values::IntValue<'ctx>,
+            right: inkwell::values::IntValue<'ctx>
+        ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
             if check_int_widths(left, right) {
                 Ok(left.$method(right))
             } else {
@@ -74,7 +77,10 @@ impl_int_math!(div_ints, const_signed_div);
 
 macro_rules! impl_int_cmp {
     ($fn_name: ident, $predicate: expr) => {
-        pub fn $fn_name<'ctx>(left: inkwell::values::IntValue<'ctx>, right: inkwell::values::IntValue<'ctx>) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
+        pub fn $fn_name<'ctx>(
+            left: inkwell::values::IntValue<'ctx>,
+            right: inkwell::values::IntValue<'ctx>
+        ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
             if check_int_widths(left, right) {
                 Ok(left.const_int_compare($predicate, right))
             } else {
@@ -94,7 +100,10 @@ impl_int_cmp!(cmp_gt_ints, IntPredicate::SGT);
 
 macro_rules! impl_float_math {
     ($fn_name: ident, $method: ident) => {
-        pub fn $fn_name<'ctx>(left: inkwell::values::FloatValue<'ctx>, right: inkwell::values::FloatValue<'ctx>) -> $crate::error::Result<inkwell::values::FloatValue<'ctx>> {
+        pub fn $fn_name<'ctx>(
+            left: inkwell::values::FloatValue<'ctx>,
+            right: inkwell::values::FloatValue<'ctx>
+        ) -> $crate::error::Result<inkwell::values::FloatValue<'ctx>> {
             if check_float_formats(left, right) {
                 Ok(left.$method(right))
             } else {
@@ -113,7 +122,10 @@ impl_float_math!(div_floats, const_div);
 
 macro_rules! impl_float_cmp {
     ($fn_name: ident, $predicate: expr) => {
-        pub fn $fn_name<'ctx>(left: inkwell::values::FloatValue<'ctx>, right: inkwell::values::FloatValue<'ctx>) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
+        pub fn $fn_name<'ctx>(
+            left: inkwell::values::FloatValue<'ctx>,
+            right: inkwell::values::FloatValue<'ctx>
+        ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
             if check_float_formats(left, right) {
                 Ok(left.const_compare($predicate, right))
             } else {
