@@ -247,6 +247,12 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
     }
 }
 
+impl<'ctx: 'cdg, 'cdg> Into<StructValue<'ctx>> for NumValue<'ctx, 'cdg> {
+    fn into(self) -> StructValue<'ctx> {
+        self.value
+    }
+}
+
 
 macro_rules! impl_binop_for_numvalue {
     ($trait_name: ident, $fn_name: ident, $int_op: ident, $float_op: ident) => {
