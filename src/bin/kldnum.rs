@@ -15,11 +15,15 @@ fn main() {
 
     let num_1 = NumValue::new(code_gen.make_num_from_i128(12345), &code_gen).unwrap();
     println!("Created num_1: 12345");
-    println!("Is num_1 an int? {}", num_1.is_int());
+    println!("{}", num_1);
 
     let num_2 = NumValue::new(code_gen.make_num_from_f64(PI), &code_gen).unwrap();
     println!("Created num_2: PI");
-    println!("Is num_2 an int? {}", num_2.is_int());
+    println!("{}", num_2);
+
+    let num_3 = &num_1 + &num_2;
+    println!("Created num_3: num_1 + num_2");
+    println!("{}", num_3);
 
     println!("num_1.partial_cmp(&num_2): {:?}", num_1.partial_cmp(&num_2));
 }

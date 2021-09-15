@@ -60,7 +60,7 @@ impl IRRepresentableExpression for IntegerNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> CodegenResult<Box<dyn BasicValue<'ctx> + 'ctx>> {
-        Ok(Box::new(code_gen.make_i128(self.get_value())))
+        Ok(Box::new(code_gen.make_num_from_i128(self.get_value())))
     }
 }
 

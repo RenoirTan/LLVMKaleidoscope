@@ -2,11 +2,12 @@
 
 use std::fmt;
 
-use inkwell::values::{BasicValue, BasicValueEnum};
-use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableExpression};
+use inkwell::values::{BasicValue, StructValue};
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableExpression, builtins::NumValue};
 
 use super::Operator;
 use crate::prelude::*;
+
 
 /// An AST representing an operator with 2 expressions by its side.
 /// For example, "1 + 2" is an expression with a binary operator, with
@@ -70,93 +71,16 @@ impl IRRepresentableExpression for BinaryOperatorNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
-        let left = self
-            .first
-            .generate_representation(code_gen)?
-            .as_basic_value_enum();
-        let right = self
-            .second
-            .generate_representation(code_gen)?
-            .as_basic_value_enum();
-        if let BasicValueEnum::IntValue(linteger) = left {
-            let rinteger = if let BasicValueEnum::IntValue(rinteger) = right {
-                rinteger
-            } else if let BasicValueEnum::FloatValue(rfloat) = right {
-                rfloat.const_to_signed_int(code_gen.get_int_type())
-            } else {
-                return Err(cgerror::Error::new(
-                    format!("Bad right type"),
-                    cgerror::ErrorKind::TypeError,
-                    None
-                ));
-            };
-            Ok(Box::new(match *self.get_operator() {
-                Operator::Plus =>
-                    code_gen
-                        .get_builder()
-                        .build_int_add(linteger, rinteger, "add_tmp_int"),
-                Operator::Minus =>
-                    code_gen
-                        .get_builder()
-                        .build_int_sub(linteger, rinteger, "sub_tmp_int"),
-                Operator::Multiply =>
-                    code_gen
-                        .get_builder()
-                        .build_int_mul(linteger, rinteger, "mul_tmp_int"),
-                Operator::Divide =>
-                    code_gen
-                        .get_builder()
-                        .build_int_signed_div(linteger, rinteger, "div_tmp_int"),
-                op =>
-                    return Err(cgerror::Error::new(
-                        format!("Unknown binary operator for integer: {}", op),
-                        cgerror::ErrorKind::UnknownOperationError,
-                        None
-                    )),
-            }))
-        } else if let BasicValueEnum::FloatValue(lfloat) = left {
-            let rfloat = if let BasicValueEnum::IntValue(rinteger) = right {
-                rinteger.const_signed_to_float(code_gen.get_float_type())
-            } else if let BasicValueEnum::FloatValue(rfloat) = right {
-                rfloat
-            } else {
-                return Err(cgerror::Error::new(
-                    format!("Bad right type"),
-                    cgerror::ErrorKind::TypeError,
-                    None
-                ));
-            };
-            Ok(Box::new(match *self.get_operator() {
-                Operator::Plus =>
-                    code_gen
-                        .get_builder()
-                        .build_float_add(lfloat, rfloat, "add_tmp_float"),
-                Operator::Minus =>
-                    code_gen
-                        .get_builder()
-                        .build_float_sub(lfloat, rfloat, "sub_tmp_float"),
-                Operator::Multiply =>
-                    code_gen
-                        .get_builder()
-                        .build_float_mul(lfloat, rfloat, "mul_tmp_float"),
-                Operator::Divide =>
-                    code_gen
-                        .get_builder()
-                        .build_float_div(lfloat, rfloat, "div_tmp_float"),
-                op =>
-                    return Err(cgerror::Error::new(
-                        format!("Unknown binary operator for float: {}", op),
-                        cgerror::ErrorKind::UnknownOperationError,
-                        None
-                    )),
-            }))
-        } else {
-            Err(cgerror::Error::new(
-                format!("Bad left type"),
-                cgerror::ErrorKind::TypeError,
-                None
-            ))
-        }
+        let left = NumValue::new(self.first.generate_representation(code_gen)?.as_basic_value_enum().into_struct_value(), code_gen)?;
+        let right = NumValue::new(self.second.generate_representation(code_gen)?.as_basic_value_enum().into_struct_value(), code_gen)?;
+        let result: StructValue<'ctx> = match *self.operator {
+            Operator::Plus => (&left + &right).into(),
+            Operator::Minus => (&left - &right).into(),
+            Operator::Multiply => (&left - &right).into(),
+            Operator::Divide => (&left - &right).into(),
+            _ => return Err(cgerror::Error::new(format!("Unknown binary operator: {}", self.operator), cgerror::ErrorKind::UnknownOperationError, None))
+        };
+        Ok(Box::new(result))
     }
 }
 

@@ -1,11 +1,12 @@
 use std::{
     cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd},
+    fmt,
     ops::{Add, Div, Mul, Sub}
 };
 
 use inkwell::{
     types::StructType,
-    values::{AggregateValue, BasicValueEnum, FloatValue, IntValue, StructValue},
+    values::{AggregateValue, BasicValue, BasicValueEnum, FloatValue, IntValue, StructValue},
     FloatPredicate,
     IntPredicate
 };
@@ -245,11 +246,27 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
             self.to_float()
         }
     }
+
+    pub fn simplify_to_basic_value(&self) -> Box<dyn BasicValue<'ctx> + 'ctx> {
+        if self.is_int() {
+            Box::new(self.get_raw_int_value())
+        } else {
+            Box::new(self.get_raw_float_value())
+        }
+    }
 }
+
 
 impl<'ctx: 'cdg, 'cdg> Into<StructValue<'ctx>> for NumValue<'ctx, 'cdg> {
     fn into(self) -> StructValue<'ctx> {
         self.value
+    }
+}
+
+
+impl<'ctx: 'cdg, 'cdg> fmt::Display for NumValue<'ctx, 'cdg> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}({:?})", NUM_TYPE_NAME, self.simplify_to_basic_value())
     }
 }
 

@@ -43,7 +43,7 @@ impl IRRepresentableExpression for FloatNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> CodegenResult<Box<dyn BasicValue<'ctx> + 'ctx>> {
-        Ok(Box::new(code_gen.make_f64(self.get_value())))
+        Ok(Box::new(code_gen.make_num_from_f64(self.get_value())))
     }
 }
 
