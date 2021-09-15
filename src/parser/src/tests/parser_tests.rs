@@ -182,7 +182,7 @@ fn test_binop_4() {
     println!("{}: {}", function_name!(), expression);
     // Doing the checks like in the previous binop tests are going to become
     // too bulky
-    assert_eq!(format!("{}", expression), "(+(1)(/(*(2)(3))(-(4)(5))))");
+    assert_eq!(format!("{}", expression), "(1 + ((2 * 3) / (4 - 5)))");
 }
 
 #[test]
@@ -193,7 +193,7 @@ fn test_binop_5() {
         .unwrap()
         .unwrap();
     println!("{}: {}", function_name!(), expression);
-    assert_eq!(format!("{}", expression), "(/(*(+(1)(2))(3))(-(4)(5)))");
+    assert_eq!(format!("{}", expression), "(((1 + 2) * 3) / (4 - 5))");
 }
 
 #[test]
@@ -206,7 +206,7 @@ fn test_function_call() {
     println!("{}: {}", function_name!(), expression);
     assert_eq!(
         format!("{}", expression),
-        "(randint((x), (+(2)(max((24), (-(a)(time())))))))"
+        "randint(x, (2 + max(24, (a - time()))))"
     );
 }
 

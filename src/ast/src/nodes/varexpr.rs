@@ -15,7 +15,7 @@ pub struct VariableExpressionNode {
 
 impl fmt::Display for VariableExpressionNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({})", self.identifier)
+        write!(f, "{}", self.identifier)
     }
 }
 

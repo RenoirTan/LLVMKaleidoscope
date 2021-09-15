@@ -31,7 +31,7 @@ impl Eq for FloatNode {}
 
 impl fmt::Display for FloatNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({})", self.value)
+        write!(f, "{}", self.value)
     }
 }
 
