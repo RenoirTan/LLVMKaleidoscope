@@ -32,7 +32,7 @@ impl IntegerNode {
 
 impl fmt::Display for IntegerNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({})", self.value)
+        write!(f, "{}", self.value)
     }
 }
 

@@ -22,7 +22,7 @@ fn press_enter_to_continue(prompt: &dyn AsRef<str>) {
 fn main() {
     kaleidoscope_logging::init(None).unwrap();
 
-    log::info!("STARTING REPL");
+    log::debug!("STARTING REPL");
     println!("{}", WELCOME_MESSAGE);
     let mut repl = Interpreter::default();
     println!("Statements parsed: {}", repl.main_loop());
