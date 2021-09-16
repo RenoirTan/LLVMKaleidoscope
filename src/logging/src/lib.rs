@@ -4,8 +4,8 @@
 use std::{convert::AsRef, fs::OpenOptions, path::Path};
 
 use env_logger::Target;
-// use log::LevelFilter;
 
+// use log::LevelFilter;
 use crate::{
     error::{Error, ErrorKind, Result},
     helpers::format_record
