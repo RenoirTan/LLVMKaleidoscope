@@ -10,7 +10,7 @@ use inkwell::{
 use crate::{
     builtins::number::{make_number_type, NUM_TYPE_NAME},
     error::{Error, ErrorKind, Result},
-    int::To64BEWord,
+    int::To64LLVMWord,
     traits::IRRepresentableExpression
 };
 
@@ -169,61 +169,61 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
     /// Create a u8 value from this context.
     pub fn make_u8(&self, value: u8) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_u8(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_u8(value))
     }
 
     /// Create a u16 value from this context.
     pub fn make_u16(&self, value: u16) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_u16(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_u16(value))
     }
 
     /// Create a u32 from this context.
     pub fn make_u32(&self, value: u32) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_u32(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_u32(value))
     }
 
     /// Create a u64 from this context.
     pub fn make_u64(&self, value: u64) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_u64(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_u64(value))
     }
 
     /// Create a u128 from this context.
     pub fn make_u128(&self, value: u128) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_u128(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_u128(value))
     }
 
     /// Create an i8 from this context.
     pub fn make_i8(&self, value: i8) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_i8(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_i8(value))
     }
 
     /// Create an i16 from this context.
     pub fn make_i16(&self, value: i16) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_i16(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_i16(value))
     }
 
     /// Create an i32 from this context.
     pub fn make_i32(&self, value: i32) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_i32(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_i32(value))
     }
 
     /// Create an i64 from this context.
     pub fn make_i64(&self, value: i64) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_i64(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_i64(value))
     }
 
     /// Create an i128 from this context.
     pub fn make_i128(&self, value: i128) -> IntValue<'val> {
         self.get_int_type()
-            .const_int_arbitrary_precision(&To64BEWord::from_i128(value))
+            .const_int_arbitrary_precision(&To64LLVMWord::from_i128(value))
     }
 
     /// Create a f32 from this context.
