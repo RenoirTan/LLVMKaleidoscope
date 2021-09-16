@@ -1,4 +1,7 @@
-use std::{cell::{Ref, RefCell, RefMut}, collections::HashMap};
+use std::{
+    cell::{Ref, RefCell, RefMut},
+    collections::HashMap
+};
 
 use inkwell::{
     builder::Builder,
@@ -6,7 +9,7 @@ use inkwell::{
     execution_engine::ExecutionEngine,
     module::Module,
     types::{FloatType, IntType, StructType},
-    values::{BasicValue, FloatValue, IntValue, StructValue}
+    values::{BasicValue, BasicValueEnum, FloatValue, IntValue, StructValue}
 };
 
 use crate::{
@@ -31,10 +34,10 @@ pub type NamedValues<'ctx> = HashMap<String, Box<dyn BasicValue<'ctx> + 'ctx>>;
 
 /// A structure representing an LLVM IR generator.
 pub struct CodeGen<'ctx> {
-    context: &'ctx Context,
-    module:  Module<'ctx>,
-    builder: Builder<'ctx>,
-    engine:  ExecutionEngine<'ctx>,
+    context:      &'ctx Context,
+    module:       Module<'ctx>,
+    builder:      Builder<'ctx>,
+    engine:       ExecutionEngine<'ctx>,
     named_values: RefCell<NamedValues<'ctx>>
 }
 
@@ -101,6 +104,16 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
         self.get_module()
             .get_struct_type(NUM_TYPE_NAME)
             .expect(&format!("{} type not initialised yet.", NUM_TYPE_NAME))
+    }
+
+    pub fn get_value(&self, name: &str) -> Option<BasicValueEnum<'ctx>> {
+        self.get_named_values()
+            .get(name)
+            .map(|v| v.as_basic_value_enum())
+    }
+
+    pub fn set_value(&self, name: String, value: Box<dyn BasicValue<'ctx> + 'ctx>) {
+        self.get_mut_named_values().insert(name, value);
     }
 
     pub fn int_to_float(&self, integer: IntValue<'val>) -> FloatValue<'val> {

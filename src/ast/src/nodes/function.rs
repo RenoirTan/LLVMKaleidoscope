@@ -6,7 +6,6 @@ use std::fmt;
 use inkwell::values::AnyValue;
 use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableNode};
 */
-
 use super::FunctionPrototypeNode;
 use crate::prelude::*;
 
@@ -81,7 +80,7 @@ impl IRRepresentableNode for FunctionNode {
             ));
         }
         let basic_block = code_gen.get_context().append_basic_block(function, "entry");
-        
+
     }
 }
 */
