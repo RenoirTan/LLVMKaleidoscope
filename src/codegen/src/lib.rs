@@ -7,6 +7,9 @@ pub mod error;
 pub mod int;
 pub mod traits;
 
+#[cfg(test)]
+mod tests;
+
 pub use crate::{
     codegen::{create_code_gen, CodeGen},
     traits::{IRRepresentableExpression, IRRepresentableNode}
