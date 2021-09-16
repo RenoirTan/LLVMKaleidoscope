@@ -13,8 +13,8 @@ fn main() {
     let code_gen = create_code_gen(&context, module, engine);
     println!("CodeGen created");
 
-    let num_1 = NumValue::new(code_gen.make_num_from_i128(12345), &code_gen).unwrap();
-    println!("Created num_1: 12345");
+    let num_1 = NumValue::new(code_gen.make_num_from_i128(1), &code_gen).unwrap();
+    println!("Created num_1: 1");
     println!("{}", num_1);
 
     let num_2 = NumValue::new(code_gen.make_num_from_f64(PI), &code_gen).unwrap();
