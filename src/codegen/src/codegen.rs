@@ -85,6 +85,10 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
         self.named_values.borrow_mut()
     }
 
+    pub fn clear_named_values(&self) {
+        self.get_mut_named_values().clear();
+    }
+
     pub fn get_bool_type(&self) -> IntType<'val> {
         self.get_context().bool_type()
     }
