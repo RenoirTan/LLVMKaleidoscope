@@ -49,8 +49,8 @@ fn make_float_format_error<'ctx>(_left: FloatValue<'ctx>, _right: FloatValue<'ct
 }
 
 
-pub fn check_int_widths<'ctx>(left: IntValue<'ctx>, right: IntValue<'ctx>) -> bool {
-    left.get_type().get_bit_width() == right.get_type().get_bit_width()
+pub fn check_int_types<'ctx>(left: IntValue<'ctx>, right: IntValue<'ctx>) -> bool {
+    left.get_type() == right.get_type()
 }
 
 
@@ -60,13 +60,14 @@ pub fn check_float_formats<'ctx>(left: FloatValue<'ctx>, right: FloatValue<'ctx>
 
 
 macro_rules! impl_int_math {
-    ($fn_name: ident, $method: ident) => {
+    ($fn_name: ident, $method: ident, $tmp_name: expr) => {
         pub fn $fn_name<'ctx>(
             left: inkwell::values::IntValue<'ctx>,
-            right: inkwell::values::IntValue<'ctx>
+            right: inkwell::values::IntValue<'ctx>,
+            code_gen: &$crate::CodeGen<'ctx>
         ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
-            if check_int_widths(left, right) {
-                Ok(left.$method(right))
+            if check_int_types(left, right) {
+                Ok(code_gen.get_builder().$method(left, right, $tmp_name))
             } else {
                 Err(make_bit_width_error(left, right))
             }
@@ -75,20 +76,23 @@ macro_rules! impl_int_math {
 }
 
 
-impl_int_math!(add_ints, const_add);
-impl_int_math!(sub_ints, const_sub);
-impl_int_math!(mul_ints, const_mul);
-impl_int_math!(div_ints, const_signed_div);
+impl_int_math!(add_ints, build_int_add, "add_tmp_int");
+impl_int_math!(sub_ints, build_int_sub, "sub_tmp_int");
+impl_int_math!(mul_ints, build_int_mul, "mul_tmp_int");
+impl_int_math!(div_ints, build_int_signed_div, "div_tmp_int");
 
 
 macro_rules! impl_int_cmp {
-    ($fn_name: ident, $predicate: expr) => {
+    ($fn_name: ident, $predicate: expr, $tmp_name: expr) => {
         pub fn $fn_name<'ctx>(
             left: inkwell::values::IntValue<'ctx>,
-            right: inkwell::values::IntValue<'ctx>
+            right: inkwell::values::IntValue<'ctx>,
+            code_gen: &$crate::CodeGen<'ctx>
         ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
-            if check_int_widths(left, right) {
-                Ok(left.const_int_compare($predicate, right))
+            if check_int_types(left, right) {
+                Ok(code_gen
+                    .get_builder()
+                    .build_int_compare($predicate, left, right, $tmp_name))
             } else {
                 Err(make_bit_width_error(left, right))
             }
@@ -97,21 +101,22 @@ macro_rules! impl_int_cmp {
 }
 
 
-impl_int_cmp!(cmp_lt_ints, IntPredicate::SLT);
-impl_int_cmp!(cmp_le_ints, IntPredicate::SLE);
-impl_int_cmp!(cmp_eq_ints, IntPredicate::EQ);
-impl_int_cmp!(cmp_ge_ints, IntPredicate::SGE);
-impl_int_cmp!(cmp_gt_ints, IntPredicate::SGT);
+impl_int_cmp!(cmp_lt_ints, IntPredicate::SLT, "cmp_lt_tmp_int");
+impl_int_cmp!(cmp_le_ints, IntPredicate::SLE, "cmp_le_tmp_int");
+impl_int_cmp!(cmp_eq_ints, IntPredicate::EQ, "cmp_eq_tmp_int");
+impl_int_cmp!(cmp_ge_ints, IntPredicate::SGE, "cmp_ge_tmp_int");
+impl_int_cmp!(cmp_gt_ints, IntPredicate::SGT, "cmp_gt_tmp_int");
 
 
 macro_rules! impl_float_math {
-    ($fn_name: ident, $method: ident) => {
+    ($fn_name: ident, $method: ident, $tmp_name: expr) => {
         pub fn $fn_name<'ctx>(
             left: inkwell::values::FloatValue<'ctx>,
-            right: inkwell::values::FloatValue<'ctx>
+            right: inkwell::values::FloatValue<'ctx>,
+            code_gen: &$crate::CodeGen<'ctx>
         ) -> $crate::error::Result<inkwell::values::FloatValue<'ctx>> {
             if check_float_formats(left, right) {
-                Ok(left.$method(right))
+                Ok(code_gen.get_builder().$method(left, right, $tmp_name))
             } else {
                 Err(make_float_format_error(left, right))
             }
@@ -120,20 +125,23 @@ macro_rules! impl_float_math {
 }
 
 
-impl_float_math!(add_floats, const_add);
-impl_float_math!(sub_floats, const_sub);
-impl_float_math!(mul_floats, const_mul);
-impl_float_math!(div_floats, const_div);
+impl_float_math!(add_floats, build_float_add, "add_tmp_float");
+impl_float_math!(sub_floats, build_float_sub, "sub_tmp_float");
+impl_float_math!(mul_floats, build_float_mul, "mul_tmp_float");
+impl_float_math!(div_floats, build_float_div, "div_tmp_float");
 
 
 macro_rules! impl_float_cmp {
-    ($fn_name: ident, $predicate: expr) => {
+    ($fn_name: ident, $predicate: expr, $tmp_name: expr) => {
         pub fn $fn_name<'ctx>(
             left: inkwell::values::FloatValue<'ctx>,
-            right: inkwell::values::FloatValue<'ctx>
+            right: inkwell::values::FloatValue<'ctx>,
+            code_gen: &$crate::CodeGen<'ctx>
         ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
             if check_float_formats(left, right) {
-                Ok(left.const_compare($predicate, right))
+                Ok(code_gen
+                    .get_builder()
+                    .build_float_compare($predicate, left, right, $tmp_name))
             } else {
                 Err(make_float_format_error(left, right))
             }
@@ -142,11 +150,11 @@ macro_rules! impl_float_cmp {
 }
 
 
-impl_float_cmp!(cmp_lt_floats, FloatPredicate::OLT);
-impl_float_cmp!(cmp_le_floats, FloatPredicate::OLE);
-impl_float_cmp!(cmp_eq_floats, FloatPredicate::OEQ);
-impl_float_cmp!(cmp_ge_floats, FloatPredicate::OGE);
-impl_float_cmp!(cmp_gt_floats, FloatPredicate::OGT);
+impl_float_cmp!(cmp_lt_floats, FloatPredicate::OLT, "cmp_lt_tmp_float");
+impl_float_cmp!(cmp_le_floats, FloatPredicate::OLE, "cmp_le_tmp_float");
+impl_float_cmp!(cmp_eq_floats, FloatPredicate::OEQ, "cmp_eq_tmp_float");
+impl_float_cmp!(cmp_ge_floats, FloatPredicate::OGE, "cmp_ge_tmp_float");
+impl_float_cmp!(cmp_gt_floats, FloatPredicate::OGT, "cmp_gt_tmp_float");
 
 
 pub struct NumValue<'ctx: 'cdg, 'cdg> {
@@ -278,14 +286,22 @@ macro_rules! impl_binop_for_numvalue {
 
             fn $fn_name(self, rhs: Self) -> Self::Output {
                 let raw = if self.is_int() && rhs.is_int() {
-                    let result =
-                        $int_op(self.get_raw_int_value(), rhs.get_raw_int_value()).unwrap();
+                    let result = $int_op(
+                        self.get_raw_int_value(),
+                        rhs.get_raw_int_value(),
+                        self.code_gen
+                    )
+                    .unwrap();
                     self.code_gen.make_num_from_int(result).unwrap()
                 } else {
                     let left = self.to_float().unwrap();
                     let right = rhs.to_float().unwrap();
-                    let result =
-                        $float_op(left.get_raw_float_value(), right.get_raw_float_value()).unwrap();
+                    let result = $float_op(
+                        left.get_raw_float_value(),
+                        right.get_raw_float_value(),
+                        self.code_gen
+                    )
+                    .unwrap();
                     self.code_gen.make_num_from_float(result).unwrap()
                 };
                 NumValue::new(raw, &self.code_gen).unwrap()
@@ -303,12 +319,22 @@ impl_binop_for_numvalue!(Div, div, div_ints, div_floats);
 impl<'ctx: 'cdg, 'cdg> PartialEq for NumValue<'ctx, 'cdg> {
     fn eq(&self, other: &Self) -> bool {
         if self.is_int() && other.is_int() {
-            cmp_eq_ints(self.get_raw_int_value(), other.get_raw_int_value()).unwrap()
+            cmp_eq_ints(
+                self.get_raw_int_value(),
+                other.get_raw_int_value(),
+                self.code_gen
+            )
+            .unwrap()
                 == self.make_true()
         } else {
             let left = self.to_float().unwrap();
             let right = other.to_float().unwrap();
-            cmp_eq_floats(left.get_raw_float_value(), right.get_raw_float_value()).unwrap()
+            cmp_eq_floats(
+                left.get_raw_float_value(),
+                right.get_raw_float_value(),
+                self.code_gen
+            )
+            .unwrap()
                 == self.make_true()
         }
     }
@@ -321,15 +347,30 @@ impl<'ctx: 'cdg, 'cdg> Eq for NumValue<'ctx, 'cdg> {}
 impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self.is_int() && other.is_int() {
-            if cmp_lt_ints(self.get_raw_int_value(), other.get_raw_int_value()).ok()?
+            if cmp_lt_ints(
+                self.get_raw_int_value(),
+                other.get_raw_int_value(),
+                self.code_gen
+            )
+            .ok()?
                 == self.make_true()
             {
                 Some(Ordering::Less)
-            } else if cmp_eq_ints(self.get_raw_int_value(), other.get_raw_int_value()).ok()?
+            } else if cmp_eq_ints(
+                self.get_raw_int_value(),
+                other.get_raw_int_value(),
+                self.code_gen
+            )
+            .ok()?
                 == self.make_true()
             {
                 Some(Ordering::Equal)
-            } else if cmp_gt_ints(self.get_raw_int_value(), other.get_raw_int_value()).ok()?
+            } else if cmp_gt_ints(
+                self.get_raw_int_value(),
+                other.get_raw_int_value(),
+                self.code_gen
+            )
+            .ok()?
                 == self.make_true()
             {
                 Some(Ordering::Greater)
@@ -339,15 +380,30 @@ impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
         } else {
             let left = self.to_float().ok()?;
             let right = other.to_float().ok()?;
-            if cmp_lt_floats(left.get_raw_float_value(), right.get_raw_float_value()).ok()?
+            if cmp_lt_floats(
+                left.get_raw_float_value(),
+                right.get_raw_float_value(),
+                self.code_gen
+            )
+            .ok()?
                 == self.make_true()
             {
                 Some(Ordering::Less)
-            } else if cmp_eq_floats(left.get_raw_float_value(), right.get_raw_float_value()).ok()?
+            } else if cmp_eq_floats(
+                left.get_raw_float_value(),
+                right.get_raw_float_value(),
+                self.code_gen
+            )
+            .ok()?
                 == self.make_true()
             {
                 Some(Ordering::Equal)
-            } else if cmp_gt_floats(left.get_raw_float_value(), right.get_raw_float_value()).ok()?
+            } else if cmp_gt_floats(
+                left.get_raw_float_value(),
+                right.get_raw_float_value(),
+                self.code_gen
+            )
+            .ok()?
                 == self.make_true()
             {
                 Some(Ordering::Greater)
