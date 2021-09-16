@@ -62,7 +62,7 @@ impl Node for UnaryOperatorNode {
 }
 
 impl IRRepresentableExpression for UnaryOperatorNode {
-    fn generate_representation<'ctx>(
+    fn represent_expression<'ctx>(
         &self,
         _code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {

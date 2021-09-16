@@ -154,7 +154,7 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
         &self,
         node: &dyn IRRepresentableExpression
     ) -> Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
-        node.generate_representation(self)
+        node.represent_expression(self)
     }
 
     pub fn make_bool(&self, value: bool) -> IntValue<'val> {

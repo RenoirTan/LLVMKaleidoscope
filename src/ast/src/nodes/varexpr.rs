@@ -45,7 +45,7 @@ impl Node for VariableExpressionNode {
 }
 
 impl IRRepresentableExpression for VariableExpressionNode {
-    fn generate_representation<'ctx>(
+    fn represent_expression<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {

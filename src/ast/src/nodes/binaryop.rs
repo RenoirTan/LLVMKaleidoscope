@@ -72,20 +72,20 @@ impl Clone for BinaryOperatorNode {
 }
 
 impl IRRepresentableExpression for BinaryOperatorNode {
-    fn generate_representation<'ctx>(
+    fn represent_expression<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
         let left = NumValue::new(
             self.first
-                .generate_representation(code_gen)?
+                .represent_expression(code_gen)?
                 .as_basic_value_enum()
                 .into_struct_value(),
             code_gen
         )?;
         let right = NumValue::new(
             self.second
-                .generate_representation(code_gen)?
+                .represent_expression(code_gen)?
                 .as_basic_value_enum()
                 .into_struct_value(),
             code_gen

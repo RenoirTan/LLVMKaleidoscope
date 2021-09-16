@@ -56,7 +56,7 @@ impl FromToken for IntegerNode {
 }
 
 impl IRRepresentableExpression for IntegerNode {
-    fn generate_representation<'ctx>(
+    fn represent_expression<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> CodegenResult<Box<dyn BasicValue<'ctx> + 'ctx>> {

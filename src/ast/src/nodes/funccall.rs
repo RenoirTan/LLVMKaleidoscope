@@ -54,7 +54,7 @@ impl Clone for FunctionCallNode {
 }
 
 impl IRRepresentableExpression for FunctionCallNode {
-    fn generate_representation<'ctx>(
+    fn represent_expression<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
@@ -70,7 +70,7 @@ impl IRRepresentableExpression for FunctionCallNode {
         };
         let mut args: Vec<BasicValueEnum> = Vec::with_capacity(self.get_arguments().len());
         for arg in self.get_arguments() {
-            args.push(arg.generate_representation(code_gen)?.as_basic_value_enum());
+            args.push(arg.represent_expression(code_gen)?.as_basic_value_enum());
         }
         match code_gen
             .get_builder()
