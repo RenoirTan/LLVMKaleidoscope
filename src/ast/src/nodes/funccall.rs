@@ -72,21 +72,18 @@ impl IRRepresentableExpression for FunctionCallNode {
         for arg in self.get_arguments() {
             args.push(arg.generate_representation(code_gen)?.as_basic_value_enum());
         }
-        Ok(Box::new(
-            match code_gen
-                .get_builder()
-                .build_call(function, &*args, "call_tmp")
-                .try_as_basic_value()
-            {
-                Either::Left(basic) => basic,
-                Either::Right(_instruction) =>
-                    return Err(cgerror::Error::new(
-                        format!("Function converted to instruction value"),
-                        cgerror::ErrorKind::NotBasicValueError,
-                        None
-                    )),
-            }
-        ))
+        match code_gen
+            .get_builder()
+            .build_call(function, &*args, "call_tmp")
+            .try_as_basic_value()
+        {
+            Either::Left(basic) => Ok(Box::new(basic)),
+            Either::Right(_instruction) => Err(cgerror::Error::new(
+                format!("Function converted to instruction value"),
+                cgerror::ErrorKind::NotBasicValueError,
+                None
+            ))
+        }
     }
 }
 
