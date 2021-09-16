@@ -2,6 +2,8 @@
 
 use std::fmt;
 
+use inkwell::{module::Linkage, values::AnyValue};
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableNode};
 use kaleidoscope_macro::iterator_to_str;
 
 use super::IdentifierNode;
@@ -54,3 +56,25 @@ impl Node for FunctionPrototypeNode {
 }
 
 impl NodeType for FunctionPrototypeNode {}
+
+impl IRRepresentableNode for FunctionPrototypeNode {
+    fn represent_node<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
+        let num_type = code_gen.get_num_type();
+        let params = {
+            let len = self.get_parameters().len();
+            let mut p = Vec::with_capacity(len);
+            p.resize(len, num_type.into());
+            p
+        };
+        let fn_type = num_type.fn_type(&*params, false);
+        let function = code_gen.get_module().add_function(
+            self.get_identifier().get_identifier(),
+            fn_type,
+            Some(Linkage::External)
+        );
+        Ok(Box::new(function))
+    }
+}

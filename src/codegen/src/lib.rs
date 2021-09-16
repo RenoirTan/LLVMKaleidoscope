@@ -9,5 +9,5 @@ pub mod traits;
 
 pub use crate::{
     codegen::{create_code_gen, CodeGen},
-    traits::IRRepresentableExpression
+    traits::{IRRepresentableExpression, IRRepresentableNode}
 };
