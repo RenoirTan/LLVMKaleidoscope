@@ -2,6 +2,11 @@
 
 use std::fmt;
 
+/*
+use inkwell::values::AnyValue;
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableNode};
+*/
+
 use super::FunctionPrototypeNode;
 use crate::prelude::*;
 
@@ -52,3 +57,31 @@ impl Node for FunctionNode {
 }
 
 impl NodeType for FunctionNode {}
+
+/*
+impl IRRepresentableNode for FunctionNode {
+    fn represent_node<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
+        let name = self.get_prototype().get_identifier().get_identifier();
+        let function = match code_gen.get_module().get_function(name) {
+            Some(f) => f,
+            None => self
+                .get_prototype()
+                .represent_node(code_gen)?
+                .as_any_value_enum()
+                .into_function_value()
+        };
+        if !function.is_undef() {
+            return Err(cgerror::Error::new(
+                format!("{} has more than 1 definition.", name),
+                cgerror::ErrorKind::CouldNotMakeFunctionError,
+                None
+            ));
+        }
+        let basic_block = code_gen.get_context().append_basic_block(function, "entry");
+        
+    }
+}
+*/
