@@ -32,22 +32,38 @@ impl To64BEWord {
 
     /// Convert a i8 to a 64-bit word array.
     pub fn from_i8(value: i8) -> [u64; 1] {
-        [value.to_be_bytes()[0] as u64]
+        [u64::from_be_bytes([
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            value.to_be_bytes()[0]
+        ])]
     }
 
     /// Convert a i16 to a 64-bit word array.
     pub fn from_i16(value: i16) -> [u64; 1] {
-        [value.to_be_bytes()[0] as u64]
+        let bytes = value.to_be_bytes();
+        [u64::from_be_bytes([0, 0, 0, 0, 0, 0, bytes[0], bytes[1]])]
     }
 
     /// Convert a i32 to a 64-bit word array.
     pub fn from_i32(value: i32) -> [u64; 1] {
-        [value.to_be_bytes()[0] as u64]
+        let bytes = value.to_be_bytes();
+        [u64::from_be_bytes([
+            0, 0, 0, 0, bytes[0], bytes[1], bytes[2], bytes[3]
+        ])]
     }
 
     /// Convert a i64 to a 64-bit word array.
     pub fn from_i64(value: i64) -> [u64; 1] {
-        [value.to_be_bytes()[0] as u64]
+        let bytes = value.to_be_bytes();
+        [u64::from_be_bytes([
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]
+        ])]
     }
 
     /// Convert a i128 to a 64-bit word array.

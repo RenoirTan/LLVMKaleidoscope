@@ -27,7 +27,7 @@ pub struct BinaryOperatorNode {
 
 impl fmt::Display for BinaryOperatorNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}{}{})", self.operator, self.first, self.second)
+        write!(f, "({} {} {})", self.first, self.operator, self.second)
     }
 }
 

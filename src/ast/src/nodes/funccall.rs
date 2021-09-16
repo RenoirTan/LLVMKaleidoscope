@@ -22,7 +22,7 @@ pub struct FunctionCallNode {
 impl fmt::Display for FunctionCallNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let args = iterator_to_str!(self.arguments.iter(), ", ");
-        write!(f, "({}({}))", self.identifier, args)
+        write!(f, "{}({})", self.identifier, args)
     }
 }
 

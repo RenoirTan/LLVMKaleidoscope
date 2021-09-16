@@ -78,7 +78,7 @@ impl Token {
             | TokenKind::Comma
             | TokenKind::Semicolon
             | TokenKind::Operator { .. } => true,
-            TokenKind::Bracket { bracket } => bracket.side.is_right(),
+            TokenKind::Bracket(bracket) => bracket.side.is_right(),
             _ => false
         }
     }
@@ -115,10 +115,10 @@ impl Token {
             self.token_kind = TokenKind::Integer;
         } else if utils::is_opchar(unit) {
             let operator = Operator::from_string(self.borrow_span());
-            self.token_kind = TokenKind::Operator { operator };
+            self.token_kind = TokenKind::Operator(operator);
         } else if utils::is_bracket(unit) {
             let bracket = Bracket::from_string(self.borrow_span());
-            self.token_kind = TokenKind::Bracket { bracket };
+            self.token_kind = TokenKind::Bracket(bracket);
         } else if utils::is_comma(unit) {
             self.token_kind = TokenKind::Comma;
         } else if utils::is_dot(unit) {
@@ -201,7 +201,7 @@ impl Token {
 
     fn resolve_identifier(&mut self, _index: FileIndex) -> Result<bool> {
         if let Some(keyword) = Keyword::from_string(self.borrow_span()) {
-            self.token_kind = TokenKind::Keyword { keyword };
+            self.token_kind = TokenKind::Keyword(keyword);
         }
         Ok(true)
     }
@@ -238,7 +238,7 @@ impl Token {
                 None
             )),
             operator => {
-                self.token_kind = TokenKind::Operator { operator };
+                self.token_kind = TokenKind::Operator(operator);
                 Ok(true)
             }
         }
@@ -257,7 +257,7 @@ impl Token {
                 None
             )),
             _ => {
-                self.token_kind = TokenKind::Bracket { bracket };
+                self.token_kind = TokenKind::Bracket(bracket);
                 Ok(true)
             }
         }

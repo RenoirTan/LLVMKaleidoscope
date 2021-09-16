@@ -4,7 +4,7 @@
 use std::{convert::AsRef, fs::OpenOptions, path::Path};
 
 use env_logger::Target;
-use log::LevelFilter;
+// use log::LevelFilter;
 
 use crate::{
     error::{Error, ErrorKind, Result},
@@ -33,7 +33,7 @@ pub fn init(output_filepath: Option<&dyn AsRef<Path>>) -> Result<()> {
     env_logger::builder()
         .is_test(true)
         .format(format_record)
-        .filter_level(LevelFilter::Warn)
+        // .filter_level(LevelFilter::Warn)
         .target(target)
         .try_init()
         .map_err(Error::factory(ErrorKind::LoggerError))
