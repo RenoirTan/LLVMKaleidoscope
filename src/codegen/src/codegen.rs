@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cell::{Ref, RefCell, RefMut}, collections::HashMap};
 
 use inkwell::{
     builder::Builder,
@@ -35,7 +35,7 @@ pub struct CodeGen<'ctx> {
     module:  Module<'ctx>,
     builder: Builder<'ctx>,
     engine:  ExecutionEngine<'ctx>,
-    named_values: NamedValues<'ctx>
+    named_values: RefCell<NamedValues<'ctx>>
 }
 
 impl<'ctx: 'val, 'val> CodeGen<'ctx> {
@@ -45,7 +45,7 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
             module,
             builder: context.create_builder(),
             engine,
-            named_values: HashMap::new()
+            named_values: RefCell::new(HashMap::new())
         }
     }
 
@@ -74,12 +74,12 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
         &self.engine
     }
 
-    pub fn get_named_values(&self) -> &NamedValues<'ctx> {
-        &self.named_values
+    pub fn get_named_values(&self) -> Ref<NamedValues<'ctx>> {
+        self.named_values.borrow()
     }
 
-    pub fn get_mut_named_values(&mut self) -> &mut NamedValues<'ctx> {
-        &mut self.named_values
+    pub fn get_mut_named_values(&self) -> RefMut<NamedValues<'ctx>> {
+        self.named_values.borrow_mut()
     }
 
     pub fn get_bool_type(&self) -> IntType<'val> {
