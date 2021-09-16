@@ -3,7 +3,12 @@
 use std::fmt;
 
 use inkwell::values::{BasicValue, StructValue};
-use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableExpression, builtins::NumValue};
+use kaleidoscope_codegen::{
+    builtins::NumValue,
+    error as cgerror,
+    CodeGen,
+    IRRepresentableExpression
+};
 
 use super::Operator;
 use crate::prelude::*;
@@ -71,14 +76,31 @@ impl IRRepresentableExpression for BinaryOperatorNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
-        let left = NumValue::new(self.first.generate_representation(code_gen)?.as_basic_value_enum().into_struct_value(), code_gen)?;
-        let right = NumValue::new(self.second.generate_representation(code_gen)?.as_basic_value_enum().into_struct_value(), code_gen)?;
+        let left = NumValue::new(
+            self.first
+                .generate_representation(code_gen)?
+                .as_basic_value_enum()
+                .into_struct_value(),
+            code_gen
+        )?;
+        let right = NumValue::new(
+            self.second
+                .generate_representation(code_gen)?
+                .as_basic_value_enum()
+                .into_struct_value(),
+            code_gen
+        )?;
         let result: StructValue<'ctx> = match *self.operator {
             Operator::Plus => (&left + &right).into(),
             Operator::Minus => (&left - &right).into(),
             Operator::Multiply => (&left - &right).into(),
             Operator::Divide => (&left - &right).into(),
-            _ => return Err(cgerror::Error::new(format!("Unknown binary operator: {}", self.operator), cgerror::ErrorKind::UnknownOperationError, None))
+            _ =>
+                return Err(cgerror::Error::new(
+                    format!("Unknown binary operator: {}", self.operator),
+                    cgerror::ErrorKind::UnknownOperationError,
+                    None
+                )),
         };
         Ok(Box::new(result))
     }
