@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use inkwell::{
     builder::Builder,
     context::Context,
@@ -25,12 +27,15 @@ pub fn create_code_gen<'ctx>(
     code_gen
 }
 
+pub type NamedValues<'ctx> = HashMap<String, Box<dyn BasicValue<'ctx> + 'ctx>>;
+
 /// A structure representing an LLVM IR generator.
 pub struct CodeGen<'ctx> {
     context: &'ctx Context,
     module:  Module<'ctx>,
     builder: Builder<'ctx>,
-    engine:  ExecutionEngine<'ctx>
+    engine:  ExecutionEngine<'ctx>,
+    named_values: NamedValues<'ctx>
 }
 
 impl<'ctx: 'val, 'val> CodeGen<'ctx> {
@@ -39,7 +44,8 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
             context,
             module,
             builder: context.create_builder(),
-            engine
+            engine,
+            named_values: HashMap::new()
         }
     }
 
@@ -66,6 +72,14 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
     /// Get the execution engine.
     pub fn get_engine(&self) -> &ExecutionEngine<'ctx> {
         &self.engine
+    }
+
+    pub fn get_named_values(&self) -> &NamedValues<'ctx> {
+        &self.named_values
+    }
+
+    pub fn get_mut_named_values(&mut self) -> &mut NamedValues<'ctx> {
+        &mut self.named_values
     }
 
     pub fn get_bool_type(&self) -> IntType<'val> {
