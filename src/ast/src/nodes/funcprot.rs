@@ -70,7 +70,7 @@ impl IRRepresentableNode for FunctionPrototypeNode {
             p
         };
         let fn_type = num_type.fn_type(&*params, false);
-        let function = code_gen.get_module().add_function(
+        let function = code_gen.get_inner().get_module().add_function(
             self.get_identifier().get_identifier(),
             fn_type,
             Some(Linkage::External)

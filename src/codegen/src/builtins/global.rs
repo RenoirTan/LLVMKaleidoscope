@@ -27,6 +27,7 @@ fn get_binop_types<'ctx>(code_gen: &CodeGen<'ctx>) -> (StructType<'ctx>, Functio
 pub fn make_num_add<'ctx>(code_gen: &CodeGen<'ctx>) -> Result<FunctionValue<'ctx>> {
     let (_num_type, fn_type) = get_binop_types(code_gen);
     let function = code_gen
+        .get_inner()
         .get_module()
         .add_function("__num_add__", fn_type, None);
 

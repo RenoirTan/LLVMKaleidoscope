@@ -25,6 +25,7 @@ pub fn make_number_type<'ctx>(code_gen: &CodeGen<'ctx>) -> StructType<'ctx> {
     let struct_type = code_gen.get_context().opaque_struct_type(NUM_TYPE_NAME);
     struct_type.set_body(&[int_type, float_type, bool_type], true);
     code_gen
+        .get_inner()
         .get_module()
         .get_struct_type(NUM_TYPE_NAME)
         .expect(&format!("{} could not be created", NUM_TYPE_NAME))
@@ -67,7 +68,7 @@ macro_rules! impl_int_math {
             code_gen: &$crate::CodeGen<'ctx>
         ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
             if check_int_types(left, right) {
-                Ok(code_gen.get_builder().$method(left, right, $tmp_name))
+                Ok(code_gen.get_inner().get_builder().$method(left, right, $tmp_name))
             } else {
                 Err(make_bit_width_error(left, right))
             }
@@ -91,6 +92,7 @@ macro_rules! impl_int_cmp {
         ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
             if check_int_types(left, right) {
                 Ok(code_gen
+                    .get_inner()
                     .get_builder()
                     .build_int_compare($predicate, left, right, $tmp_name))
             } else {
@@ -116,7 +118,7 @@ macro_rules! impl_float_math {
             code_gen: &$crate::CodeGen<'ctx>
         ) -> $crate::error::Result<inkwell::values::FloatValue<'ctx>> {
             if check_float_formats(left, right) {
-                Ok(code_gen.get_builder().$method(left, right, $tmp_name))
+                Ok(code_gen.get_inner().get_builder().$method(left, right, $tmp_name))
             } else {
                 Err(make_float_format_error(left, right))
             }
@@ -140,6 +142,7 @@ macro_rules! impl_float_cmp {
         ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
             if check_float_formats(left, right) {
                 Ok(code_gen
+                    .get_inner()
                     .get_builder()
                     .build_float_compare($predicate, left, right, $tmp_name))
             } else {

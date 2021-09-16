@@ -59,7 +59,7 @@ impl IRRepresentableExpression for FunctionCallNode {
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
         let name = self.get_identifier().get_identifier();
-        let function = match code_gen.get_module().get_function(name) {
+        let function = match code_gen.get_inner().get_module().get_function(name) {
             Some(function) => function,
             None =>
                 return Err(cgerror::Error::new(
@@ -73,6 +73,7 @@ impl IRRepresentableExpression for FunctionCallNode {
             args.push(arg.represent_expression(code_gen)?.as_basic_value_enum());
         }
         match code_gen
+            .get_inner()
             .get_builder()
             .build_call(function, &*args, "call_tmp")
             .try_as_basic_value()
