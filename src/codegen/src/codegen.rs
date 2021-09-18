@@ -1,10 +1,15 @@
+use std::{
+    sync::{Arc, Mutex, MutexGuard},
+    collections::HashMap
+};
+
 use inkwell::{
     builder::Builder,
     context::Context,
     execution_engine::ExecutionEngine,
     module::Module,
     types::{FloatType, IntType, StructType},
-    values::{BasicValue, FloatValue, IntValue, StructValue}
+    values::{BasicValue, BasicValueEnum, FloatValue, IntValue, StructValue}
 };
 
 use crate::{
@@ -25,22 +30,60 @@ pub fn create_code_gen<'ctx>(
     code_gen
 }
 
-/// A structure representing an LLVM IR generator.
-pub struct CodeGen<'ctx> {
-    context: &'ctx Context,
-    module:  Module<'ctx>,
-    builder: Builder<'ctx>,
-    engine:  ExecutionEngine<'ctx>
+pub type NamedValues<'ctx> = HashMap<String, Box<dyn BasicValue<'ctx> + 'ctx>>;
+
+pub struct CodeGenInner<'ctx> {
+    context:      &'ctx Context,
+    module:       Module<'ctx>,
+    builder:      Builder<'ctx>,
+    engine:       ExecutionEngine<'ctx>,
+    named_values: NamedValues<'ctx>
 }
 
-impl<'ctx: 'val, 'val> CodeGen<'ctx> {
+impl<'ctx> CodeGenInner<'ctx> {
     fn new(context: &'ctx Context, module: Module<'ctx>, engine: ExecutionEngine<'ctx>) -> Self {
         Self {
             context,
             module,
             builder: context.create_builder(),
-            engine
+            engine,
+            named_values: HashMap::new()
         }
+    }
+
+    pub fn get_context(&self) -> &'ctx Context {
+        self.context
+    }
+
+    pub fn get_module(&self) -> &Module<'ctx> {
+        &self.module
+    }
+
+    pub fn get_builder(&self) -> &Builder<'ctx> {
+        &self.builder
+    }
+
+    pub fn get_engine(&self) -> &ExecutionEngine<'ctx> {
+        &self.engine
+    }
+
+    pub fn get_named_values(&self) -> &NamedValues<'ctx> {
+        &self.named_values
+    }
+
+    pub fn get_mut_named_values(&mut self) -> &mut NamedValues<'ctx> {
+        &mut self.named_values
+    }
+}
+
+/// A structure representing an LLVM IR generator.
+pub struct CodeGen<'ctx> {
+    inner: Arc<Mutex<CodeGenInner<'ctx>>>
+}
+
+impl<'ctx: 'val, 'val> CodeGen<'ctx> {
+    fn new(context: &'ctx Context, module: Module<'ctx>, engine: ExecutionEngine<'ctx>) -> Self {
+        Self { inner: Arc::new(Mutex::new(CodeGenInner::new(context, module, engine))) }
     }
 
     fn init(&mut self) -> &mut Self {
@@ -48,24 +91,19 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
         self
     }
 
-    /// Get the context.
+    pub fn get_inner(&self) -> MutexGuard<'_, CodeGenInner<'ctx>> {
+        match self.inner.lock() {
+            Ok(mg) => mg,
+            Err(poisoned) => poisoned.into_inner()
+        }
+    }
+
     pub fn get_context(&self) -> &'ctx Context {
-        &self.context
+        self.get_inner().context
     }
 
-    /// Get the module.
-    pub fn get_module(&self) -> &Module<'ctx> {
-        &self.module
-    }
-
-    /// Get the builder.
-    pub fn get_builder(&self) -> &Builder<'ctx> {
-        &self.builder
-    }
-
-    /// Get the execution engine.
-    pub fn get_engine(&self) -> &ExecutionEngine<'ctx> {
-        &self.engine
+    pub fn clear_named_values(&self) {
+        self.get_inner().get_mut_named_values().clear();
     }
 
     pub fn get_bool_type(&self) -> IntType<'val> {
@@ -84,9 +122,21 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
 
     /// Get num type.
     pub fn get_num_type(&self) -> StructType<'val> {
-        self.get_module()
+        self.get_inner()
+            .get_module()
             .get_struct_type(NUM_TYPE_NAME)
             .expect(&format!("{} type not initialised yet.", NUM_TYPE_NAME))
+    }
+
+    pub fn get_value(&self, name: &str) -> Option<BasicValueEnum<'ctx>> {
+        self.get_inner()
+            .get_named_values()
+            .get(name)
+            .map(|v| v.as_basic_value_enum())
+    }
+
+    pub fn set_value(&self, name: String, value: Box<dyn BasicValue<'ctx> + 'ctx>) {
+        self.get_inner().get_mut_named_values().insert(name, value);
     }
 
     pub fn int_to_float(&self, integer: IntValue<'val>) -> FloatValue<'val> {

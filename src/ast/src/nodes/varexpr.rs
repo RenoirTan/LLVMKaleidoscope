@@ -50,7 +50,7 @@ impl IRRepresentableExpression for VariableExpressionNode {
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
         let name = self.get_identifier().get_identifier();
-        match code_gen.get_module().get_global(name) {
+        match code_gen.get_value(name) {
             Some(value) => Ok(Box::new(value)),
             None => Err(cgerror::Error::new(
                 format!("Could not find identifier named '{}'", name),
