@@ -47,7 +47,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert::AsRef</span>, <span class="ident">fs::OpenOptions</span>, <span class="ident">path::Path</span>};
 
 <span class="kw">use</span> <span class="ident">env_logger::Target</span>;
-<span class="kw">use</span> <span class="ident">log::LevelFilter</span>;
+<span class="comment">// use log::LevelFilter;</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="prelude-ty">Result</span>},
@@ -76,7 +76,7 @@
     <span class="ident">env_logger::builder</span>()
         .<span class="ident">is_test</span>(<span class="bool-val">true</span>)
         .<span class="ident">format</span>(<span class="ident">format_record</span>)
-        .<span class="ident">filter_level</span>(<span class="ident">LevelFilter::Warn</span>)
+        <span class="comment">// .filter_level(LevelFilter::Warn)</span>
         .<span class="ident">target</span>(<span class="ident">target</span>)
         .<span class="ident">try_init</span>()
         .<span class="ident">map_err</span>(<span class="ident">Error::factory</span>(<span class="ident">ErrorKind::LoggerError</span>))

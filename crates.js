@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["filestream","kaleidoscope","kaleidoscope_ast","kaleidoscope_error","kaleidoscope_lexer","kaleidoscope_logging","kaleidoscope_macro","kaleidoscope_parser","repl","tokenizer"];
+window.ALL_CRATES = ["filestream","kaleidoscope","kaleidoscope_ast","kaleidoscope_codegen","kaleidoscope_error","kaleidoscope_lexer","kaleidoscope_logging","kaleidoscope_macro","kaleidoscope_parser","kldnum","repl","tokenizer"];

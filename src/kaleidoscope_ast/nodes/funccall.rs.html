@@ -91,7 +91,7 @@
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FunctionCallNode</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">iterator_to_str!</span>(<span class="self">self</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>(), <span class="string">&quot;, &quot;</span>);
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({}({}))&quot;</span>, <span class="self">self</span>.<span class="ident">identifier</span>, <span class="ident">args</span>)
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}({})&quot;</span>, <span class="self">self</span>.<span class="ident">identifier</span>, <span class="ident">args</span>)
     }
 }
 

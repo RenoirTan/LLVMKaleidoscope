@@ -79,7 +79,7 @@
     <span class="doccomment">/// The token for when the file/stream is done.</span>
     <span class="ident">Eof</span>,
     <span class="doccomment">/// The token kind representing a keyword.</span>
-    <span class="ident">Keyword</span> { <span class="ident">keyword</span>: <span class="ident">Keyword</span> },
+    <span class="ident">Keyword</span>(<span class="ident">Keyword</span>),
     <span class="doccomment">/// The token kind representing an identifier.</span>
     <span class="ident">Identifier</span>,
     <span class="doccomment">/// The token kind representing an decimal integer.</span>
@@ -87,9 +87,9 @@
     <span class="doccomment">/// The token kind representing a floating point decimal number.</span>
     <span class="ident">Float</span>,
     <span class="doccomment">/// The token kind representing an operator (e.g. &#39;+&#39; in 1 + 2)</span>
-    <span class="ident">Operator</span> { <span class="ident">operator</span>: <span class="ident">Operator</span> },
+    <span class="ident">Operator</span>(<span class="ident">Operator</span>),
     <span class="doccomment">/// The token kind representing a bracket (e.g. &#39;{&#39;, &#39;}&#39;)</span>
-    <span class="ident">Bracket</span> { <span class="ident">bracket</span>: <span class="ident">Bracket</span> },
+    <span class="ident">Bracket</span>(<span class="ident">Bracket</span>),
     <span class="doccomment">/// The token kind representing a comma separator.</span>
     <span class="ident">Comma</span>,
     <span class="doccomment">/// The token kind representing a period, used in attribute accessors.</span>

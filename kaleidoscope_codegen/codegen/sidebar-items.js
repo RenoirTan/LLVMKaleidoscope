@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["create_code_gen","Create a new LLVM IR generator."]],"struct":[["CodeGen","A structure representing an LLVM IR generator."],["CodeGenInner",""]],"type":[["NamedValues",""]]});

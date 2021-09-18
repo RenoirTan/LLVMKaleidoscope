@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["kaleidoscope_ast"] = [{"text":"impl IRRepresentableNode for <a class=\"struct\" href=\"kaleidoscope_ast/nodes/funcprot/struct.FunctionPrototypeNode.html\" title=\"struct kaleidoscope_ast::nodes::funcprot::FunctionPrototypeNode\">FunctionPrototypeNode</a>","synthetic":false,"types":["kaleidoscope_ast::nodes::funcprot::FunctionPrototypeNode"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

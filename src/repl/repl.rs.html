@@ -55,7 +55,7 @@ To exit, type in a semicolon (&#39;;&#39;) without an expression before it.&quot
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="ident">kaleidoscope_logging::init</span>(<span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
 
-    <span class="macro">log::info!</span>(<span class="string">&quot;STARTING REPL&quot;</span>);
+    <span class="macro">log::debug!</span>(<span class="string">&quot;STARTING REPL&quot;</span>);
     <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">WELCOME_MESSAGE</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">repl</span> <span class="op">=</span> <span class="ident">Interpreter::default</span>();
     <span class="macro">println!</span>(<span class="string">&quot;Statements parsed: {}&quot;</span>, <span class="ident">repl</span>.<span class="ident">main_loop</span>());

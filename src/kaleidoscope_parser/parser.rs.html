@@ -1235,7 +1235,7 @@
                 <span class="prelude-val">None</span>
             )),
             <span class="prelude-val">Some</span>(<span class="ident">token</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">token</span>.<span class="ident">token_kind</span> {
-                <span class="ident">TokenKind::Bracket</span> { <span class="ident">bracket</span> } <span class="op">=</span><span class="op">&gt;</span>
+                <span class="ident">TokenKind::Bracket</span>(<span class="ident">bracket</span>) <span class="op">=</span><span class="op">&gt;</span>
                     <span class="kw">if</span> <span class="ident">bracket</span>.<span class="ident">side</span>.<span class="ident">is_right</span>() <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">bracket</span>.<span class="ident">kind</span>, <span class="ident">BracketKind::Round</span>) {
                         <span class="self">self</span>.<span class="ident">mark_used</span>();
                         <span class="prelude-val">Ok</span>(<span class="ident">token</span>.<span class="ident">clone</span>())
@@ -1268,7 +1268,7 @@
         <span class="kw">let</span> <span class="ident">lbracket_token</span> <span class="op">=</span> <span class="macro">ok_none!</span>(<span class="self">self</span>.<span class="ident">peek_current_token</span>());
         <span class="macro">log::trace!</span>(<span class="string">&quot;lbracket_token: {}&quot;</span>, <span class="ident">lbracket_token</span>);
         <span class="kw">match</span> <span class="ident">lbracket_token</span>.<span class="ident">token_kind</span> {
-            <span class="ident">TokenKind::Bracket</span> { <span class="ident">bracket</span> } <span class="kw">if</span> <span class="ident">bracket</span> <span class="op">=</span><span class="op">=</span> <span class="ident">left_bracket</span> <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident">TokenKind::Bracket</span>(<span class="ident">bracket</span>) <span class="kw">if</span> <span class="ident">bracket</span> <span class="op">=</span><span class="op">=</span> <span class="ident">left_bracket</span> <span class="op">=</span><span class="op">&gt;</span> (),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         }
         <span class="self">self</span>.<span class="ident">mark_used</span>();
@@ -1303,7 +1303,7 @@
                     <span class="ident">args</span>.<span class="ident">push</span>(<span class="ident">expression</span>);
                     <span class="self">self</span>.<span class="ident">mark_used</span>();
                 },
-                <span class="ident">TokenKind::Bracket</span> { <span class="ident">bracket</span> } <span class="op">=</span><span class="op">&gt;</span>
+                <span class="ident">TokenKind::Bracket</span>(<span class="ident">bracket</span>) <span class="op">=</span><span class="op">&gt;</span>
                     <span class="kw">if</span> <span class="ident">left_bracket</span>.<span class="ident">cancels_out</span>(<span class="ident">bracket</span>) {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expression</span>) <span class="op">=</span> <span class="ident">expression</span> {
                             <span class="ident">args</span>.<span class="ident">push</span>(<span class="ident">expression</span>);
@@ -1484,7 +1484,7 @@
         <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="macro">ok_none!</span>(<span class="self">self</span>.<span class="ident">peek_current_token</span>());
         <span class="comment">// println!(&quot;[{}] token: {:?}\n&quot;, function_path!(), token);</span>
         <span class="kw">let</span> <span class="ident">left_bracket</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">token</span>.<span class="ident">token_kind</span> {
-            <span class="ident">TokenKind::Bracket</span> { <span class="ident">bracket</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bracket</span>,
+            <span class="ident">TokenKind::Bracket</span>(<span class="ident">bracket</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bracket</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         };
         <span class="kw">if</span> <span class="ident">left_bracket</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LEFT_ROUND_BRACKET</span> {
@@ -1514,7 +1514,7 @@
         };
         <span class="self">self</span>.<span class="ident">mark_used</span>();
         <span class="kw">let</span> <span class="ident">right_bracket</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">token</span>.<span class="ident">token_kind</span> {
-            <span class="ident">TokenKind::Bracket</span> { <span class="ident">bracket</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bracket</span>,
+            <span class="ident">TokenKind::Bracket</span>(<span class="ident">bracket</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bracket</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span>
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
                     <span class="string">&quot;Expected round right bracket.&quot;</span>.<span class="ident">to_string</span>(),
@@ -1567,7 +1567,7 @@
                 }
             };
             <span class="kw">match</span> <span class="ident">possible_loperator</span>.<span class="ident">token_kind</span> {
-                <span class="ident">TokenKind::Operator</span> { <span class="ident">operator</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">TokenKind::Operator</span>(<span class="ident">operator</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">mark_used</span>();
                     <span class="ident">loperator</span> <span class="op">=</span> <span class="ident">operator</span>;
                 },
@@ -1619,7 +1619,7 @@
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">lhs</span>))
                 };
                 <span class="ident">loperator</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">loperator_token</span>.<span class="ident">token_kind</span> {
-                    <span class="ident">TokenKind::Operator</span> { <span class="ident">operator</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">TokenKind::Operator</span>(<span class="ident">operator</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="self">self</span>.<span class="ident">mark_used</span>();
                         <span class="ident">operator</span>
                     },
@@ -1658,7 +1658,7 @@
                 }
             };
             <span class="ident">roperator</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">possible_roperator</span>.<span class="ident">token_kind</span> {
-                <span class="ident">TokenKind::Operator</span> { <span class="ident">operator</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">operator</span>,
+                <span class="ident">TokenKind::Operator</span>(<span class="ident">operator</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">operator</span>,
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw-2">*</span><span class="ident">escaped_from_inner</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="kw">return</span> <span class="ident">up</span>(<span class="ident">loperator</span>, <span class="ident">lhs</span>, <span class="ident">rhs</span>);
@@ -1725,7 +1725,7 @@
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">VariableExpressionNode::new</span>(<span class="ident">identifier</span>))))
         };
         <span class="kw">match</span> <span class="ident">lbracket_token</span>.<span class="ident">token_kind</span> {
-            <span class="ident">TokenKind::Bracket</span> { <span class="ident">bracket</span> } <span class="kw">if</span> <span class="ident">bracket</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LEFT_ROUND_BRACKET</span> <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident">TokenKind::Bracket</span>(<span class="ident">bracket</span>) <span class="kw">if</span> <span class="ident">bracket</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LEFT_ROUND_BRACKET</span> <span class="op">=</span><span class="op">&gt;</span> (),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">VariableExpressionNode::new</span>(<span class="ident">identifier</span>))))
         }
 
@@ -1754,7 +1754,7 @@
         <span class="self">self</span>.<span class="ident">grab_if_used</span>(<span class="macro">ltuplemut!</span>(<span class="ident">stream</span>, <span class="ident">tokenizer</span>))<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">def_token</span> <span class="op">=</span> <span class="macro">ok_none!</span>(<span class="self">self</span>.<span class="ident">peek_current_token</span>());
         <span class="kw">match</span> <span class="ident">def_token</span>.<span class="ident">token_kind</span> {
-            <span class="ident">TokenKind::Keyword</span> { <span class="ident">keyword</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">keyword</span> {
+            <span class="ident">TokenKind::Keyword</span>(<span class="ident">keyword</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">keyword</span> {
                 <span class="ident">Keyword::Def</span> <span class="op">=</span><span class="op">&gt;</span> (),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
             },
@@ -1811,7 +1811,7 @@
                 )),
         };
         <span class="kw">match</span> <span class="ident">lbracket_token</span>.<span class="ident">token_kind</span> {
-            <span class="ident">TokenKind::Bracket</span> { <span class="ident">bracket</span> }
+            <span class="ident">TokenKind::Bracket</span>(<span class="ident">bracket</span>)
                 <span class="kw">if</span> (<span class="ident">bracket</span>.<span class="ident">side</span>.<span class="ident">is_left</span>() <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">bracket</span>.<span class="ident">kind</span>, <span class="ident">BracketKind::Round</span>)) <span class="op">=</span><span class="op">&gt;</span>
                 (),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span>
@@ -1832,7 +1832,7 @@
             <span class="self">self</span>.<span class="ident">grab_if_used</span>(<span class="macro">ltuplemut!</span>(<span class="ident">stream</span>, <span class="ident">tokenizer</span>))<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">token_1</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_current_token</span>() {
                 <span class="kw">match</span> <span class="ident">token_1</span>.<span class="ident">token_kind</span> {
-                    <span class="ident">TokenKind::Bracket</span> { <span class="ident">bracket</span> } <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="ident">TokenKind::Bracket</span>(<span class="ident">bracket</span>) <span class="op">=</span><span class="op">&gt;</span>
                         <span class="kw">if</span> <span class="ident">LEFT_ROUND_BRACKET</span>.<span class="ident">cancels_out</span>(<span class="ident">bracket</span>) {
                             <span class="kw">break</span>;
                         } <span class="kw">else</span> {
@@ -1874,7 +1874,7 @@
                 };
                 <span class="kw">match</span> <span class="ident">token_2</span>.<span class="ident">token_kind</span> {
                     <span class="ident">TokenKind::Comma</span> <span class="op">=</span><span class="op">&gt;</span> (),
-                    <span class="ident">TokenKind::Bracket</span> { <span class="ident">bracket</span> } <span class="op">=</span><span class="op">&gt;</span>
+                    <span class="ident">TokenKind::Bracket</span>(<span class="ident">bracket</span>) <span class="op">=</span><span class="op">&gt;</span>
                         <span class="kw">if</span> <span class="ident">LEFT_ROUND_BRACKET</span>.<span class="ident">cancels_out</span>(<span class="ident">bracket</span>) {
                             <span class="kw">break</span>;
                         } <span class="kw">else</span> {
@@ -1956,7 +1956,7 @@
         <span class="self">self</span>.<span class="ident">grab_if_used</span>(<span class="macro">ltuplemut!</span>(<span class="ident">stream</span>, <span class="ident">tokenizer</span>))<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">extern_token</span> <span class="op">=</span> <span class="macro">ok_none!</span>(<span class="self">self</span>.<span class="ident">peek_current_token</span>());
         <span class="kw">match</span> <span class="ident">extern_token</span>.<span class="ident">token_kind</span> {
-            <span class="ident">TokenKind::Keyword</span> { <span class="ident">keyword</span> } <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">keyword</span>, <span class="ident">Keyword::Extern</span>) <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="ident">TokenKind::Keyword</span>(<span class="ident">keyword</span>) <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">keyword</span>, <span class="ident">Keyword::Extern</span>) <span class="op">=</span><span class="op">&gt;</span> (),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_token</span>.<span class="ident">uses</span> <span class="op">&gt;</span> <span class="number">0</span> {
                     <span class="self">self</span>.<span class="ident">current_token</span>.<span class="ident">uses</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
