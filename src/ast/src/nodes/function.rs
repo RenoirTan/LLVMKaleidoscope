@@ -2,10 +2,9 @@
 
 use std::fmt;
 
-/*
 use inkwell::values::AnyValue;
 use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableNode};
-*/
+
 use super::FunctionPrototypeNode;
 use crate::prelude::*;
 
@@ -57,14 +56,14 @@ impl Node for FunctionNode {
 
 impl NodeType for FunctionNode {}
 
-/*
+
 impl IRRepresentableNode for FunctionNode {
     fn represent_node<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
         let name = self.get_prototype().get_identifier().get_identifier();
-        let function = match code_gen.get_module().get_function(name) {
+        let function = match code_gen.get_inner().get_module().get_function(name) {
             Some(f) => f,
             None => self
                 .get_prototype()
@@ -72,15 +71,52 @@ impl IRRepresentableNode for FunctionNode {
                 .as_any_value_enum()
                 .into_function_value()
         };
-        if !function.is_undef() {
-            return Err(cgerror::Error::new(
-                format!("{} has more than 1 definition.", name),
+        code_gen.get_context().append_basic_block(function, "entry");
+        code_gen.clear_named_values();
+        for index in 0..self.get_prototype().count_parameters() {
+            let param_name = self
+                .get_prototype()
+                .nth_parameter(index)
+                .ok_or_else(|| {
+                    unsafe { function.delete() };
+                    cgerror::Error::new(
+                        format!(
+                            "Tried to get parameter at index {} but it does not exist.",
+                            index
+                        ),
+                        cgerror::ErrorKind::Other,
+                        None
+                    )
+                })?
+                .get_identifier()
+                .to_string();
+            let argument = function.get_nth_param(index as u32).ok_or_else(|| {
+                unsafe { function.delete() };
+                cgerror::Error::new(
+                    format!(
+                        "Tried to get argument at index {} but it does not exist.",
+                        index
+                    ),
+                    cgerror::ErrorKind::Other,
+                    None
+                )
+            })?;
+            code_gen.set_value(param_name, Box::new(argument));
+        }
+        let retval = self.get_body().represent_expression(code_gen)?;
+        code_gen
+            .get_inner()
+            .get_builder()
+            .build_return(Some(&*retval));
+        if function.verify(true) {
+            Ok(Box::new(function))
+        } else {
+            unsafe { function.delete() };
+            Err(cgerror::Error::new(
+                format!("Could not verify function '{}'", name),
                 cgerror::ErrorKind::CouldNotMakeFunctionError,
                 None
-            ));
+            ))
         }
-        let basic_block = code_gen.get_context().append_basic_block(function, "entry");
-
     }
 }
-*/

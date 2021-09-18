@@ -1,6 +1,6 @@
 use std::{
-    sync::{Arc, Mutex, MutexGuard},
-    collections::HashMap
+    collections::HashMap,
+    sync::{Arc, Mutex, MutexGuard}
 };
 
 use inkwell::{
@@ -83,7 +83,9 @@ pub struct CodeGen<'ctx> {
 
 impl<'ctx: 'val, 'val> CodeGen<'ctx> {
     fn new(context: &'ctx Context, module: Module<'ctx>, engine: ExecutionEngine<'ctx>) -> Self {
-        Self { inner: Arc::new(Mutex::new(CodeGenInner::new(context, module, engine))) }
+        Self {
+            inner: Arc::new(Mutex::new(CodeGenInner::new(context, module, engine)))
+        }
     }
 
     fn init(&mut self) -> &mut Self {

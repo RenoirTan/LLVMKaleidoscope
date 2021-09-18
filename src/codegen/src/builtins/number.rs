@@ -68,7 +68,10 @@ macro_rules! impl_int_math {
             code_gen: &$crate::CodeGen<'ctx>
         ) -> $crate::error::Result<inkwell::values::IntValue<'ctx>> {
             if check_int_types(left, right) {
-                Ok(code_gen.get_inner().get_builder().$method(left, right, $tmp_name))
+                Ok(code_gen
+                    .get_inner()
+                    .get_builder()
+                    .$method(left, right, $tmp_name))
             } else {
                 Err(make_bit_width_error(left, right))
             }
@@ -118,7 +121,10 @@ macro_rules! impl_float_math {
             code_gen: &$crate::CodeGen<'ctx>
         ) -> $crate::error::Result<inkwell::values::FloatValue<'ctx>> {
             if check_float_formats(left, right) {
-                Ok(code_gen.get_inner().get_builder().$method(left, right, $tmp_name))
+                Ok(code_gen
+                    .get_inner()
+                    .get_builder()
+                    .$method(left, right, $tmp_name))
             } else {
                 Err(make_float_format_error(left, right))
             }

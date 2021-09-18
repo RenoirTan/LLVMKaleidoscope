@@ -43,6 +43,19 @@ impl FunctionPrototypeNode {
     pub fn get_parameters(&self) -> &[Box<IdentifierNode>] {
         &*self.parameters
     }
+
+    /// Get the number of parameters this function should be able to accept.
+    pub fn count_parameters(&self) -> usize {
+        self.parameters.len()
+    }
+
+    /// Get the identifier for the parameter at `index`.
+    pub fn nth_parameter(&self, index: usize) -> Option<&IdentifierNode> {
+        match self.parameters.get(index) {
+            Some(param) => Some(&**param),
+            None => None
+        }
+    }
 }
 
 impl Node for FunctionPrototypeNode {
@@ -62,9 +75,9 @@ impl IRRepresentableNode for FunctionPrototypeNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
+        let len = self.get_parameters().len();
         let num_type = code_gen.get_num_type();
         let params = {
-            let len = self.get_parameters().len();
             let mut p = Vec::with_capacity(len);
             p.resize(len, num_type.into());
             p
