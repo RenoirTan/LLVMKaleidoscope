@@ -52,7 +52,7 @@ fn test_upcast_expr_node() {
 fn test_reify_node() {
     let unknown: Box<dyn Node> = Box::new(IdentifierNode::new(String::from("name")));
     let concrete: Box<IdentifierNode> = reify_node(unknown).unwrap();
-    assert_eq!(concrete.get_identifier(), "name");
+    assert_eq!(concrete.get_value(), "name");
 
     let unknown: Box<dyn Node> = Box::new(Operator::Plus);
     assert!(reify_node::<IdentifierNode>(unknown).is_none());

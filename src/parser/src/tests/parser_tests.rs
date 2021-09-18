@@ -60,7 +60,7 @@ fn test_parse_variable_expression() {
         .unwrap()
         .unwrap();
     let node = reify_expr_node::<VariableExpressionNode>(expression).unwrap();
-    assert_eq!(node.get_identifier().get_identifier(), "var1");
+    assert_eq!(node.get_identifier().get_value(), "var1");
 }
 
 #[test]
@@ -217,7 +217,7 @@ fn test_function_prototype() {
         .parse_function_prototype(ltuplemut!(&mut stream, &mut tokenizer))
         .unwrap()
         .unwrap();
-    assert_eq!(prototype.get_identifier().get_identifier(), "pow");
+    assert_eq!(prototype.get_identifier().get_value(), "pow");
     assert_eq!(
         prototype.get_parameters(),
         ["a", "b"]
@@ -236,7 +236,7 @@ fn test_extern_function() {
         .unwrap()
         .unwrap();
     let prototype = external.get_prototype();
-    assert_eq!(prototype.get_identifier().get_identifier(), "iconv");
+    assert_eq!(prototype.get_identifier().get_value(), "iconv");
     assert_eq!(
         prototype.get_parameters(),
         ["cd", "inbuf", "inbytesleft", "outbuf", "outbytesleft"]

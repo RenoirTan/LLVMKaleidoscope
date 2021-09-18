@@ -20,7 +20,7 @@ impl IdentifierNode {
     }
 
     /// Get the name as a string.
-    pub fn get_identifier(&self) -> &str {
+    pub fn get_value(&self) -> &str {
         &self.identifier[..]
     }
 }
