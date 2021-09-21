@@ -263,7 +263,10 @@ impl<'a> Interpreter<'a> {
 
     /// Parse one statement. If the interpreter can parse more statments,
     /// [`true`] is returned.
-    pub fn parse_once(&mut self, proceed_even_if_error: bool) -> bool {
+    pub fn parse_once(
+        &mut self,
+        proceed_even_if_error: bool
+    ) -> std::result::Result<Box<dyn Node>, bool> {
         match self
             .driver
             .parse_one(&mut self.istream, &mut self.tokenizer, &mut self.parser)
@@ -274,13 +277,16 @@ impl<'a> Interpreter<'a> {
                     "expression successfully parsed! continue? {}",
                     self.can_proceed
                 );
-                true
+                match node {
+                    Some(node) => Ok(node),
+                    None => Err(true)
+                }
             },
             Err(error) => {
                 log::error!("error: {}", error);
                 self.can_proceed = proceed_even_if_error;
                 self.last_error = Some(error);
-                false
+                Err(false)
             }
         }
     }
@@ -289,7 +295,7 @@ impl<'a> Interpreter<'a> {
     pub fn main_loop(&mut self) -> usize {
         let mut statements_parsed: usize = 0;
         while {
-            self.parse_once(self.proceed_even_if_error);
+            let _ = self.parse_once(self.proceed_even_if_error);
             self.can_proceed
         } {
             statements_parsed += 1;
@@ -307,17 +313,21 @@ impl<'a> Default for Interpreter<'a> {
 
 
 impl<'a> Iterator for Interpreter<'a> {
-    type Item = Result<()>;
+    type Item = Result<Option<Box<dyn Node>>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.can_proceed {
-            if self.parse_once(self.proceed_even_if_error) {
-                Some(Ok(()))
-            } else {
-                let error = self.take_last_error().unwrap_or_else(|| {
-                    Error::new("Unknown error".to_string(), ErrorKind::Other, None)
-                });
-                Some(Err(error))
+            let result = self.parse_once(self.proceed_even_if_error);
+            match result {
+                Ok(node) => Some(Ok(Some(node))),
+                Err(alright) =>
+                    if alright {
+                        Some(Ok(None))
+                    } else {
+                        Some(Err(self.take_last_error().unwrap_or_else(|| {
+                            Error::new("Unknown error".to_string(), ErrorKind::Other, None)
+                        })))
+                    },
             }
         } else {
             None
