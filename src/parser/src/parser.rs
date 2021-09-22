@@ -107,7 +107,9 @@ impl ParserToken {
     /// instead of returning a reference to avoid violating rust's
     /// (im)mutable borrowing rules.
     pub fn peek(&self) -> Option<Token> {
-        self.token.clone()
+        let token = self.token.clone();
+        log::trace!("Peeking at token: {:?}", token);
+        token
     }
 
     /// Increase the number of uses by one. This marks the token as "stale"

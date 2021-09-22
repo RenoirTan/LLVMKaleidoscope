@@ -41,15 +41,17 @@ fn main() {
     println!("{}", WELCOME_MESSAGE);
     let mut repl = Interpreter::default();
     for node in &mut repl {
-        let node = node.unwrap().unwrap();
-        if let Some(function) = reify_node_ref::<FunctionNode>(&node) {
-            let ir = function.represent_node(&code_gen).unwrap();
-            println!("{}", ir.print_to_string());
-        } else if let Some(external) = reify_node_ref::<ExternFunctionNode>(&node) {
-            let ir = external.get_prototype().represent_node(&code_gen).unwrap();
-            println!("{}", ir.print_to_string());
-        } else {
-            println!("Something happened <.<");
+        let node = node.unwrap();
+        if let Some(node) = node {
+            if let Some(function) = reify_node_ref::<FunctionNode>(&node) {
+                let ir = function.represent_node(&code_gen).unwrap();
+                println!("{}", ir.print_to_string());
+            } else if let Some(external) = reify_node_ref::<ExternFunctionNode>(&node) {
+                let ir = external.get_prototype().represent_node(&code_gen).unwrap();
+                println!("{}", ir.print_to_string());
+            } else {
+                println!("Something happened <.<");
+            }
         }
     }
     press_enter_to_continue(&"Press enter to continue::> ");
