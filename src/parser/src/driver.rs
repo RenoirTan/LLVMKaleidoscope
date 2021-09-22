@@ -271,7 +271,7 @@ impl<'a> Interpreter<'a> {
             Ok(node) => {
                 self.can_proceed = node.is_some();
                 log::trace!(
-                    "expression successfully parsed! continue? {}",
+                    "statement successfully parsed! continue? {}",
                     self.can_proceed
                 );
                 true

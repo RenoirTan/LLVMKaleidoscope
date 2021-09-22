@@ -107,7 +107,9 @@ impl ParserToken {
     /// instead of returning a reference to avoid violating rust's
     /// (im)mutable borrowing rules.
     pub fn peek(&self) -> Option<Token> {
-        self.token.clone()
+        let token = self.token.clone();
+        log::trace!("Peeking at token: {:?}", token);
+        token
     }
 
     /// Increase the number of uses by one. This marks the token as "stale"
@@ -840,6 +842,7 @@ impl Parser {
                 match token_1.token_kind {
                     TokenKind::Bracket(bracket) =>
                         if LEFT_ROUND_BRACKET.cancels_out(bracket) {
+                            self.mark_used();
                             break;
                         } else {
                             return Err(Error::new(
@@ -986,6 +989,33 @@ impl Parser {
                 )),
         };
         // println!("[{}] Parsed\n", function_path!());
-        Ok(Some(Box::new(ExternFunctionNode::new(prototype))))
+        log::trace!("finding semicolon for extern func def");
+        self.grab_if_used(ltuplemut!(stream, tokenizer))?;
+        match self.peek_current_token() {
+            Some(token) =>
+                if let TokenKind::Semicolon = token.token_kind {
+                    self.mark_used();
+                    Ok(Some(Box::new(ExternFunctionNode::new(prototype))))
+                } else {
+                    self.mark_used();
+                    Err(Error::new(
+                        format!(
+                            "Extern function prototype not terminated by ';' at {}",
+                            token.start
+                        ),
+                        ErrorKind::SyntaxError,
+                        None
+                    ))
+                },
+            None => Err(Error::new(
+                format!(
+                    "Expected a ';' after for extern function starting at {}",
+                    extern_token.start
+                ),
+                ErrorKind::SyntaxError,
+                None
+            ))
+        }
+        // Ok(Some(Box::new(ExternFunctionNode::new(prototype))))
     }
 }
