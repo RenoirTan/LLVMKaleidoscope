@@ -166,14 +166,14 @@ impl_float_cmp!(cmp_ge_floats, FloatPredicate::OGE, "cmp_ge_tmp_float");
 impl_float_cmp!(cmp_gt_floats, FloatPredicate::OGT, "cmp_gt_tmp_float");
 
 
-pub struct NumValue<'ctx: 'cdg, 'cdg> {
+pub struct NumValue<'ctx> {
     value:    StructValue<'ctx>,
-    code_gen: &'cdg CodeGen<'ctx>
+    code_gen: CodeGen<'ctx>
 }
 
 
-impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
-    pub fn new(value: StructValue<'ctx>, code_gen: &'cdg CodeGen<'ctx>) -> Result<Self> {
+impl<'ctx> NumValue<'ctx> {
+    pub fn new(value: StructValue<'ctx>, code_gen: CodeGen<'ctx>) -> Result<Self> {
         if value.get_type() != code_gen.get_num_type() {
             Err(Error::new(
                 format!("Invalid type for NumValue"),
@@ -185,14 +185,14 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
         }
     }
 
-    pub fn make_i128(value: i128, code_gen: &'cdg CodeGen<'ctx>) -> Self {
+    pub fn make_i128(value: i128, code_gen: CodeGen<'ctx>) -> Self {
         Self {
             value: code_gen.make_num_from_i128(value),
             code_gen
         }
     }
 
-    pub fn make_f64(value: f64, code_gen: &'cdg CodeGen<'ctx>) -> Self {
+    pub fn make_f64(value: f64, code_gen: CodeGen<'ctx>) -> Self {
         Self {
             value: code_gen.make_num_from_f64(value),
             code_gen
@@ -243,7 +243,7 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
             self.code_gen.int_to_float(self.get_raw_int_value())
         };
         let raw = self.code_gen.make_num_from_float(float)?;
-        Self::new(raw, self.code_gen)
+        Self::new(raw, self.code_gen.clone())
     }
 
     pub fn to_int(&self) -> Result<Self> {
@@ -253,7 +253,7 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
             self.code_gen.float_to_int(self.get_raw_float_value())
         };
         let raw = self.code_gen.make_num_from_int(integer)?;
-        Self::new(raw, self.code_gen)
+        Self::new(raw, self.code_gen.clone())
     }
 
     pub fn cast_to_same_type_as(&self, other: &Self) -> Result<Self> {
@@ -274,14 +274,14 @@ impl<'ctx: 'cdg, 'cdg> NumValue<'ctx, 'cdg> {
 }
 
 
-impl<'ctx: 'cdg, 'cdg> Into<StructValue<'ctx>> for NumValue<'ctx, 'cdg> {
+impl<'ctx> Into<StructValue<'ctx>> for NumValue<'ctx> {
     fn into(self) -> StructValue<'ctx> {
         self.value
     }
 }
 
 
-impl<'ctx: 'cdg, 'cdg> fmt::Display for NumValue<'ctx, 'cdg> {
+impl<'ctx> fmt::Display for NumValue<'ctx> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}({:?})", NUM_TYPE_NAME, self.simplify_to_basic_value())
     }
@@ -290,15 +290,15 @@ impl<'ctx: 'cdg, 'cdg> fmt::Display for NumValue<'ctx, 'cdg> {
 
 macro_rules! impl_binop_for_numvalue {
     ($trait_name: ident, $fn_name: ident, $int_op: ident, $float_op: ident) => {
-        impl<'ctx: 'cdg, 'cdg> $trait_name for &NumValue<'ctx, 'cdg> {
-            type Output = NumValue<'ctx, 'cdg>;
+        impl<'ctx> $trait_name for &NumValue<'ctx> {
+            type Output = NumValue<'ctx>;
 
             fn $fn_name(self, rhs: Self) -> Self::Output {
                 let raw = if self.is_int() && rhs.is_int() {
                     let result = $int_op(
                         self.get_raw_int_value(),
                         rhs.get_raw_int_value(),
-                        self.code_gen
+                        &self.code_gen
                     )
                     .unwrap();
                     self.code_gen.make_num_from_int(result).unwrap()
@@ -308,12 +308,12 @@ macro_rules! impl_binop_for_numvalue {
                     let result = $float_op(
                         left.get_raw_float_value(),
                         right.get_raw_float_value(),
-                        self.code_gen
+                        &self.code_gen
                     )
                     .unwrap();
                     self.code_gen.make_num_from_float(result).unwrap()
                 };
-                NumValue::new(raw, &self.code_gen).unwrap()
+                NumValue::new(raw, self.code_gen.clone()).unwrap()
             }
         }
     };
@@ -325,13 +325,13 @@ impl_binop_for_numvalue!(Mul, mul, mul_ints, mul_floats);
 impl_binop_for_numvalue!(Div, div, div_ints, div_floats);
 
 
-impl<'ctx: 'cdg, 'cdg> PartialEq for NumValue<'ctx, 'cdg> {
+impl<'ctx> PartialEq for NumValue<'ctx> {
     fn eq(&self, other: &Self) -> bool {
         if self.is_int() && other.is_int() {
             cmp_eq_ints(
                 self.get_raw_int_value(),
                 other.get_raw_int_value(),
-                self.code_gen
+                &self.code_gen
             )
             .unwrap()
                 == self.make_true()
@@ -341,7 +341,7 @@ impl<'ctx: 'cdg, 'cdg> PartialEq for NumValue<'ctx, 'cdg> {
             cmp_eq_floats(
                 left.get_raw_float_value(),
                 right.get_raw_float_value(),
-                self.code_gen
+                &self.code_gen
             )
             .unwrap()
                 == self.make_true()
@@ -350,16 +350,16 @@ impl<'ctx: 'cdg, 'cdg> PartialEq for NumValue<'ctx, 'cdg> {
 }
 
 
-impl<'ctx: 'cdg, 'cdg> Eq for NumValue<'ctx, 'cdg> {}
+impl<'ctx> Eq for NumValue<'ctx> {}
 
 
-impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
+impl<'ctx> PartialOrd for NumValue<'ctx> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self.is_int() && other.is_int() {
             if cmp_lt_ints(
                 self.get_raw_int_value(),
                 other.get_raw_int_value(),
-                self.code_gen
+                &self.code_gen
             )
             .ok()?
                 == self.make_true()
@@ -368,7 +368,7 @@ impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
             } else if cmp_eq_ints(
                 self.get_raw_int_value(),
                 other.get_raw_int_value(),
-                self.code_gen
+                &self.code_gen
             )
             .ok()?
                 == self.make_true()
@@ -377,7 +377,7 @@ impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
             } else if cmp_gt_ints(
                 self.get_raw_int_value(),
                 other.get_raw_int_value(),
-                self.code_gen
+                &self.code_gen
             )
             .ok()?
                 == self.make_true()
@@ -392,7 +392,7 @@ impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
             if cmp_lt_floats(
                 left.get_raw_float_value(),
                 right.get_raw_float_value(),
-                self.code_gen
+                &self.code_gen
             )
             .ok()?
                 == self.make_true()
@@ -401,7 +401,7 @@ impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
             } else if cmp_eq_floats(
                 left.get_raw_float_value(),
                 right.get_raw_float_value(),
-                self.code_gen
+                &self.code_gen
             )
             .ok()?
                 == self.make_true()
@@ -410,7 +410,7 @@ impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
             } else if cmp_gt_floats(
                 left.get_raw_float_value(),
                 right.get_raw_float_value(),
-                self.code_gen
+                &self.code_gen
             )
             .ok()?
                 == self.make_true()
@@ -424,7 +424,7 @@ impl<'ctx: 'cdg, 'cdg> PartialOrd for NumValue<'ctx, 'cdg> {
 }
 
 
-impl<'ctx: 'cdg, 'cdg> Ord for NumValue<'ctx, 'cdg> {
+impl<'ctx> Ord for NumValue<'ctx> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap()
     }

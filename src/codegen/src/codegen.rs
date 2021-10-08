@@ -77,6 +77,7 @@ impl<'ctx> CodeGenInner<'ctx> {
 }
 
 /// A structure representing an LLVM IR generator.
+#[derive(Clone)]
 pub struct CodeGen<'ctx> {
     inner: Arc<Mutex<CodeGenInner<'ctx>>>
 }

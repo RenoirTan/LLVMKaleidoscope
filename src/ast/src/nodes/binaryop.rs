@@ -84,7 +84,7 @@ impl IRRepresentableExpression for BinaryOperatorNode {
                 .represent_expression(code_gen)?
                 .as_basic_value_enum()
                 .into_struct_value(),
-            code_gen
+            code_gen.clone()
         )?;
         log::trace!("Representation for left value generated");
         let right = NumValue::new(
@@ -92,7 +92,7 @@ impl IRRepresentableExpression for BinaryOperatorNode {
                 .represent_expression(code_gen)?
                 .as_basic_value_enum()
                 .into_struct_value(),
-            code_gen
+            code_gen.clone()
         )?;
         log::trace!("Representation for right value generated");
         let result: StructValue<'ctx> = match *self.operator {
