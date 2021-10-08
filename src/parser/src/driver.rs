@@ -10,7 +10,7 @@ use std::{
 };
 
 use kaleidoscope_ast::{
-    node::{upcast_expr_node, ExprNode, Node},
+    node::{ExprNode, NodeEnum},
     nodes::{ExternFunctionNode, FunctionNode}
 };
 use kaleidoscope_lexer::{
@@ -125,7 +125,7 @@ impl Driver {
         istream: &mut FileStream,
         tokenizer: &mut Tokenizer,
         parser: &mut Parser
-    ) -> ParseResult<dyn Node> {
+    ) -> Result<Option<NodeEnum>> {
         if istream.eof_reached() {
             log::debug!("eof reached");
             return Ok(None);
@@ -154,13 +154,13 @@ impl Driver {
 
         if let Some(node) = self.handle_extern_function(istream, tokenizer, parser)? {
             do_node!(println!("External Function:\n{}", node));
-            Ok(Some(node))
+            Ok(Some(NodeEnum::AnyNode(node)))
         } else if let Some(node) = self.handle_function_definition(istream, tokenizer, parser)? {
             do_node!(println!("Function Definition:\n{}", node.get_prototype()));
-            Ok(Some(node))
+            Ok(Some(NodeEnum::AnyNode(node)))
         } else if let Some(node) = self.handle_expression(istream, tokenizer, parser)? {
             do_node!(println!("Expression:\n{}", node));
-            Ok(Some(upcast_expr_node(node)))
+            Ok(Some(NodeEnum::ExprNode(node)))
         } else {
             do_node!(println!("no handler found"));
             Ok(None)
@@ -266,7 +266,7 @@ impl<'a> Interpreter<'a> {
     pub fn parse_once(
         &mut self,
         proceed_even_if_error: bool
-    ) -> std::result::Result<Box<dyn Node>, bool> {
+    ) -> std::result::Result<NodeEnum, bool> {
         match self
             .driver
             .parse_one(&mut self.istream, &mut self.tokenizer, &mut self.parser)
@@ -313,7 +313,7 @@ impl<'a> Default for Interpreter<'a> {
 
 
 impl<'a> Iterator for Interpreter<'a> {
-    type Item = Result<Option<Box<dyn Node>>>;
+    type Item = Result<Option<NodeEnum>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.can_proceed {

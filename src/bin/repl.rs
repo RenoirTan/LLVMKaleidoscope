@@ -5,7 +5,7 @@ use std::{
 
 use inkwell::{context::Context, values::AnyValue, OptimizationLevel};
 use kaleidoscope_ast::{
-    node::reify_node_ref,
+    node::{reify_node_ref, NodeEnum},
     nodes::{ExternFunctionNode, FunctionNode}
 };
 use kaleidoscope_codegen::{create_code_gen, IRRepresentableNode};
@@ -43,17 +43,22 @@ fn main() {
     for node in &mut repl {
         let node = node.unwrap();
         if let Some(node) = node {
-            if let Some(function) = reify_node_ref::<FunctionNode>(&node) {
-                log::debug!("Function node detected");
-                let ir = function.represent_node(&code_gen).unwrap();
-                println!("{}", ir.print_to_string().to_string());
-            } else if let Some(external) = reify_node_ref::<ExternFunctionNode>(&node) {
-                log::debug!("Extern function node detected");
-                let ir = external.represent_node(&code_gen).unwrap();
-                println!("{}", ir.print_to_string().to_string());
-            } else {
-                log::debug!("Other node type detected");
-                println!("Something happened <.<");
+            match node {
+                NodeEnum::AnyNode(node) =>
+                    if let Some(function) = reify_node_ref::<FunctionNode>(&node) {
+                        log::debug!("Function node detected");
+                        let ir = function.represent_node(&code_gen).unwrap();
+                        println!("{}", ir.print_to_string().to_string());
+                    } else if let Some(external) = reify_node_ref::<ExternFunctionNode>(&node) {
+                        log::debug!("Extern function node detected");
+                        let ir = external.represent_node(&code_gen).unwrap();
+                        println!("{}", ir.print_to_string().to_string());
+                    },
+                NodeEnum::ExprNode(node) => {
+                    log::debug!("Other node type detected");
+                    let ir = node.represent_expression(&code_gen).unwrap();
+                    println!("{}", ir.print_to_string().to_string());
+                }
             }
         }
     }

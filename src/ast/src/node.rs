@@ -52,6 +52,44 @@ pub trait ExprNode: Node + IRRepresentableExpression {
     fn expr_node_clone(&self) -> Box<dyn ExprNode>;
 }
 
+/// A common enumerator for passing nodes as a return value and parameter.
+#[derive(Debug)]
+pub enum NodeEnum {
+    AnyNode(Box<dyn Node>),
+    ExprNode(Box<dyn ExprNode>)
+}
+
+impl NodeEnum {
+    /// Check if the node is of type `dyn` [`Node`].
+    pub fn is_any_node(&self) -> bool {
+        matches!(self, Self::AnyNode(_))
+    }
+
+    /// Check if the node is of type `dyn` [`ExprNode`].
+    pub fn is_expr_node(&self) -> bool {
+        matches!(self, Self::ExprNode(_))
+    }
+
+    /// Convert the node enum into `Box<dyn Node>`. This function does not panic
+    /// as long as the underlying node type does not panic when
+    /// [`Node::node_clone`] or [`ExprNode::expr_node_clone`] is called.
+    pub fn into_any_node(self) -> Box<dyn Node> {
+        match self {
+            Self::AnyNode(node) => node,
+            Self::ExprNode(expression) => upcast_expr_node(expression)
+        }
+    }
+}
+
+impl Clone for NodeEnum {
+    fn clone(&self) -> Self {
+        match self {
+            Self::AnyNode(node) => Self::AnyNode(node.node_clone()),
+            Self::ExprNode(node) => Self::ExprNode(node.expr_node_clone())
+        }
+    }
+}
+
 /// Convert an [`ExprNode`] to [`Node`].
 #[inline]
 // #[warn(unstable_features)]
