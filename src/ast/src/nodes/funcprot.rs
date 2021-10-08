@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use inkwell::{module::Linkage, values::AnyValue};
+use inkwell::{module::Linkage, values::AnyValueEnum};
 use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableNode};
 use kaleidoscope_macro::iterator_to_str;
 
@@ -74,7 +74,7 @@ impl IRRepresentableNode for FunctionPrototypeNode {
     fn represent_node<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
-    ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
+    ) -> cgerror::Result<AnyValueEnum<'ctx>> {
         log::trace!("Entering <FunctionPrototypeNode as IRRepresentableNode>::represent_node");
         let name = self.get_identifier().get_identifier();
         log::trace!("Name of function prototype: {}", name);
@@ -96,6 +96,6 @@ impl IRRepresentableNode for FunctionPrototypeNode {
                 .get_module()
                 .add_function(name, fn_type, Some(Linkage::External));
         log::trace!("Function prototype produced: {:?}", function);
-        Ok(Box::new(function))
+        Ok(AnyValueEnum::FunctionValue(function))
     }
 }

@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use inkwell::values::BasicValue;
+use inkwell::values::BasicValueEnum;
 use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableExpression};
 
 use super::Operator;
@@ -65,7 +65,7 @@ impl IRRepresentableExpression for UnaryOperatorNode {
     fn represent_expression<'ctx>(
         &self,
         _code_gen: &CodeGen<'ctx>
-    ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
+    ) -> cgerror::Result<BasicValueEnum<'ctx>> {
         log::trace!(
             "Entering <UnaryOperatorNode as IRRepresentableExpression>::represent_expression"
         );

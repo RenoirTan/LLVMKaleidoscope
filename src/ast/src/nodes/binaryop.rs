@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use inkwell::values::{BasicValue, StructValue};
+use inkwell::values::{BasicValue, BasicValueEnum, StructValue};
 use kaleidoscope_codegen::{
     builtins::NumValue,
     error as cgerror,
@@ -75,7 +75,7 @@ impl IRRepresentableExpression for BinaryOperatorNode {
     fn represent_expression<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
-    ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
+    ) -> cgerror::Result<BasicValueEnum<'ctx>> {
         log::trace!(
             "Entering <BinaryOperatorNode as IRRepresentableExpression>::represent_expression"
         );
@@ -108,7 +108,7 @@ impl IRRepresentableExpression for BinaryOperatorNode {
                 )),
         };
         log::trace!("IR generation done");
-        Ok(Box::new(result))
+        Ok(BasicValueEnum::StructValue(result))
     }
 }
 

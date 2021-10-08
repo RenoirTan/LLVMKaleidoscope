@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use inkwell::values::AnyValue;
+use inkwell::values::AnyValueEnum;
 use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableNode};
 
 use super::FunctionPrototypeNode;
@@ -61,7 +61,7 @@ impl IRRepresentableNode for FunctionNode {
     fn represent_node<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
-    ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
+    ) -> cgerror::Result<AnyValueEnum<'ctx>> {
         log::trace!("Entering <FunctionNode as IRRepresentableNode>::represent_node");
         let name = self.get_prototype().get_identifier().get_identifier();
         log::trace!("Generating IR for {}'s prototype", name);
@@ -77,12 +77,9 @@ impl IRRepresentableNode for FunctionNode {
             },
             None => {
                 log::trace!("Trying to register a new function prototype for '{}'", name);
-                let ir = self
-                    .get_prototype()
-                    .represent_node(code_gen)?;
+                let ir = self.get_prototype().represent_node(code_gen)?;
                 log::trace!("Function prototype that was created: {:?}", ir);
-                ir.as_any_value_enum()
-                    .into_function_value()
+                ir.into_function_value()
             }
         };
         log::trace!("Creating block for function");
@@ -125,11 +122,11 @@ impl IRRepresentableNode for FunctionNode {
         code_gen
             .get_inner()
             .get_builder()
-            .build_return(Some(&*retval));
+            .build_return(Some(&retval));
         log::trace!("Verifying function...");
         if function.verify(true) {
             log::trace!("'{}' verified", name);
-            Ok(Box::new(function))
+            Ok(AnyValueEnum::FunctionValue(function))
         } else {
             log::trace!(
                 "Could not verify '{}', deleting it's declaration from module",

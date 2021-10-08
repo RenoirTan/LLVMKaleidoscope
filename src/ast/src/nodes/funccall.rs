@@ -57,7 +57,7 @@ impl IRRepresentableExpression for FunctionCallNode {
     fn represent_expression<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
-    ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
+    ) -> cgerror::Result<BasicValueEnum<'ctx>> {
         log::trace!(
             "Entering <FunctionCallNode as IRRepresentableExpression>::represent_expression"
         );
@@ -89,7 +89,7 @@ impl IRRepresentableExpression for FunctionCallNode {
         {
             Either::Left(basic) => {
                 log::trace!("Function call successfully generated");
-                Ok(Box::new(basic))
+                Ok(basic)
             },
             Either::Right(_instruction) => {
                 log::trace!("Invalid function call");

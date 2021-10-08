@@ -207,7 +207,7 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
     pub fn make_ir_representable_expression(
         &self,
         node: &dyn IRRepresentableExpression
-    ) -> Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
+    ) -> Result<BasicValueEnum<'ctx>> {
         node.represent_expression(self)
     }
 

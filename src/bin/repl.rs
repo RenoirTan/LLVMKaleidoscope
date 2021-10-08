@@ -3,7 +3,7 @@ use std::{
     io::{prelude::*, stdin, stdout}
 };
 
-use inkwell::{context::Context, OptimizationLevel};
+use inkwell::{context::Context, values::AnyValue, OptimizationLevel};
 use kaleidoscope_ast::{
     node::reify_node_ref,
     nodes::{ExternFunctionNode, FunctionNode}

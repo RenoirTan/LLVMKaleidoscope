@@ -2,7 +2,7 @@
 
 use std::{fmt, str::FromStr};
 
-use inkwell::values::BasicValue;
+use inkwell::values::BasicValueEnum;
 use kaleidoscope_codegen::{error::Result as CodegenResult, CodeGen, IRRepresentableExpression};
 use kaleidoscope_lexer::token::{Token, TokenKind};
 
@@ -59,9 +59,11 @@ impl IRRepresentableExpression for IntegerNode {
     fn represent_expression<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
-    ) -> CodegenResult<Box<dyn BasicValue<'ctx> + 'ctx>> {
+    ) -> CodegenResult<BasicValueEnum<'ctx>> {
         log::trace!("Entering <IntegerNode as IRRepresentableExpression>::represent_expression");
-        Ok(Box::new(code_gen.make_num_from_i128(self.get_value())))
+        Ok(BasicValueEnum::StructValue(
+            code_gen.make_num_from_i128(self.get_value())
+        ))
     }
 }
 

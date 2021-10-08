@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use inkwell::values::AnyValue;
+use inkwell::values::AnyValueEnum;
 use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableNode};
 
 use super::FunctionPrototypeNode;
@@ -56,7 +56,7 @@ impl IRRepresentableNode for ExternFunctionNode {
     fn represent_node<'ctx>(
         &self,
         code_gen: &CodeGen<'ctx>
-    ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
+    ) -> cgerror::Result<AnyValueEnum<'ctx>> {
         log::trace!("Entering <ExternFunctionNode as IRRepresentableNode>::represent_node");
         log::trace!("Done");
         self.get_prototype().represent_node(code_gen)
