@@ -2,8 +2,17 @@
 
 use std::fmt;
 
+use inkwell::values::{BasicValue, BasicValueEnum, StructValue};
+use kaleidoscope_codegen::{
+    builtins::NumValue,
+    error as cgerror,
+    CodeGen,
+    IRRepresentableExpression
+};
+
 use super::Operator;
 use crate::prelude::*;
+
 
 /// An AST representing an operator with 2 expressions by its side.
 /// For example, "1 + 2" is an expression with a binary operator, with
@@ -59,6 +68,47 @@ impl Clone for BinaryOperatorNode {
             self.first.expr_node_clone(),
             self.second.expr_node_clone()
         )
+    }
+}
+
+impl IRRepresentableExpression for BinaryOperatorNode {
+    fn represent_expression<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> cgerror::Result<BasicValueEnum<'ctx>> {
+        log::trace!(
+            "Entering <BinaryOperatorNode as IRRepresentableExpression>::represent_expression"
+        );
+        let left = NumValue::new(
+            self.first
+                .represent_expression(code_gen)?
+                .as_basic_value_enum()
+                .into_struct_value(),
+            code_gen.clone()
+        )?;
+        log::trace!("Representation for left value generated");
+        let right = NumValue::new(
+            self.second
+                .represent_expression(code_gen)?
+                .as_basic_value_enum()
+                .into_struct_value(),
+            code_gen.clone()
+        )?;
+        log::trace!("Representation for right value generated");
+        let result: StructValue<'ctx> = match *self.operator {
+            Operator::Plus => (&left + &right).into(),
+            Operator::Minus => (&left - &right).into(),
+            Operator::Multiply => (&left - &right).into(),
+            Operator::Divide => (&left - &right).into(),
+            _ =>
+                return Err(cgerror::Error::new(
+                    format!("Unknown binary operator: {}", self.operator),
+                    cgerror::ErrorKind::UnknownOperationError,
+                    None
+                )),
+        };
+        log::trace!("IR generation done");
+        Ok(BasicValueEnum::StructValue(result))
     }
 }
 

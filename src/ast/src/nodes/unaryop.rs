@@ -2,6 +2,9 @@
 
 use std::fmt;
 
+use inkwell::values::BasicValueEnum;
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableExpression};
+
 use super::Operator;
 use crate::prelude::*;
 
@@ -55,6 +58,22 @@ impl Node for UnaryOperatorNode {
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl IRRepresentableExpression for UnaryOperatorNode {
+    fn represent_expression<'ctx>(
+        &self,
+        _code_gen: &CodeGen<'ctx>
+    ) -> cgerror::Result<BasicValueEnum<'ctx>> {
+        log::trace!(
+            "Entering <UnaryOperatorNode as IRRepresentableExpression>::represent_expression"
+        );
+        Err(cgerror::Error::new(
+            format!("Unknown unary operator: {}", self.get_operator()),
+            cgerror::ErrorKind::UnknownOperationError,
+            None
+        ))
     }
 }
 

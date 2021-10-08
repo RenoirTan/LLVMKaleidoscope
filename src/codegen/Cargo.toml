@@ -1,18 +1,15 @@
 [package]
-name = "LLVMKaleidoscope-Ast"
+name = "LLVMKaleidoscope-Codegen"
 version = "0.1.0"
 authors = ["RenoirTan"]
 edition = "2018"
-description = "AST used in LLVM's Kaleidoscope tutorial but in Rust."
+description = "LLVM IR code generator for LLVM's Kaleidoscope tutorial but in Rust."
 license = "MIT"
 publish = false
 
 [dependencies]
-either = "~1.6"
 log = "~0.4"
-LLVMKaleidoscope-Codegen = {path = "../codegen"}
 LLVMKaleidoscope-Error = {path = "../error"}
-LLVMKaleidoscope-Lexer = {path = "../lexer"}
 LLVMKaleidoscope-Logging = {path = "../logging"}
 LLVMKaleidoscope-Macro = {path = "../macro"}
 
@@ -22,7 +19,7 @@ branch = "master"
 features = ["llvm12-0"]
 
 [lib]
-name = "kaleidoscope_ast"
+name = "kaleidoscope_codegen"
 test = true
 doctest = true
 bench = false

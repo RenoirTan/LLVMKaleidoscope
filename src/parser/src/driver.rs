@@ -10,7 +10,7 @@ use std::{
 };
 
 use kaleidoscope_ast::{
-    node::{upcast_expr_node, ExprNode, Node},
+    node::{ExprNode, NodeEnum},
     nodes::{ExternFunctionNode, FunctionNode}
 };
 use kaleidoscope_lexer::{
@@ -125,7 +125,7 @@ impl Driver {
         istream: &mut FileStream,
         tokenizer: &mut Tokenizer,
         parser: &mut Parser
-    ) -> ParseResult<dyn Node> {
+    ) -> Result<Option<NodeEnum>> {
         if istream.eof_reached() {
             log::debug!("eof reached");
             return Ok(None);
@@ -154,13 +154,13 @@ impl Driver {
 
         if let Some(node) = self.handle_extern_function(istream, tokenizer, parser)? {
             do_node!(println!("External Function:\n{}", node));
-            Ok(Some(node))
+            Ok(Some(NodeEnum::AnyNode(node)))
         } else if let Some(node) = self.handle_function_definition(istream, tokenizer, parser)? {
             do_node!(println!("Function Definition:\n{}", node.get_prototype()));
-            Ok(Some(node))
+            Ok(Some(NodeEnum::AnyNode(node)))
         } else if let Some(node) = self.handle_expression(istream, tokenizer, parser)? {
             do_node!(println!("Expression:\n{}", node));
-            Ok(Some(upcast_expr_node(node)))
+            Ok(Some(NodeEnum::ExprNode(node)))
         } else {
             do_node!(println!("no handler found"));
             Ok(None)
@@ -263,7 +263,10 @@ impl<'a> Interpreter<'a> {
 
     /// Parse one statement. If the interpreter can parse more statments,
     /// [`true`] is returned.
-    pub fn parse_once(&mut self, proceed_even_if_error: bool) -> bool {
+    pub fn parse_once(
+        &mut self,
+        proceed_even_if_error: bool
+    ) -> std::result::Result<NodeEnum, bool> {
         match self
             .driver
             .parse_one(&mut self.istream, &mut self.tokenizer, &mut self.parser)
@@ -274,13 +277,16 @@ impl<'a> Interpreter<'a> {
                     "statement successfully parsed! continue? {}",
                     self.can_proceed
                 );
-                true
+                match node {
+                    Some(node) => Ok(node),
+                    None => Err(true)
+                }
             },
             Err(error) => {
                 log::error!("error: {}", error);
                 self.can_proceed = proceed_even_if_error;
                 self.last_error = Some(error);
-                false
+                Err(false)
             }
         }
     }
@@ -289,7 +295,7 @@ impl<'a> Interpreter<'a> {
     pub fn main_loop(&mut self) -> usize {
         let mut statements_parsed: usize = 0;
         while {
-            self.parse_once(self.proceed_even_if_error);
+            let _ = self.parse_once(self.proceed_even_if_error);
             self.can_proceed
         } {
             statements_parsed += 1;
@@ -307,17 +313,21 @@ impl<'a> Default for Interpreter<'a> {
 
 
 impl<'a> Iterator for Interpreter<'a> {
-    type Item = Result<()>;
+    type Item = Result<Option<NodeEnum>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.can_proceed {
-            if self.parse_once(self.proceed_even_if_error) {
-                Some(Ok(()))
-            } else {
-                let error = self.take_last_error().unwrap_or_else(|| {
-                    Error::new("Unknown error".to_string(), ErrorKind::Other, None)
-                });
-                Some(Err(error))
+            let result = self.parse_once(self.proceed_even_if_error);
+            match result {
+                Ok(node) => Some(Ok(Some(node))),
+                Err(alright) =>
+                    if alright {
+                        Some(Ok(None))
+                    } else {
+                        Some(Err(self.take_last_error().unwrap_or_else(|| {
+                            Error::new("Unknown error".to_string(), ErrorKind::Other, None)
+                        })))
+                    },
             }
         } else {
             None

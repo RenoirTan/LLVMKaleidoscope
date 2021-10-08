@@ -15,11 +15,17 @@ toml = "~0.5"
 log = "~0.4"
 env_logger = "~0.9"
 LLVMKaleidoscope-Ast = {path = "src/ast"}
+LLVMKaleidoscope-Codegen = {path = "src/codegen"}
 LLVMKaleidoscope-Error = {path = "src/error"}
 LLVMKaleidoscope-Lexer = {path = "src/lexer"}
 LLVMKaleidoscope-Logging = {path = "src/logging"}
 LLVMKaleidoscope-Macro = {path = "src/macro"}
 LLVMKaleidoscope-Parser = {path = "src/parser"}
+
+[dependencies.inkwell]
+git = "https://github.com/TheDan64/inkwell"
+branch = "master"
+features = ["llvm12-0"]
 
 [workspace]
 members = [
@@ -54,5 +60,11 @@ doctest = false
 [[bin]]
 name = "repl"
 path = "src/bin/repl.rs"
+test = false
+doctest = false
+
+[[bin]]
+name = "kldnum"
+path = "src/bin/kldnum.rs"
 test = false
 doctest = false

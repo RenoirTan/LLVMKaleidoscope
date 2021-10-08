@@ -2,6 +2,8 @@
 
 use std::fmt;
 
+use inkwell::{module::Linkage, values::AnyValueEnum};
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableNode};
 use kaleidoscope_macro::iterator_to_str;
 
 use super::IdentifierNode;
@@ -41,6 +43,19 @@ impl FunctionPrototypeNode {
     pub fn get_parameters(&self) -> &[Box<IdentifierNode>] {
         &*self.parameters
     }
+
+    /// Get the number of parameters this function should be able to accept.
+    pub fn count_parameters(&self) -> usize {
+        self.parameters.len()
+    }
+
+    /// Get the identifier for the parameter at `index`.
+    pub fn nth_parameter(&self, index: usize) -> Option<&IdentifierNode> {
+        match self.parameters.get(index) {
+            Some(param) => Some(&**param),
+            None => None
+        }
+    }
 }
 
 impl Node for FunctionPrototypeNode {
@@ -54,3 +69,33 @@ impl Node for FunctionPrototypeNode {
 }
 
 impl NodeType for FunctionPrototypeNode {}
+
+impl IRRepresentableNode for FunctionPrototypeNode {
+    fn represent_node<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> cgerror::Result<AnyValueEnum<'ctx>> {
+        log::trace!("Entering <FunctionPrototypeNode as IRRepresentableNode>::represent_node");
+        let name = self.get_identifier().get_identifier();
+        log::trace!("Name of function prototype: {}", name);
+        let len = self.get_parameters().len();
+        log::trace!("Number of parameters: {}", len);
+        let num_type = code_gen.get_num_type();
+        log::trace!("Generating parameter list");
+        let params = {
+            let mut p = Vec::with_capacity(len);
+            p.resize(len, num_type.into());
+            p
+        };
+        log::trace!("Generating function type");
+        let fn_type = num_type.fn_type(&*params, false);
+        log::trace!("Registering function ('{}') to module", name);
+        let function =
+            code_gen
+                .get_inner()
+                .get_module()
+                .add_function(name, fn_type, Some(Linkage::External));
+        log::trace!("Function prototype produced: {:?}", function);
+        Ok(AnyValueEnum::FunctionValue(function))
+    }
+}

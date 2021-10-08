@@ -2,6 +2,9 @@
 
 use std::fmt;
 
+use inkwell::values::BasicValueEnum;
+use kaleidoscope_codegen::{error::Result as CodegenResult, CodeGen, IRRepresentableExpression};
+
 use crate::prelude::*;
 
 /// The type used to represent a Kaleidoscope float. This is equivalent to
@@ -32,6 +35,19 @@ impl Eq for FloatNode {}
 impl fmt::Display for FloatNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.value)
+    }
+}
+
+impl IRRepresentableExpression for FloatNode {
+    fn represent_expression<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> CodegenResult<BasicValueEnum<'ctx>> {
+        log::trace!("Entering <FloatNode as IRRepresentableExpression>::represent_expression");
+        log::trace!("Done");
+        Ok(BasicValueEnum::StructValue(
+            code_gen.make_num_from_f64(self.get_value())
+        ))
     }
 }
 

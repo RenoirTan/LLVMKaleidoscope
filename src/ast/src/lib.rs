@@ -22,6 +22,7 @@ pub mod prelude {
             ExprNode,
             FromToken,
             Node,
+            NodeEnum,
             NodeType
         },
         nodeid::NodeId

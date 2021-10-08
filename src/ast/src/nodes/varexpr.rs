@@ -2,6 +2,9 @@
 
 use std::fmt;
 
+use inkwell::values::BasicValueEnum;
+use kaleidoscope_codegen::{error as cgerror, CodeGen, IRRepresentableExpression};
+
 use super::IdentifierNode;
 use crate::prelude::*;
 
@@ -38,6 +41,33 @@ impl Node for VariableExpressionNode {
 
     fn node_clone(&self) -> Box<dyn Node> {
         Box::new(self.clone())
+    }
+}
+
+impl IRRepresentableExpression for VariableExpressionNode {
+    fn represent_expression<'ctx>(
+        &self,
+        code_gen: &CodeGen<'ctx>
+    ) -> cgerror::Result<BasicValueEnum<'ctx>> {
+        log::trace!(
+            "Entering <VariableExpressionNode as IRRepresentableExpression>::represent_expression"
+        );
+        let name = self.get_identifier().get_identifier();
+        log::trace!("Finding value of '{}'", name);
+        match code_gen.get_value(name) {
+            Some(value) => {
+                log::trace!("Value of '{}' found", name);
+                Ok(value)
+            },
+            None => {
+                log::trace!("Could not find identifier named '{}'", name);
+                Err(cgerror::Error::new(
+                    format!("Could not find identifier named '{}'", name),
+                    cgerror::ErrorKind::UndefinedNameError,
+                    None
+                ))
+            }
+        }
     }
 }
 
