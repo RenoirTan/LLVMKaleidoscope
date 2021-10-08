@@ -65,13 +65,23 @@ impl IRRepresentableNode for FunctionNode {
         log::trace!("Entering <FunctionNode as IRRepresentableNode>::represent_node");
         let name = self.get_prototype().get_identifier().get_identifier();
         log::trace!("Generating IR for {}'s prototype", name);
-        let function = match code_gen.get_inner().get_module().get_function(name) {
-            Some(f) => f,
-            None => self
-                .get_prototype()
-                .represent_node(code_gen)?
-                .as_any_value_enum()
-                .into_function_value()
+        let possible_function = {
+            let inner = code_gen.get_inner();
+            let module = inner.get_module();
+            module.get_function(name)
+        };
+        let function = match possible_function {
+            Some(f) => {
+                log::trace!("Pre-declared function prototype found");
+                f
+            },
+            None => {
+                log::trace!("Trying to register a new function prototype for '{}'", name);
+                self.get_prototype()
+                    .represent_node(code_gen)?
+                    .as_any_value_enum()
+                    .into_function_value()
+            }
         };
         log::trace!("Creating block for function");
         code_gen.get_context().append_basic_block(function, "entry");

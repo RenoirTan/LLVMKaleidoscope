@@ -49,7 +49,9 @@ impl IRRepresentableExpression for VariableExpressionNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
-        log::trace!("Entering <VariableExpressionNode as IRRepresentableExpression>::represent_expression");
+        log::trace!(
+            "Entering <VariableExpressionNode as IRRepresentableExpression>::represent_expression"
+        );
         let name = self.get_identifier().get_identifier();
         log::trace!("Finding value of '{}'", name);
         match code_gen.get_value(name) {
