@@ -124,6 +124,7 @@ impl<'ctx: 'val, 'val> CodeGen<'ctx> {
 
     /// Get num type.
     pub fn get_num_type(&self) -> StructType<'val> {
+        log::trace!("Getting num type from context");
         self.get_inner()
             .get_module()
             .get_struct_type(NUM_TYPE_NAME)
