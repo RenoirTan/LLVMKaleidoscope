@@ -63,7 +63,7 @@ impl IRRepresentableNode for FunctionNode {
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<AnyValueEnum<'ctx>> {
         log::trace!("Entering <FunctionNode as IRRepresentableNode>::represent_node");
-        let name = self.get_prototype().get_identifier().get_identifier();
+        let name = self.get_prototype().get_identifier().get_value();
         log::trace!("Generating IR for {}'s prototype", name);
         let possible_function = {
             let inner = code_gen.get_inner();
@@ -102,7 +102,7 @@ impl IRRepresentableNode for FunctionNode {
                         None
                     )
                 })?
-                .get_identifier()
+                .get_value()
                 .to_string();
             let argument = function.get_nth_param(index as u32).ok_or_else(|| {
                 unsafe { function.delete() };

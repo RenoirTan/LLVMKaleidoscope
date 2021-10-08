@@ -52,7 +52,7 @@ impl IRRepresentableExpression for VariableExpressionNode {
         log::trace!(
             "Entering <VariableExpressionNode as IRRepresentableExpression>::represent_expression"
         );
-        let name = self.get_identifier().get_identifier();
+        let name = self.get_identifier().get_value();
         log::trace!("Finding value of '{}'", name);
         match code_gen.get_value(name) {
             Some(value) => {

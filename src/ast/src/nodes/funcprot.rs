@@ -76,7 +76,7 @@ impl IRRepresentableNode for FunctionPrototypeNode {
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<AnyValueEnum<'ctx>> {
         log::trace!("Entering <FunctionPrototypeNode as IRRepresentableNode>::represent_node");
-        let name = self.get_identifier().get_identifier();
+        let name = self.get_identifier().get_value();
         log::trace!("Name of function prototype: {}", name);
         let len = self.get_parameters().len();
         log::trace!("Number of parameters: {}", len);

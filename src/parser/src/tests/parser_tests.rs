@@ -230,7 +230,7 @@ fn test_function_prototype() {
 #[test]
 fn test_extern_function() {
     let (mut parser, mut stream, mut tokenizer) =
-        get_parser("extern def iconv(cd, inbuf, inbytesleft, outbuf, outbytesleft)");
+        get_parser("extern def iconv(cd, inbuf, inbytesleft, outbuf, outbytesleft);");
     let external = parser
         .parse_extern_function(ltuplemut!(&mut stream, &mut tokenizer))
         .unwrap()

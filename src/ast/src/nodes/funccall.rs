@@ -61,7 +61,7 @@ impl IRRepresentableExpression for FunctionCallNode {
         log::trace!(
             "Entering <FunctionCallNode as IRRepresentableExpression>::represent_expression"
         );
-        let name = self.get_identifier().get_identifier();
+        let name = self.get_identifier().get_value();
         log::trace!("Trying to find function with the name '{}'", name);
         let function = match code_gen.get_inner().get_module().get_function(name) {
             Some(function) => function,
