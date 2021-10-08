@@ -19,18 +19,26 @@
 //!
 //! 1. [`kaleidoscope_ast`] - Defines types that can represent the grammar of
 //! Kaleidoscope as an Abstract Syntax Tree.
-//! 2. [`kaleidoscope_error`] - Defines a custom generic error type which can
+//! 2. [`kaleidoscope_codegen`] - Library for generating LLVM IR for
+//! Kaleidoscope.
+//! 3. [`kaleidoscope_error`] - Defines a custom generic error type which can
 //! be used to fit the purposes of each member library.
-//! 3. [`kaleidoscope_lexer`] - Library which can parses file/stream input
+//! 4. [`kaleidoscope_lexer`] - Library which can parses file/stream input
 //! into tokens.
-//! 4. [`kaleidoscope_logging`] - Library which sets up the logging facilities
+//! 5. [`kaleidoscope_logging`] - Library which sets up the logging facilities
 //! used by the binaries in this crate.
-//! 5. [`kaleidoscope_macro`] - Assortment of macros which I use frequently in
+//! 6. [`kaleidoscope_macro`] - Assortment of macros which I use frequently in
 //! this crate.
-//! 6. [`kaleidoscope_parser`] - The parser. This library provides definitions
+//! 7. [`kaleidoscope_parser`] - The parser. This library provides definitions
 //! to turn a series of tokens into an abstract syntax tree.
 
 pub use kaleidoscope_ast::{node::Node, nodes, NodeId};
+pub use kaleidoscope_codegen::{
+    int::To64LLVMWord,
+    CodeGen,
+    IRRepresentableExpression,
+    IRRepresentableNode
+};
 pub use kaleidoscope_error::{Error, ErrorKind, Result};
 pub use kaleidoscope_lexer::{
     token::{Token, TokenKind},
