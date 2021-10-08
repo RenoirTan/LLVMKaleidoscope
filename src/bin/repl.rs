@@ -44,12 +44,15 @@ fn main() {
         let node = node.unwrap();
         if let Some(node) = node {
             if let Some(function) = reify_node_ref::<FunctionNode>(&node) {
+                log::debug!("Function node detected");
                 let ir = function.represent_node(&code_gen).unwrap();
                 println!("{}", ir.print_to_string());
             } else if let Some(external) = reify_node_ref::<ExternFunctionNode>(&node) {
-                let ir = external.get_prototype().represent_node(&code_gen).unwrap();
+                log::debug!("Extern function node detected");
+                let ir = external.represent_node(&code_gen).unwrap();
                 println!("{}", ir.print_to_string());
             } else {
+                log::debug!("Other node type detected");
                 println!("Something happened <.<");
             }
         }
