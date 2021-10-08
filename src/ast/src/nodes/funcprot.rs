@@ -95,7 +95,7 @@ impl IRRepresentableNode for FunctionPrototypeNode {
                 .get_inner()
                 .get_module()
                 .add_function(name, fn_type, Some(Linkage::External));
-        log::trace!("Function prototype done");
+        log::trace!("Function prototype produced: {:?}", function);
         Ok(Box::new(function))
     }
 }

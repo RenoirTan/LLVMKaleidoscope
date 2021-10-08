@@ -77,9 +77,11 @@ impl IRRepresentableNode for FunctionNode {
             },
             None => {
                 log::trace!("Trying to register a new function prototype for '{}'", name);
-                self.get_prototype()
-                    .represent_node(code_gen)?
-                    .as_any_value_enum()
+                let ir = self
+                    .get_prototype()
+                    .represent_node(code_gen)?;
+                log::trace!("Function prototype that was created: {:?}", ir);
+                ir.as_any_value_enum()
                     .into_function_value()
             }
         };
