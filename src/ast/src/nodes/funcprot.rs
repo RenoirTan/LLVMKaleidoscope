@@ -75,19 +75,27 @@ impl IRRepresentableNode for FunctionPrototypeNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
+        log::trace!("Entering <FunctionPrototypeNode as IRRepresentableNode>::represent_node");
+        let name = self.get_identifier().get_identifier();
+        log::trace!("Name of function prototype: {}", name);
         let len = self.get_parameters().len();
+        log::trace!("Number of parameters: {}", len);
         let num_type = code_gen.get_num_type();
+        log::trace!("Generating parameter list");
         let params = {
             let mut p = Vec::with_capacity(len);
             p.resize(len, num_type.into());
             p
         };
+        log::trace!("Generating function type");
         let fn_type = num_type.fn_type(&*params, false);
-        let function = code_gen.get_inner().get_module().add_function(
-            self.get_identifier().get_identifier(),
-            fn_type,
-            Some(Linkage::External)
-        );
+        log::trace!("Registering function ('{}') to module", name);
+        let function =
+            code_gen
+                .get_inner()
+                .get_module()
+                .add_function(name, fn_type, Some(Linkage::External));
+        log::trace!("Function prototype done");
         Ok(Box::new(function))
     }
 }

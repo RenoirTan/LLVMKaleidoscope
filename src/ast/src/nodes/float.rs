@@ -43,6 +43,8 @@ impl IRRepresentableExpression for FloatNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> CodegenResult<Box<dyn BasicValue<'ctx> + 'ctx>> {
+        log::trace!("Entering <FloatNode as IRRepresentableExpression>::represent_expression");
+        log::trace!("Done");
         Ok(Box::new(code_gen.make_num_from_f64(self.get_value())))
     }
 }

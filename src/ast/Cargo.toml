@@ -9,9 +9,11 @@ publish = false
 
 [dependencies]
 either = "~1.6"
+log = "~0.4"
 LLVMKaleidoscope-Codegen = {path = "../codegen"}
 LLVMKaleidoscope-Error = {path = "../error"}
 LLVMKaleidoscope-Lexer = {path = "../lexer"}
+LLVMKaleidoscope-Logging = {path = "../logging"}
 LLVMKaleidoscope-Macro = {path = "../macro"}
 
 [dependencies.inkwell]

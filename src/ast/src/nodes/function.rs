@@ -62,7 +62,9 @@ impl IRRepresentableNode for FunctionNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
+        log::trace!("Entering <FunctionNode as IRRepresentableNode>::represent_node");
         let name = self.get_prototype().get_identifier().get_identifier();
+        log::trace!("Generating IR for {}'s prototype", name);
         let function = match code_gen.get_inner().get_module().get_function(name) {
             Some(f) => f,
             None => self
@@ -71,7 +73,9 @@ impl IRRepresentableNode for FunctionNode {
                 .as_any_value_enum()
                 .into_function_value()
         };
+        log::trace!("Creating block for function");
         code_gen.get_context().append_basic_block(function, "entry");
+        log::trace!("Pushing parameter names to named_values table");
         code_gen.clear_named_values();
         for index in 0..self.get_prototype().count_parameters() {
             let param_name = self
@@ -103,14 +107,22 @@ impl IRRepresentableNode for FunctionNode {
             })?;
             code_gen.set_value(param_name, Box::new(argument));
         }
+        log::trace!("Generating return value from expression");
         let retval = self.get_body().represent_expression(code_gen)?;
+        log::trace!("Generating return instruction from return value");
         code_gen
             .get_inner()
             .get_builder()
             .build_return(Some(&*retval));
+        log::trace!("Verifying function...");
         if function.verify(true) {
+            log::trace!("'{}' verified", name);
             Ok(Box::new(function))
         } else {
+            log::trace!(
+                "Could not verify '{}', deleting it's declaration from module",
+                name
+            );
             unsafe { function.delete() };
             Err(cgerror::Error::new(
                 format!("Could not verify function '{}'", name),

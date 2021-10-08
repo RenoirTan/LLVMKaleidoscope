@@ -76,6 +76,9 @@ impl IRRepresentableExpression for BinaryOperatorNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
+        log::trace!(
+            "Entering <BinaryOperatorNode as IRRepresentableExpression>::represent_expression"
+        );
         let left = NumValue::new(
             self.first
                 .represent_expression(code_gen)?
@@ -83,6 +86,7 @@ impl IRRepresentableExpression for BinaryOperatorNode {
                 .into_struct_value(),
             code_gen
         )?;
+        log::trace!("Representation for left value generated");
         let right = NumValue::new(
             self.second
                 .represent_expression(code_gen)?
@@ -90,6 +94,7 @@ impl IRRepresentableExpression for BinaryOperatorNode {
                 .into_struct_value(),
             code_gen
         )?;
+        log::trace!("Representation for right value generated");
         let result: StructValue<'ctx> = match *self.operator {
             Operator::Plus => (&left + &right).into(),
             Operator::Minus => (&left - &right).into(),
@@ -102,6 +107,7 @@ impl IRRepresentableExpression for BinaryOperatorNode {
                     None
                 )),
         };
+        log::trace!("IR generation done");
         Ok(Box::new(result))
     }
 }

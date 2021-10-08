@@ -57,6 +57,8 @@ impl IRRepresentableNode for ExternFunctionNode {
         &self,
         code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn AnyValue<'ctx> + 'ctx>> {
+        log::trace!("Entering <ExternFunctionNode as IRRepresentableNode>::represent_node");
+        log::trace!("Done");
         self.get_prototype().represent_node(code_gen)
     }
 }

@@ -66,6 +66,7 @@ impl IRRepresentableExpression for UnaryOperatorNode {
         &self,
         _code_gen: &CodeGen<'ctx>
     ) -> cgerror::Result<Box<dyn BasicValue<'ctx> + 'ctx>> {
+        log::trace!("Entering <UnaryOperatorNode as IRRepresentableExpression>::represent_expression");
         Err(cgerror::Error::new(
             format!("Unknown unary operator: {}", self.get_operator()),
             cgerror::ErrorKind::UnknownOperationError,
