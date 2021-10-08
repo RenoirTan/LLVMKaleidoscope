@@ -83,7 +83,8 @@ impl IRRepresentableNode for FunctionNode {
             }
         };
         log::trace!("Creating block for function");
-        code_gen.get_context().append_basic_block(function, "entry");
+        let block = code_gen.get_context().append_basic_block(function, "entry");
+        code_gen.get_inner().get_builder().position_at_end(block);
         log::trace!("Pushing parameter names to named_values table");
         code_gen.clear_named_values();
         for index in 0..self.get_prototype().count_parameters() {
