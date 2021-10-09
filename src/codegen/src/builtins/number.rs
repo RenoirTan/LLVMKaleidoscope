@@ -271,6 +271,14 @@ impl<'ctx> NumValue<'ctx> {
             Box::new(self.get_raw_float_value())
         }
     }
+
+    pub fn simplify_to_basic_value_enum(&self) -> BasicValueEnum<'ctx> {
+        if self.is_int() {
+            self.get_raw_int_value().as_basic_value_enum()
+        } else {
+            self.get_raw_float_value().as_basic_value_enum()
+        }
+    }
 }
 
 
