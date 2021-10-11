@@ -98,8 +98,8 @@ impl IRRepresentableExpression for BinaryOperatorNode {
         let result: StructValue<'ctx> = match *self.operator {
             Operator::Plus => (&left + &right).into(),
             Operator::Minus => (&left - &right).into(),
-            Operator::Multiply => (&left - &right).into(),
-            Operator::Divide => (&left - &right).into(),
+            Operator::Multiply => (&left * &right).into(),
+            Operator::Divide => (&left / &right).into(),
             _ =>
                 return Err(cgerror::Error::new(
                     format!("Unknown binary operator: {}", self.operator),
