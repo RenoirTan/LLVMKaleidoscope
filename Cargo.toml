@@ -20,6 +20,7 @@ LLVMKaleidoscope-Error = {path = "src/error"}
 LLVMKaleidoscope-Lexer = {path = "src/lexer"}
 LLVMKaleidoscope-Logging = {path = "src/logging"}
 LLVMKaleidoscope-Macro = {path = "src/macro"}
+LLVMKaleidoscope-Optimization = {path = "src/optimization"}
 LLVMKaleidoscope-Parser = {path = "src/parser"}
 
 [dependencies.inkwell]
