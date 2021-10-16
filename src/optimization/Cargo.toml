@@ -14,6 +14,11 @@ LLVMKaleidoscope-Error = {path = "../error"}
 LLVMKaleidoscope-Macro = {path = "../macro"}
 LLVMKaleidoscope-Logging = {path = "../logging"}
 
+[dependencies.inkwell]
+git = "https://github.com/TheDan64/inkwell"
+branch = "master"
+features = ["llvm12-0"]
+
 [lib]
 name = "kaleidoscope_optimization"
 test = true
