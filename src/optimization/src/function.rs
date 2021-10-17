@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use inkwell::{
     module::Module,
     passes::{PassManager, PassManagerBuilder},
@@ -34,7 +36,10 @@ pub fn run_function_pass_manager<'ctx>(
     optimization_level: OptimizationLevel
 ) -> bool {
     let pass_manager = create_function_pass_manager(module, optimization_level);
-    log::trace!("Running function pass manager on '{}'", function.get_name().to_string_lossy());
+    log::trace!(
+        "Running function pass manager on '{}'",
+        function.get_name().to_string_lossy()
+    );
     let result = pass_manager.run_on(function);
     log::trace!("    Result: {}", result);
     result
@@ -47,11 +52,14 @@ pub fn optimize_function<'ctx, F, M>(
     optimization_level: OptimizationLevel
 ) -> bool
 where
-    F: AsRef<FunctionValue<'ctx>>,
-    M: AsRef<Module<'ctx>>
+    F: Borrow<FunctionValue<'ctx>>,
+    M: Borrow<Module<'ctx>>
 {
-    let function = function.as_ref();
-    let module = module.as_ref();
-    log::trace!("Optimising function '{}'", function.get_name().to_string_lossy());
+    let function = function.borrow();
+    let module = module.borrow();
+    log::trace!(
+        "Optimising function '{}'",
+        function.get_name().to_string_lossy()
+    );
     run_function_pass_manager(function, module, optimization_level)
 }
